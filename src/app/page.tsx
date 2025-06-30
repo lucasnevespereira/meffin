@@ -1,40 +1,30 @@
-import { auth } from "@/lib/auth";
-import { signIn, signUp } from "@/server/users";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
+import Link from "next/link";
 
-import { headers } from "next/headers";
-import SignOutButton from "@/components/auth/signout-button";
-
-export default async function Home() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+export default function Home() {
   return (
-    <main className="flex flex-col gap-3 items-center justify-center p-10">
-      <div>
-        {session ? (
-          <div className="flex flex-col">
-            <p>Hello {session.user.name}</p>
-            <SignOutButton />
-          </div>
-        ) : (
-          <div className="flex flex-col gap-3">
-            <button
-              className="bg-neutral-700 text-white p-2 rounded-md cursor-pointer"
-              onClick={signIn}
-            >
-              Sign In
-            </button>
-            <button
-              className="bg-neutral-700 text-white p-2 rounded-md cursor-pointer"
-              onClick={signUp}
-            >
-              Sign Up
-            </button>
-          </div>
-        )}
+    <div className="flex flex-col gap-5 items-center justify-center h-screen px-5 text-center">
+      <Image
+        src="/logo.png"
+        alt="Meffin"
+        width={100}
+        height={100}
+        className="rounded-lg dark:invert"
+      />
+
+      <h1 className="text-4xl font-bold">Meffin</h1>
+
+      <p className="text-lg">Simple budgeting app for your monthly expenses.</p>
+
+      <div className="flex gap-2">
+        <Link href="/login">
+          <Button>Login</Button>
+        </Link>
+        <Link href="/signup">
+          <Button>Signup</Button>
+        </Link>
       </div>
-      <p>{!session ? "Not authenticated" : session.user.name}</p>
-    </main>
+    </div>
   );
 }

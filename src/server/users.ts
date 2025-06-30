@@ -2,34 +2,53 @@
 
 import { auth } from "@/lib/auth";
 
-const email = "toto@email.me";
-
-export const signIn = async () => {
+export const signIn = async (email: string, password: string) => {
   try {
     await auth.api.signInEmail({
       body: {
         email,
-        password: "password",
+        password,
       },
     });
-    window.location.href = "/";
+
+    return {
+      success: true,
+      message: "Signed in successfully.",
+    };
   } catch (error) {
-    console.error(error);
-    throw error;
+    const e = error as Error;
+
+    return {
+      success: false,
+      message: e.message || "An unknown error occurred.",
+    };
   }
 };
 
-export const signUp = async () => {
+export const signUp = async (
+  email: string,
+  password: string,
+  username: string,
+) => {
   try {
     await auth.api.signUpEmail({
       body: {
         email,
-        password: "password",
-        name: email.split("@")[0],
+        password,
+        name: username,
       },
     });
+
+    return {
+      success: true,
+      message: "Signed up successfully.",
+    };
   } catch (error) {
-    console.error(error);
-    throw error;
+    const e = error as Error;
+
+    return {
+      success: false,
+      message: e.message || "An unknown error occurred.",
+    };
   }
 };
