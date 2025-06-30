@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const signIn = async (email: string, password: string) => {
   try {
@@ -37,6 +38,7 @@ export const signUp = async (
         password,
         name: username,
       },
+      headers: await headers(),
     });
 
     return {
