@@ -78,6 +78,8 @@ export const category = pgTable("category", {
   color: text("color"),
   icon: text("icon"),
   isDefault: boolean("is_default").default(false).notNull(),
+  locale: text("locale").notNull().default("en"),
+  type: text("type").notNull().default("expense"),
   userId: text("user_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
