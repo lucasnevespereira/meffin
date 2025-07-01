@@ -21,6 +21,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { useTranslations } from "next-intl";
 
 import { signIn } from "@/server/users";
 
@@ -48,6 +49,7 @@ export function LoginForm({
       password: "",
     },
   });
+  const t = useTranslations("Auth");
 
   const signInWithGoogle = async () => {
     await authClient.signIn.social({
@@ -76,7 +78,7 @@ export function LoginForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="text-center">
-          <CardTitle className="text-xl">Welcome back</CardTitle>
+          <CardTitle className="text-xl">{t("welcomeBack")}</CardTitle>
           <CardDescription>Login with your Google account</CardDescription>
         </CardHeader>
         <CardContent>

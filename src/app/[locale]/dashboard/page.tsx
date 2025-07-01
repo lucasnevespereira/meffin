@@ -1,18 +1,22 @@
 "use client";
 import { DashboardLayout } from "@/components/dashboard-layout";
+import { useTranslations } from "next-intl";
 
 export default function Dashboard() {
+  const t = useTranslations("Dashboard");
+  const categories = useTranslations("Categories");
+
   return (
     <DashboardLayout>
       <div className="flex flex-col space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Dashboard
+            {t("title")}
           </h1>
           <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
             <span>📅</span>
-            <span>Juin 2025</span>
+            <span>{t("date", { month: "Juin", year: "2025" })}</span>
           </div>
         </div>
 
@@ -20,21 +24,21 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Solde
+              {t("balance")}
             </h3>
             <p className="text-2xl font-bold text-red-600">-40.00 €</p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Entrées
+              {t("income")}
             </h3>
             <p className="text-2xl font-bold text-green-600">+ 1800.00 €</p>
           </div>
 
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-              Sorties
+              {t("expenses")}
             </h3>
             <p className="text-2xl font-bold text-red-600">- 1840.00 €</p>
           </div>
@@ -47,14 +51,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                  Maison
+                  {categories("home")}
                 </h3>
                 <div className="space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                  <div>Électricité et Gaz - 120 €</div>
-                  <div>Tel Perso - 25 €</div>
-                  <div>Macif Assurance - 30 €</div>
-                  <div>Loyer - 955 €</div>
-                  <div>Free Internet/Tv - 30 €</div>
+                  <div>{categories("utilities")} - 120 €</div>
+                  <div>{categories("phone")} - 25 €</div>
+                  <div>{categories("insurance")} - 30 €</div>
+                  <div>{categories("rent")} - 955 €</div>
+                  <div>{categories("internet")} - 30 €</div>
                 </div>
               </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
@@ -66,7 +70,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Banque
+                  {categories("bank")}
                 </h3>
               </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
@@ -78,7 +82,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Abonnements
+                  {categories("subscriptions")}
                 </h3>
               </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
@@ -90,7 +94,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Tech
+                  {categories("tech")}
                 </h3>
               </div>
               <div className="text-lg font-bold text-gray-900 dark:text-white">
