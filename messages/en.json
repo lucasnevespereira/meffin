@@ -1,0 +1,58 @@
+{
+  "HomePage": {
+    "title": "Meffin",
+    "about": "Simple budget tracking app. Manage your expenses and income effortlessly.",
+    "login": "Login",
+    "signup": "Sign Up"
+  },
+  "LanguageSwitcher": {
+    "en": "English",
+    "fr": "French"
+  },
+  "Navigation": {
+    "dashboard": "Dashboard",
+    "transactions": "Transactions",
+    "categories": "Categories",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "Dashboard": {
+    "title": "Dashboard",
+    "balance": "Balance",
+    "income": "Income",
+    "expenses": "Expenses",
+    "date": "{{month}} {{year}}"
+  },
+  "Categories": {
+    "home": "Home",
+    "utilities": "Utilities and Gas",
+    "phone": "Personal Phone",
+    "insurance": "Insurance",
+    "rent": "Rent",
+    "internet": "Internet/TV",
+    "bank": "Bank",
+    "subscriptions": "Subscriptions",
+    "tech": "Tech"
+  },
+  "Auth": {
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create an account",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm password",
+    "forgotPassword": "Forgot password?",
+    "resetPassword": "Reset password",
+    "resetInstructions": "Enter your email address and we'll send you a link to reset your password.",
+    "sendResetLink": "Send reset link",
+    "backToLogin": "Back to login",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "signUp": "Sign up",
+    "login": "Login"
+  },
+  "Common": {
+    "loading": "Loading...",
+    "comingSoon": "Coming soon...",
+    "backToHome": "Back to home"
+  }
+}

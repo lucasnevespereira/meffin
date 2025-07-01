@@ -1,0 +1,58 @@
+{
+  "HomePage": {
+    "title": "Meffin",
+    "about": "Application de suivi des dépenses et revenus.",
+    "login": "Connexion",
+    "signup": "S'inscrire"
+  },
+  "LanguageSwitcher": {
+    "en": "Anglais",
+    "fr": "Français"
+  },
+  "Navigation": {
+    "dashboard": "Tableau de bord",
+    "transactions": "Transactions",
+    "categories": "Catégories",
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  },
+  "Dashboard": {
+    "title": "Tableau de bord",
+    "balance": "Solde",
+    "income": "Entrées",
+    "expenses": "Sorties",
+    "date": "{{month}} {{year}}"
+  },
+  "Categories": {
+    "home": "Maison",
+    "utilities": "Électricité et Gaz",
+    "phone": "Tel Perso",
+    "insurance": "Assurance",
+    "rent": "Loyer",
+    "internet": "Internet/TV",
+    "bank": "Banque",
+    "subscriptions": "Abonnements",
+    "tech": "Tech"
+  },
+  "Auth": {
+    "welcomeBack": "Bon retour",
+    "createAccount": "Créer un compte",
+    "email": "Email",
+    "password": "Mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "forgotPassword": "Mot de passe oublié ?",
+    "resetPassword": "Réinitialiser le mot de passe",
+    "resetInstructions": "Entrez votre adresse email et nous vous enverrons un lien pour réinitialiser votre mot de passe.",
+    "sendResetLink": "Envoyer le lien",
+    "backToLogin": "Retour à la connexion",
+    "dontHaveAccount": "Vous n'avez pas de compte ?",
+    "alreadyHaveAccount": "Vous avez déjà un compte ?",
+    "signUp": "S'inscrire",
+    "login": "Connexion"
+  },
+  "Common": {
+    "loading": "Chargement...",
+    "comingSoon": "Bientôt disponible...",
+    "backToHome": "Retour à l'accueil"
+  }
+}
