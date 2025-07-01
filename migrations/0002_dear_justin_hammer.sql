@@ -1,0 +1,1 @@
+ALTER TABLE "transaction" DROP COLUMN "is_fixed_for_month";

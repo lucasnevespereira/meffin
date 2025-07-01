@@ -3,6 +3,7 @@
 import { ReactNode } from "react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "./session-provider";
+import { QueryProvider } from "@/lib/query-client";
 import { Toaster } from "@/components/ui/sonner";
 
 interface ProvidersProps {
@@ -18,7 +19,7 @@ export function Providers({ children }: ProvidersProps) {
       disableTransitionOnChange
     >
       <SessionProvider>
-        {children}
+        <QueryProvider>{children}</QueryProvider>
         <Toaster />
       </SessionProvider>
     </ThemeProvider>

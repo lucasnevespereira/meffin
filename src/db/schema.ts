@@ -1,4 +1,11 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  decimal,
+  pgEnum,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -53,11 +60,60 @@ export const verification = pgTable("verification", {
   value: text("value").notNull(),
   expiresAt: timestamp("expires_at").notNull(),
   createdAt: timestamp("created_at").$defaultFn(
-    () => /* @__PURE__ */ new Date(),
+    () => /* @__PURE__ */ new Date()
   ),
   updatedAt: timestamp("updated_at").$defaultFn(
-    () => /* @__PURE__ */ new Date(),
+    () => /* @__PURE__ */ new Date()
   ),
 });
 
-export const schema = { user, session, account, verification };
+export const transactionTypeEnum = pgEnum("transaction_type", [
+  "income",
+  "expense",
+]);
+
+export const category = pgTable("category", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  color: text("color"),
+  icon: text("icon"),
+  isDefault: boolean("is_default").default(false).notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const transaction = pgTable("transaction", {
+  id: text("id").primaryKey(),
+  description: text("description").notNull(),
+  amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
+  type: transactionTypeEnum("type").notNull(),
+  date: timestamp("date").notNull(),
+  isRecurring: boolean("is_recurring").default(false).notNull(),
+  endDate: timestamp("end_date"),
+  categoryId: text("category_id").references(() => category.id),
+  userId: text("user_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp("updated_at")
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const schema = {
+  user,
+  session,
+  account,
+  verification,
+  category,
+  transaction,
+};
