@@ -14,7 +14,7 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-red-600">Erreur lors du chargement des données</p>
+            <p className="text-destructive">Erreur lors du chargement des données</p>
             <p className="text-sm text-muted-foreground mt-2">
               Veuillez vous connecter pour accéder au tableau de bord
             </p>
@@ -33,7 +33,7 @@ export default function DashboardPage() {
           <p className="text-muted-foreground mt-2">Vue d'ensemble de vos finances personnelles</p>
         </div>
         <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
-          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
           <span className="text-xs font-medium text-muted-foreground">En temps réel</span>
         </div>
       </div>
@@ -45,11 +45,11 @@ export default function DashboardPage() {
             <div key={i} className="rounded-xl border border-border bg-card shadow-card animate-pulse">
               <div className="p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-muted rounded-lg" />
-                  <div className="h-4 bg-muted rounded w-16" />
+                  <div className="w-10 h-10 bg-muted/60 rounded-lg" />
+                  <div className="h-4 bg-muted/60 rounded w-16" />
                 </div>
-                <div className="h-8 bg-muted rounded w-24 mb-2" />
-                <div className="h-6 bg-muted rounded-full w-20" />
+                <div className="h-8 bg-muted/60 rounded w-24 mb-2" />
+                <div className="h-6 bg-muted/60 rounded-full w-20" />
               </div>
             </div>
           ))}
@@ -65,16 +65,16 @@ export default function DashboardPage() {
       {/* Category Breakdown */}
       {isLoading ? (
         <div className="mt-8">
-          <div className="h-5 bg-muted rounded w-48 mb-6" />
+          <div className="h-5 bg-muted/60 rounded w-48 mb-6" />
           <div className="space-y-2">
             {[1, 2, 3, 4].map((i) => (
               <div key={i} className="p-4 rounded-lg border border-border/40 bg-card/20 animate-pulse">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-2 h-2 bg-muted rounded-full" />
-                    <div className="h-4 w-20 bg-muted rounded" />
+                    <div className="w-2 h-2 bg-muted/60 rounded-full" />
+                    <div className="h-4 w-20 bg-muted/60 rounded" />
                   </div>
-                  <div className="h-4 w-16 bg-muted rounded" />
+                  <div className="h-4 w-16 bg-muted/60 rounded" />
                 </div>
               </div>
             ))}

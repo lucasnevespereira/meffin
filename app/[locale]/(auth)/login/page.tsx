@@ -102,7 +102,7 @@ export default function LoginPage() {
                 className="h-12 touch-manipulation"
               />
               {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+                <p className="text-sm text-destructive">{errors.email.message}</p>
               )}
             </div>
 
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 className="h-12 touch-manipulation"
               />
               {errors.password && (
-                <p className="text-sm text-red-600">{errors.password.message}</p>
+                <p className="text-sm text-destructive">{errors.password.message}</p>
               )}
             </div>
 

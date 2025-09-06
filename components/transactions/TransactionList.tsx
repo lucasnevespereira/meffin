@@ -102,7 +102,7 @@ export function TransactionList({
             <h2 className="text-xl font-bold tracking-tight">{sectionTitle}</h2>
             <div className={`px-3 py-1 rounded-full text-xs font-medium border ${
               type === 'income' 
-                ? 'bg-green-50 text-green-700 border-green-200' 
+                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800' 
                 : 'bg-destructive/10 text-destructive border-destructive/20'
             }`}>
               {filteredTransactions.length} transaction{filteredTransactions.length > 1 ? 's' : ''}
@@ -141,7 +141,7 @@ export function TransactionList({
 
                 <div className="flex items-center gap-3">
                   <div className={`font-bold text-base ${
-                    type === 'income' ? 'text-green-700' : 'text-destructive'
+                    type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-destructive'
                   }`}>
                     {type === 'income' ? '+' : '-'}{formatEuro(Number(transaction.amount))}
                   </div>
@@ -185,7 +185,7 @@ export function TransactionList({
             <AlertDialogAction 
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? 'Suppression...' : 'Supprimer'}
             </AlertDialogAction>

@@ -74,10 +74,10 @@ export function AppSidebar() {
             alt="Meffin Logo"
             width={64}
             height={64}
-            className="object-cover invert"
+            className="object-cover invert dark:invert-0"
           />
           <div className="flex flex-col min-w-0">
-            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
               Meffin
             </span>
             <span className="text-xs text-muted-foreground font-medium">v{APP_VERSION}</span>

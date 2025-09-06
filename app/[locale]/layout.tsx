@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { I18nProviderClient } from "@/locales/client";
+import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const inter = Inter({
   variable: "--font-sans",
@@ -27,11 +29,19 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body className={`${inter.variable} antialiased font-sans`}>
-        <I18nProviderClient locale={locale}>
-          <QueryProvider>
-            {children}
-          </QueryProvider>
-        </I18nProviderClient>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <I18nProviderClient locale={locale}>
+            <QueryProvider>
+              {children}
+              <Toaster />
+            </QueryProvider>
+          </I18nProviderClient>
+        </ThemeProvider>
       </body>
     </html>
   );

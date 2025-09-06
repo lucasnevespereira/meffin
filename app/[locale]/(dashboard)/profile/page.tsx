@@ -29,9 +29,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useSession, signOut } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
+import { useUpdateProfile } from '@/hooks/useProfile';
+import { toast } from 'sonner';
 
 
 const currencies = [
@@ -65,9 +66,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const t = useI18n();
-  const [isLoading, setIsLoading] = useState(false);
-  const [success, setSuccess] = useState('');
-  const [error, setError] = useState('');
+  const updateProfileMutation = useUpdateProfile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
@@ -92,19 +91,23 @@ export default function ProfilePage() {
   const selectedCurrency = watch('currency');
 
   const onSubmit = async (data: ProfileFormData) => {
-    setIsLoading(true);
-    setSuccess('');
-    setError('');
-
     try {
-      //TODO: Implement profile update API
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-      setSuccess(t('profile_success'));
+      await updateProfileMutation.mutateAsync({
+        name: data.name,
+        currency: data.currency,
+      });
+
+      toast.success(t('profile_success'), {
+        description: t('profile_success_description'),
+        duration: 4000,
+      });
+      
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : t('profile_error');
-      setError(errorMessage);
-    } finally {
-      setIsLoading(false);
+      toast.error(t('profile_error'), {
+        description: errorMessage,
+        duration: 5000,
+      });
     }
   };
 
@@ -113,11 +116,20 @@ export default function ProfilePage() {
     try {
       // TODO: Implement account deletion API
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
+      
+      toast.success(t('profile_delete_success'), {
+        description: t('profile_delete_success_description'),
+        duration: 3000,
+      });
+      
       await signOut();
       router.push('/login');
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : t('profile_error');
-      setError(errorMessage);
+      toast.error(t('profile_delete_error'), {
+        description: errorMessage,
+        duration: 5000,
+      });
       setIsDeleting(false);
     }
   };
@@ -147,51 +159,37 @@ export default function ProfilePage() {
         <p className="text-muted-foreground mt-2">{t('profile_subtitle')}</p>
       </div>
 
-      {success && (
-        <Alert className="border-green-200 bg-green-50/50">
-          <AlertDescription className="text-green-700">{success}</AlertDescription>
-        </Alert>
-      )}
-
-      {error && (
-        <Alert variant="destructive" className="bg-red-50/50">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
 
       {/* Profile Card */}
       <div className="rounded-xl border border-border bg-card shadow-card">
-        <div className="p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-            {/* Avatar and Basic Info Section */}
-            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
-              {/* Avatar Section */}
-              <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-border shadow-card">
-                <Image
-                  src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
-                  alt={session.user.name || 'User Avatar'}
-                  width={96}
-                  height={96}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              {/* User Info and Status */}
-              <div className="text-center sm:text-left flex-1">
-                <h1 className="text-3xl font-bold tracking-tight">{session.user.name || 'User'}</h1>
-                <p className="text-muted-foreground mt-2 text-lg">{session.user.email}</p>
-                <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
-                  <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    ✓ {t('profile_status_active')}
-                  </div>
-                  <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                    {t('profile_member_since')} {new Date(session.user.createdAt).getFullYear()}
-                  </div>
+        <div className="p-6">
+          {/* Avatar and Basic Info Section */}
+          <div className="flex items-center gap-4 pb-6 border-b border-border">
+            {/* Avatar Section */}
+            <div className="w-16 h-16 rounded-xl overflow-hidden ring-2 ring-border shadow-sm">
+              <Image
+                src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
+                alt={session.user.name || 'User Avatar'}
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* User Info and Status */}
+            <div className="flex-1">
+              <h2 className="text-xl font-bold tracking-tight">{session.user.name || 'User'}</h2>
+              <p className="text-muted-foreground text-sm">{session.user.email}</p>
+              <div className="flex items-center gap-3 mt-2">
+                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  ✓ {t('profile_status_active')}
+                </div>
+                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200">
+                  {t('profile_member_since')} {new Date(session.user.createdAt).getFullYear()}
                 </div>
               </div>
             </div>
-
-          </form>
+          </div>
         </div>
       </div>
 
@@ -202,20 +200,20 @@ export default function ProfilePage() {
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100">
               <User className="h-5 w-5 text-slate-600" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight">Edit Profile</h2>
+            <h2 className="text-xl font-bold tracking-tight">{t('profile_edit_title')}</h2>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
+                    <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
                     <Input
                       id="name"
                       {...register('name')}
                       placeholder={t('register_name')}
-                      className="h-11"
+                      className="h-10 border-border focus:border-primary focus:ring-primary/20"
                     />
                     {errors.name && (
                       <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -223,13 +221,13 @@ export default function ProfilePage() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium">{t('profile_email')}</Label>
+                    <Label htmlFor="email" className="text-sm font-medium text-foreground">{t('profile_email')}</Label>
                     <Input
                       id="email"
                       type="email"
                       {...register('email')}
                       disabled
-                      className="h-11 bg-muted/50 text-muted-foreground"
+                      className="h-10 bg-muted/30 text-muted-foreground border-border"
                     />
                     <p className="text-xs text-muted-foreground">
                       {t('profile_email_readonly')}
@@ -238,17 +236,17 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
+                  <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
                   <Select
                     value={selectedCurrency}
                     onValueChange={(value) => setValue('currency', value)}
                   >
-                    <SelectTrigger className="h-11 max-w-xs">
+                    <SelectTrigger className="h-10 max-w-xs border-border focus:border-primary focus:ring-primary/20">
                       <SelectValue placeholder={t('profile_currency_select')} />
                     </SelectTrigger>
                     <SelectContent>
                       {currencies.map((currency) => (
-                        <SelectItem key={currency.code} value={currency.code} className="py-3">
+                        <SelectItem key={currency.code} value={currency.code} className="py-2">
                           {t(currency.nameKey)}
                         </SelectItem>
                       ))}
@@ -262,18 +260,18 @@ export default function ProfilePage() {
 
               <div className="lg:col-span-1">
                 <div className="p-6 rounded-xl bg-muted/20 border border-border/50">
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-3">Quick Stats</h4>
+                  <h4 className="font-semibold text-sm text-muted-foreground mb-3">{t('profile_quick_stats')}</h4>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Member since</span>
+                      <span className="text-muted-foreground">{t('profile_member_since_label')}</span>
                       <span className="font-medium">{new Date(session.user.createdAt).getFullYear()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Account type</span>
-                      <span className="font-medium text-emerald-700">Active</span>
+                      <span className="text-muted-foreground">{t('profile_account_type')}</span>
+                      <span className="font-medium text-emerald-700">{t('profile_status_active')}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Profile ID</span>
+                      <span className="text-muted-foreground">{t('profile_profile_id')}</span>
                       <span className="font-mono text-xs text-muted-foreground">
                         {session.user.id.slice(-8)}
                       </span>
@@ -286,11 +284,11 @@ export default function ProfilePage() {
             <div className="flex justify-end pt-4">
               <Button
                 type="submit"
-                disabled={isLoading}
+                disabled={updateProfileMutation.isPending}
                 className="shadow-card hover:shadow-lg"
               >
                 <Save className="h-4 w-4 mr-2" />
-                {isLoading ? t('profile_saving') : t('profile_save')}
+                {updateProfileMutation.isPending ? t('profile_saving') : t('profile_save')}
               </Button>
             </div>
           </form>
@@ -337,7 +335,7 @@ export default function ProfilePage() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-red-600">
+            <AlertDialogTitle className="text-destructive">
               {t('profile_delete_dialog_title')}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
@@ -355,7 +353,7 @@ export default function ProfilePage() {
             <AlertDialogAction
               onClick={handleDeleteAccount}
               disabled={isDeleting}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {isDeleting ? t('profile_delete_processing') : t('profile_delete_confirm')}
             </AlertDialogAction>

@@ -103,7 +103,7 @@ export function CategoryForm({
               placeholder={t('category_form_name_placeholder')}
             />
             {errors.name && (
-              <p className="text-sm text-red-600">{errors.name.message}</p>
+              <p className="text-sm text-destructive">{errors.name.message}</p>
             )}
           </div>
 
@@ -122,7 +122,7 @@ export function CategoryForm({
               </SelectContent>
             </Select>
             {errors.type && (
-              <p className="text-sm text-red-600">{errors.type.message}</p>
+              <p className="text-sm text-destructive">{errors.type.message}</p>
             )}
           </div>
 
@@ -136,8 +136,8 @@ export function CategoryForm({
                   onClick={() => setValue('color', color)}
                   className={`w-8 h-8 rounded-full border-2 transition-all ${
                     selectedColor === color 
-                      ? 'border-gray-900 scale-110' 
-                      : 'border-gray-300 hover:scale-105'
+                      ? 'border-foreground scale-110' 
+                      : 'border-border hover:scale-105'
                   }`}
                   style={{ backgroundColor: color }}
                 />
@@ -149,7 +149,7 @@ export function CategoryForm({
               className="w-20 h-10"
             />
             {errors.color && (
-              <p className="text-sm text-red-600">{errors.color.message}</p>
+              <p className="text-sm text-destructive">{errors.color.message}</p>
             )}
           </div>
 

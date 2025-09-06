@@ -120,7 +120,7 @@ export function TransactionForm({
               placeholder={t('transaction_placeholder_desc')}
             />
             {errors.description && (
-              <p className="text-sm text-red-600">{errors.description.message}</p>
+              <p className="text-sm text-destructive">{errors.description.message}</p>
             )}
           </div>
 
@@ -135,7 +135,7 @@ export function TransactionForm({
               placeholder={t('transaction_placeholder_amount')}
             />
             {errors.amount && (
-              <p className="text-sm text-red-600">{errors.amount.message}</p>
+              <p className="text-sm text-destructive">{errors.amount.message}</p>
             )}
           </div>
 
@@ -166,7 +166,7 @@ export function TransactionForm({
               </SelectContent>
             </Select>
             {errors.categoryId && (
-              <p className="text-sm text-red-600">{errors.categoryId.message}</p>
+              <p className="text-sm text-destructive">{errors.categoryId.message}</p>
             )}
           </div>
 
@@ -178,7 +178,7 @@ export function TransactionForm({
               {...register('date', { valueAsDate: true })}
             />
             {errors.date && (
-              <p className="text-sm text-red-600">{errors.date.message}</p>
+              <p className="text-sm text-destructive">{errors.date.message}</p>
             )}
           </div>
 

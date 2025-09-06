@@ -38,7 +38,7 @@ export function LanguageSwitcher() {
           <DropdownMenuItem
             key={language.code}
             onClick={() => switchLanguage(language.code)}
-            className={`cursor-pointer ${language.code === locale ? 'bg-gray-100' : ''}`}
+            className={`cursor-pointer ${language.code === locale ? 'bg-accent' : ''}`}
           >
             <span className="mr-2">{language.flag}</span>
             {language.name}

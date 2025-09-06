@@ -102,7 +102,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-base text-red-700">
+                        <div className="font-bold text-base text-destructive">
                           -{formatEuro(category.total)}
                         </div>
                         <div className="text-xs text-muted-foreground">
@@ -125,7 +125,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                                   {formatDate(transaction.date)}
                                 </span>
                               </div>
-                              <div className="text-sm font-semibold text-red-600">
+                              <div className="text-sm font-semibold text-destructive">
                                 -{formatEuro(Number(transaction.amount))}
                               </div>
                             </div>

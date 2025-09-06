@@ -106,7 +106,7 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-red-600">{t('categories_loading_error')}</p>
+            <p className="text-destructive">{t('categories_loading_error')}</p>
             <p className="text-sm text-muted-foreground mt-2">
               {t('categories_login_required')}
             </p>
@@ -303,7 +303,7 @@ export default function CategoriesPage() {
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90"
             >
               {deleteMutation.isPending ? t('categories_deleting') : t('categories_delete')}
             </AlertDialogAction>

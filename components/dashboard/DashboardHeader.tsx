@@ -4,6 +4,7 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useI18n } from '@/locales/client';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
+import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -83,8 +84,9 @@ export function DashboardHeader() {
         </Breadcrumb>
       </div>
       
-      <div className="flex items-center gap-3 px-6">
+      <div className="flex items-center gap-2 px-6">
         <LocaleSwitcher />
+        <ThemeSwitcher />
       </div>
     </header>
   );
