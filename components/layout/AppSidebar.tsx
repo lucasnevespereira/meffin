@@ -5,9 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import {
   LayoutDashboard,
-  Receipt,
   Tag,
   LogOut,
+  CreditCard,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -47,7 +47,7 @@ export function AppSidebar() {
     {
       title: t('nav_transactions'),
       url: `/${locale}/transactions`,
-      icon: Receipt,
+      icon: CreditCard,
     },
     {
       title: t('nav_categories'),
@@ -68,12 +68,12 @@ export function AppSidebar() {
   return (
     <Sidebar variant="inset" className="border-r border-border shadow-subtle">
       <SidebarHeader className="border-b border-border">
-        <div className="flex items-center gap-4 px-4 py-2">
+        <div className="flex items-center gap-2 px-4 py-2">
           <Image
             src="/logo.png"
             alt="Meffin Logo"
-            width={40}
-            height={40}
+            width={64}
+            height={64}
             className="object-cover invert"
           />
           <div className="flex flex-col min-w-0">
@@ -119,8 +119,8 @@ export function AppSidebar() {
             {session && (
               <>
                 <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group"
                   >
                     <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-4 py-3 min-h-[52px]">
