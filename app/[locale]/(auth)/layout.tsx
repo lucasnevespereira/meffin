@@ -38,10 +38,6 @@ export default async function AuthLayout({
             <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-sm">
               {t('app_description')}
             </p>
-            <div className="flex items-center justify-center gap-2 px-3 py-1 bg-background border border-border rounded-lg text-sm mx-auto">
-              <div className="w-2 h-2 bg-emerald-600 dark:bg-emerald-400 rounded-full" />
-              <span className="text-muted-foreground">Sécurisé et fiable</span>
-            </div>
           </div>
         </div>
       </div>
