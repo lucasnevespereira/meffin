@@ -78,7 +78,7 @@ export default function LoginPage() {
   return (
     <div className="w-full">
       <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-medium">{t('login_title')}</h1>
+        <h1 className="text-xl font-semibold">{t('login_title')}</h1>
         <p className="text-sm text-muted-foreground">
           {t('login_subtitle')}
         </p>
@@ -99,6 +99,7 @@ export default function LoginPage() {
                 type="email"
                 placeholder="votre@email.com"
                 {...register('email')}
+                className="h-12 touch-manipulation"
               />
               {errors.email && (
                 <p className="text-sm text-red-600">{errors.email.message}</p>
@@ -112,13 +113,14 @@ export default function LoginPage() {
                 type="password"
                 placeholder="••••••••"
                 {...register('password')}
+                className="h-12 touch-manipulation"
               />
               {errors.password && (
                 <p className="text-sm text-red-600">{errors.password.message}</p>
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full h-12 touch-manipulation font-medium" disabled={isLoading}>
               {isLoading ? t('login_submitting') : t('login_submit')}
             </Button>
           </form>
@@ -135,7 +137,7 @@ export default function LoginPage() {
           <Button
             variant="outline"
             type="button"
-            className="w-full"
+            className="w-full h-12 touch-manipulation font-medium"
             onClick={handleGoogleSignIn}
             disabled={isLoading}
           >

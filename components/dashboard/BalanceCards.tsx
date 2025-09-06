@@ -18,33 +18,33 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
   };
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
-      <div className="p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-4">
+    <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+      <div className="p-4 sm:p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm touch-manipulation">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <span className="text-sm text-muted-foreground">Solde</span>
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </div>
-        <div className={`text-2xl font-medium ${balance >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+        <div className={`text-xl sm:text-2xl font-semibold ${balance >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
           {formatEuro(balance)}
         </div>
       </div>
       
-      <div className="p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-4 sm:p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm touch-manipulation">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <span className="text-sm text-muted-foreground">Entrées</span>
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
         </div>
-        <div className="text-2xl font-medium text-emerald-600">
+        <div className="text-xl sm:text-2xl font-semibold text-emerald-600">
           +{formatEuro(income)}
         </div>
       </div>
       
-      <div className="p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-4 sm:p-6 rounded-lg border border-border/40 bg-card/30 backdrop-blur-sm touch-manipulation">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           <span className="text-sm text-muted-foreground">Sorties</span>
           <TrendingDown className="h-4 w-4 text-muted-foreground" />
         </div>
-        <div className="text-2xl font-medium text-red-500">
+        <div className="text-xl sm:text-2xl font-semibold text-red-500">
           -{formatEuro(expenses)}
         </div>
       </div>

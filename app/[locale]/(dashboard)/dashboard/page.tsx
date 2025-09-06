@@ -59,25 +59,26 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
+      <div className="space-y-4">
+        <div className="text-center sm:text-left">
           <h1 className="text-2xl font-semibold">Dashboard</h1>
           <p className="text-sm text-muted-foreground mt-1">Vue d'ensemble de vos finances</p>
         </div>
         
-        <div className="flex items-center gap-2">
+        {/* Mobile-optimized month navigation */}
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('prev')}
-            className="h-8 w-8 p-0"
+            className="h-10 w-10 p-0 touch-manipulation"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
           
-          <div className="flex items-center gap-2 px-3 py-1 text-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-lg min-w-0">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">
+            <span className="font-medium text-sm sm:text-base whitespace-nowrap">
               {getMonthName(selectedMonth)} {selectedYear}
             </span>
           </div>
@@ -86,18 +87,18 @@ export default function DashboardPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('next')}
-            className="h-8 w-8 p-0"
+            className="h-10 w-10 p-0 touch-manipulation"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Balance Cards */}
       {isLoading ? (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="p-6 rounded-lg border border-border/40 bg-card/30 animate-pulse">
+            <div key={i} className="p-4 sm:p-6 rounded-lg border border-border/40 bg-card/30 animate-pulse touch-manipulation">
               <div className="h-4 bg-muted rounded mb-4" />
               <div className="h-6 bg-muted rounded" />
             </div>

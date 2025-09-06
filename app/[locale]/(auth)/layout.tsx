@@ -15,9 +15,9 @@ export default async function AuthLayout({
   const t = await getI18n();
   
   return (
-    <div className="min-h-screen flex bg-background relative">
+    <div className="min-h-screen flex flex-col lg:flex-row bg-background relative">
       {/* Locale Switcher - Top Right */}
-      <div className="absolute top-6 right-6 z-50">
+      <div className="absolute top-4 right-4 lg:top-6 lg:right-6 z-50">
         <LocaleSwitcher variant="outline" showText />
       </div>
 
@@ -48,7 +48,7 @@ export default async function AuthLayout({
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12 lg:px-16">
+      <div className="flex-1 flex items-center justify-center px-4 py-8 lg:px-16 lg:py-12">
         <div className="w-full max-w-sm mx-auto">
           {/* Mobile Logo - Only visible on smaller screens */}
           <div className="lg:hidden flex flex-col items-center space-y-4 mb-8">
@@ -68,7 +68,9 @@ export default async function AuthLayout({
           </div>
           
           {/* Auth Form */}
-          {children}
+          <div className="space-y-6">
+            {children}
+          </div>
         </div>
       </div>
     </div>

@@ -132,12 +132,12 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div>
+      <div className="text-center sm:text-left">
         <h1 className="text-2xl font-semibold">{t('profile_title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t('profile_subtitle')}</p>
       </div>
 
-      <div className="max-w-2xl">
+      <div className="max-w-2xl mx-auto sm:mx-0">
         {success && (
           <Alert className="mb-6 border-green-200 bg-green-50/50">
             <AlertDescription className="text-green-700">{success}</AlertDescription>
@@ -157,13 +157,14 @@ export default function ProfilePage() {
               <User className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-lg font-medium">{t('profile_info_section')}</h2>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
                 <Input
                   id="name"
                   {...register('name')}
                   placeholder={t('register_name')}
+                  className="h-11 touch-manipulation"
                 />
                 {errors.name && (
                   <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -177,7 +178,7 @@ export default function ProfilePage() {
                   type="email"
                   {...register('email')}
                   disabled
-                  className="bg-muted/30 text-muted-foreground"
+                  className="h-11 bg-muted/30 text-muted-foreground touch-manipulation"
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('profile_email_readonly')}
@@ -192,19 +193,19 @@ export default function ProfilePage() {
               <Globe className="h-4 w-4 text-muted-foreground" />
               <h2 className="text-lg font-medium">{t('profile_preferences_section')}</h2>
             </div>
-            <div className="max-w-xs">
+            <div className="max-w-full sm:max-w-xs">
               <div className="space-y-2">
                 <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
                 <Select
                   value={selectedCurrency}
                   onValueChange={(value) => setValue('currency', value)}
                 >
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11 touch-manipulation">
                     <SelectValue placeholder={t('profile_currency_select')} />
                   </SelectTrigger>
                   <SelectContent>
                     {currencies.map((currency) => (
-                      <SelectItem key={currency.code} value={currency.code}>
+                      <SelectItem key={currency.code} value={currency.code} className="py-3 touch-manipulation">
                         {t(currency.nameKey as any)}
                       </SelectItem>
                     ))}
@@ -231,14 +232,16 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <Button 
-            type="submit" 
-            disabled={isLoading} 
-            className="flex items-center gap-2"
-          >
-            <Save className="h-4 w-4" />
-            {isLoading ? t('profile_saving') : t('profile_save')}
-          </Button>
+          <div className="flex justify-center sm:justify-start">
+            <Button 
+              type="submit" 
+              disabled={isLoading} 
+              className="flex items-center gap-2 h-11 px-6 touch-manipulation w-full sm:w-auto"
+            >
+              <Save className="h-4 w-4" />
+              {isLoading ? t('profile_saving') : t('profile_save')}
+            </Button>
+          </div>
         </form>
       </div>
 

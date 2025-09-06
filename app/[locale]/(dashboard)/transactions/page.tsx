@@ -112,25 +112,26 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="space-y-4">
         <div>
           <h1 className="text-2xl font-semibold">{t('transactions_title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t('transactions_subtitle')}</p>
         </div>
 
-        <div className="flex items-center gap-2">
+        {/* Mobile-optimized month navigation */}
+        <div className="flex items-center justify-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('prev')}
-            className="h-8 w-8 p-0"
+            className="h-10 w-10 p-0 touch-manipulation"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-5 w-5" />
           </Button>
 
-          <div className="flex items-center gap-2 px-3 py-1 text-sm">
+          <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-lg min-w-0">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium">
+            <span className="font-medium text-sm sm:text-base whitespace-nowrap">
               {getMonthName(selectedMonth)} {selectedYear}
             </span>
           </div>
@@ -139,18 +140,18 @@ export default function TransactionsPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('next')}
-            className="h-8 w-8 p-0"
+            className="h-10 w-10 p-0 touch-manipulation"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
       {/* Add Transaction Button */}
-      <div className="flex justify-start">
+      <div className="flex justify-center">
         <Button
           onClick={() => setIsFormOpen(true)}
-          className="h-9 px-4 text-sm"
+          className="h-11 px-6 text-sm font-medium touch-manipulation w-full sm:w-auto"
           disabled={isLoadingCategories || categories.length === 0}
         >
           <Plus className="h-4 w-4 mr-2" />

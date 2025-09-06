@@ -79,7 +79,7 @@ export function AppSidebar() {
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
               <span className="text-lg font-semibold">{t('app_name')}</span>
-              <span className="text-xs text-muted-foreground/60 font-mono">v{APP_VERSION}</span>
+              <span className="text-xs text-muted-foreground/60 font-mono touch-manipulation">v{APP_VERSION}</span>
             </div>
             <span className="text-xs text-muted-foreground">{t('app_tagline')}</span>
           </div>
@@ -94,13 +94,13 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    className={`hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2 ${
+                    className={`hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2 touch-manipulation ${
                       isActive(item.url) 
                         ? 'bg-accent text-accent-foreground font-medium' 
                         : 'text-muted-foreground'
                     }`}
                   >
-                    <Link href={item.url} className="flex items-center gap-3 px-3">
+                    <Link href={item.url} className="flex items-center gap-3 px-3 min-h-[44px]">
                       <item.icon className="h-4 w-4" />
                       <span className="text-sm">{item.title}</span>
                     </Link>
@@ -118,8 +118,8 @@ export function AppSidebar() {
             {session && (
               <>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2">
-                    <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-3">
+                  <SidebarMenuButton asChild className="hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2 touch-manipulation">
+                    <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-3 min-h-[44px]">
                       <User className="h-4 w-4" />
                       <div className="flex flex-col items-start min-w-0">
                         <span className="text-sm font-medium truncate">{t('nav_profile')}</span>
@@ -131,9 +131,9 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     onClick={handleSignOut}
-                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full rounded-lg transition-colors py-2"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full rounded-lg transition-colors py-2 touch-manipulation"
                   >
-                    <div className="flex items-center gap-3 px-3">
+                    <div className="flex items-center gap-3 px-3 min-h-[44px]">
                       <LogOut className="h-4 w-4" />
                       <span className="text-sm">{t('nav_signOut')}</span>
                     </div>
