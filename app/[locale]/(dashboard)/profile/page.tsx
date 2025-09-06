@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
-import { User, Trash2, Save, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
+import { Trash2, Save, AlertTriangle, ChevronRight } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -34,7 +34,6 @@ import { useI18n } from '@/locales/client';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency-utils';
-import { useQueryClient } from '@tanstack/react-query';
 
 
 const createProfileSchema = (t: ReturnType<typeof useI18n>) =>
@@ -61,7 +60,6 @@ export default function ProfilePage() {
   const { data: profileData, isLoading: profileLoading } = useProfile();
   const t = useI18n();
   const updateProfileMutation = useUpdateProfile();
-  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -97,10 +95,6 @@ export default function ProfilePage() {
 
   const selectedCurrency = watch('currency') || profileData?.user?.currency || 'EUR';
 
-  const handleRefreshProfile = () => {
-    queryClient.invalidateQueries({ queryKey: ['profile'] });
-    queryClient.refetchQueries({ queryKey: ['profile'] });
-  };
 
   const onSubmit = async (data: ProfileFormData) => {
     try {

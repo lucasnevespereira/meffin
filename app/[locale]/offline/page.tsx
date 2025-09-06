@@ -3,10 +3,7 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { WifiOff, RefreshCw } from 'lucide-react';
-import { useI18n } from '@/locales/client';
-
 export default function OfflinePage() {
-  const t = useI18n();
 
   const handleRefresh = () => {
     window.location.reload();
@@ -24,7 +21,7 @@ export default function OfflinePage() {
 
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-foreground">
-              You're offline
+              You&apos;re offline
             </h1>
             <p className="text-muted-foreground">
               Please check your internet connection and try again.
@@ -33,7 +30,7 @@ export default function OfflinePage() {
 
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Don't worry, your data is safe. You can still view some cached content while offline.
+              Don&apos;t worry, your data is safe. You can still view some cached content while offline.
             </p>
             
             <Button 
