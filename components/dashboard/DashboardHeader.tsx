@@ -58,31 +58,42 @@ export function DashboardHeader() {
       <div className="flex items-center gap-3 px-6">
         <SidebarTrigger className="-ml-1 hover:bg-accent/50 rounded-lg transition-colors duration-200" />
         <Separator orientation="vertical" className="mr-2 h-4 bg-border/60" />
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((breadcrumb, index) => (
-              <React.Fragment key={breadcrumb.href}>
-                <BreadcrumbItem>
-                  {index < breadcrumbs.length - 1 ? (
-                    <BreadcrumbLink 
-                      href={breadcrumb.href} 
-                      className="text-muted-foreground hover:text-foreground font-medium transition-colors duration-200"
-                    >
-                      {breadcrumb.name}
-                    </BreadcrumbLink>
-                  ) : (
-                    <BreadcrumbPage className="text-foreground font-semibold">
-                      {breadcrumb.name}
-                    </BreadcrumbPage>
+        
+        {/* Mobile: Just show "Meffin" */}
+        <div className="block md:hidden">
+          <span className="text-foreground font-bold text-lg">
+            {t('app_name')}
+          </span>
+        </div>
+        
+        {/* Desktop: Show full breadcrumbs */}
+        <div className="hidden md:block">
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((breadcrumb, index) => (
+                <React.Fragment key={breadcrumb.href}>
+                  <BreadcrumbItem>
+                    {index < breadcrumbs.length - 1 ? (
+                      <BreadcrumbLink 
+                        href={breadcrumb.href} 
+                        className="text-muted-foreground hover:text-foreground font-medium transition-colors duration-200"
+                      >
+                        {breadcrumb.name}
+                      </BreadcrumbLink>
+                    ) : (
+                      <BreadcrumbPage className="text-foreground font-semibold">
+                        {breadcrumb.name}
+                      </BreadcrumbPage>
+                    )}
+                  </BreadcrumbItem>
+                  {index < breadcrumbs.length - 1 && (
+                    <BreadcrumbSeparator className="text-muted-foreground/60" />
                   )}
-                </BreadcrumbItem>
-                {index < breadcrumbs.length - 1 && (
-                  <BreadcrumbSeparator className="text-muted-foreground/60" />
-                )}
-              </React.Fragment>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
+                </React.Fragment>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
       </div>
       
       <div className="flex items-center gap-3 px-6">

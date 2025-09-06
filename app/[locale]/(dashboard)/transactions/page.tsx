@@ -80,16 +80,16 @@ export default function TransactionsPage() {
   const categories = categoriesData?.categories || [];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
-          <p className="text-muted-foreground mt-2">{t('transactions_subtitle')}</p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="min-w-0 flex-1">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
+          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('transactions_subtitle')}</p>
         </div>
         <Button
           onClick={() => setIsFormOpen(true)}
-          className="shadow-card hover:shadow-lg"
+          className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto"
           disabled={isLoadingCategories || categories.length === 0}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -99,25 +99,25 @@ export default function TransactionsPage() {
 
       {/* Transaction Lists */}
       {isLoadingTransactions ? (
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           {[1, 2].map(i => (
             <div key={i} className="rounded-xl border border-border bg-card shadow-card animate-pulse">
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-6">
-                  <div className="h-6 bg-muted rounded w-32" />
-                  <div className="h-6 bg-muted rounded-full w-20" />
+              <div className="p-4 md:p-6">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                  <div className="h-5 md:h-6 bg-muted rounded w-28 md:w-32" />
+                  <div className="h-5 md:h-6 bg-muted rounded-full w-16 md:w-20" />
                 </div>
-                <div className="space-y-3">
+                <div className="space-y-2 md:space-y-3">
                   {[1, 2, 3].map(j => (
-                    <div key={j} className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
-                      <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 bg-muted rounded-lg" />
+                    <div key={j} className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/20">
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-muted rounded-lg" />
                         <div>
-                          <div className="h-4 bg-muted rounded w-24 mb-2" />
-                          <div className="h-3 bg-muted rounded w-16" />
+                          <div className="h-3 md:h-4 bg-muted rounded w-20 md:w-24 mb-1 md:mb-2" />
+                          <div className="h-2 md:h-3 bg-muted rounded w-12 md:w-16" />
                         </div>
                       </div>
-                      <div className="h-6 bg-muted rounded w-16" />
+                      <div className="h-4 md:h-6 bg-muted rounded w-12 md:w-16" />
                     </div>
                   ))}
                 </div>
@@ -126,7 +126,7 @@ export default function TransactionsPage() {
           ))}
         </div>
       ) : (
-        <div className="space-y-8">
+        <div className="space-y-6 md:space-y-8">
           <TransactionList
             transactions={transactions}
             type="income"

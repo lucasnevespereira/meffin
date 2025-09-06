@@ -23,9 +23,9 @@ interface LocaleSwitcherProps {
   className?: string;
 }
 
-export function LocaleSwitcher({ 
-  variant = 'ghost', 
-  size = 'sm', 
+export function LocaleSwitcher({
+  variant = 'ghost',
+  size = 'sm',
   showText = false,
   className = ""
 }: LocaleSwitcherProps) {
@@ -38,7 +38,7 @@ export function LocaleSwitcher({
 
   const handleLocaleChange = (newLocale: string) => {
     changeLocale(newLocale as 'en' | 'fr');
-    
+
     // Update URL to reflect the new locale
     const currentPath = pathname.split('/').slice(2).join('/'); // Remove current locale from path
     const newPath = `/${newLocale}${currentPath ? `/${currentPath}` : ''}`;
@@ -48,13 +48,13 @@ export function LocaleSwitcher({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button 
-          variant={variant} 
+        <Button
+          variant={variant}
           size={size}
           className={`h-9 px-3 ${className}`}
         >
           <div className="flex items-center gap-2">
-            {currentLocaleData?.flag}
+            {/*{currentLocaleData?.flag}*/}
             {showText && (
               <span className="hidden sm:inline-block">
                 {currentLocaleData?.name}

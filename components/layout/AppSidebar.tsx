@@ -19,6 +19,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import { signOut, useSession } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
@@ -37,6 +38,7 @@ export function AppSidebar() {
   const locale = params.locale as string;
   const t = useI18n();
   const { data: session } = useSession();
+  const { setOpenMobile, isMobile } = useSidebar();
 
   const items = [
     {
@@ -55,6 +57,7 @@ export function AppSidebar() {
       icon: Tag,
     },
   ];
+
 
   const handleSignOut = async () => {
     await signOut();
@@ -99,7 +102,15 @@ export function AppSidebar() {
                         : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-subtle'
                     }`}
                   >
-                    <Link href={item.url} className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
+                    <Link 
+                      href={item.url} 
+                      className="flex items-center gap-3 px-4 py-3 min-h-[48px]"
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
+                    >
                       <item.icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${
                         isActive(item.url) ? 'text-primary-foreground' : ''
                       }`} />
@@ -123,7 +134,15 @@ export function AppSidebar() {
                     asChild
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group"
                   >
-                    <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-4 py-3 min-h-[52px]">
+                    <Link 
+                      href={`/${locale}/profile`} 
+                      className="flex items-center gap-3 px-4 py-3 min-h-[52px]"
+                      onClick={() => {
+                        if (isMobile) {
+                          setOpenMobile(false);
+                        }
+                      }}
+                    >
                       <div className="w-8 h-8 rounded-lg overflow-hidden ring-2 ring-border group-hover:ring-sidebar-accent transition-colors">
                         <Image
                           src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
