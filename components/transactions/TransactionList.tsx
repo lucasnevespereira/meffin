@@ -83,7 +83,7 @@ export function TransactionList({
           {filteredTransactions.map((transaction) => (
             <div
               key={transaction.id}
-              className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+              className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/20 hover:bg-card/40 transition-colors"
             >
               <div className="flex items-center gap-3">
                 <div 

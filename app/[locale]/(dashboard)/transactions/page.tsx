@@ -114,7 +114,7 @@ export default function TransactionsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-medium font-display">{t('transactions_title')}</h1>
+          <h1 className="text-2xl font-semibold">{t('transactions_title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t('transactions_subtitle')}</p>
         </div>
 
@@ -162,11 +162,11 @@ export default function TransactionsPage() {
       {isLoadingTransactions ? (
         <div className="space-y-6">
           <div className="animate-pulse">
-            <div className="h-6 bg-gray-200 rounded w-32 mb-4" />
+            <div className="h-6 bg-muted rounded w-32 mb-4" />
             {[1, 2, 3].map(i => (
-              <div key={i} className="p-4 border rounded-lg mb-2">
-                <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
-                <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div key={i} className="p-3 rounded-lg border border-border/40 bg-card/20 mb-2">
+                <div className="h-4 bg-muted rounded w-3/4 mb-2" />
+                <div className="h-3 bg-muted rounded w-1/2" />
               </div>
             ))}
           </div>

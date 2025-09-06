@@ -78,7 +78,7 @@ export function AppSidebar() {
           </div>
           <div className="flex flex-col">
             <div className="flex items-center gap-2">
-              <span className="text-lg font-medium font-display">{t('app_name')}</span>
+              <span className="text-lg font-semibold">{t('app_name')}</span>
               <span className="text-xs text-muted-foreground/60 font-mono">v{APP_VERSION}</span>
             </div>
             <span className="text-xs text-muted-foreground">{t('app_tagline')}</span>

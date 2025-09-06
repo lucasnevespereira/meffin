@@ -34,7 +34,7 @@ export default async function AuthLayout({
             />
           </div>
           <div className="space-y-3">
-            <h1 className="text-3xl font-medium font-display">{t('app_name')}</h1>
+            <h1 className="text-3xl font-semibold">{t('app_name')}</h1>
             <p className="text-lg text-muted-foreground">{t('app_tagline')}</p>
             <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-sm">
               {t('app_description')}
@@ -62,7 +62,7 @@ export default async function AuthLayout({
               />
             </div>
             <div className="text-center space-y-1">
-              <h1 className="text-xl font-medium">{t('app_name')}</h1>
+              <h1 className="text-xl font-semibold">{t('app_name')}</h1>
               <p className="text-sm text-muted-foreground">{t('app_tagline')}</p>
             </div>
           </div>

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User, Globe, Trash2, Save, AlertTriangle, Info } from 'lucide-react';
+import { User, Globe, Trash2, Save, AlertTriangle, Info, ChevronDown, ChevronRight } from 'lucide-react';
 
 const APP_VERSION = '0.1.0';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -64,6 +64,7 @@ export default function ProfilePage() {
   const [error, setError] = useState('');
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDangerZone, setShowDangerZone] = useState(false);
 
   const profileSchema = createProfileSchema(t);
 
@@ -132,7 +133,7 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-medium font-display">{t('profile_title')}</h1>
+        <h1 className="text-2xl font-semibold">{t('profile_title')}</h1>
         <p className="text-sm text-muted-foreground mt-1">{t('profile_subtitle')}</p>
       </div>
 
@@ -241,25 +242,35 @@ export default function ProfilePage() {
         </form>
       </div>
 
-      {/* Danger Zone */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
-          <Trash2 className="h-4 w-4 text-red-500" />
-          <h2 className="text-lg font-medium text-red-600">{t('profile_danger_section')}</h2>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          {t('profile_delete_description')}
-        </p>
-        <div className="p-6 rounded-lg border border-red-200/50 bg-red-50/20">
-          <Button
-            variant="destructive"
-            onClick={() => setShowDeleteDialog(true)}
-            className="flex items-center gap-2 h-9 px-4 text-sm bg-red-600 hover:bg-red-700"
-          >
-            <Trash2 className="h-4 w-4" />
-            {t('profile_delete_button')}
-          </Button>
-        </div>
+      {/* Danger Zone - Discrete Collapsible */}
+      <div className="pt-4 border-t border-border/20">
+        <button
+          onClick={() => setShowDangerZone(!showDangerZone)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          {showDangerZone ? (
+            <ChevronDown className="h-3 w-3" />
+          ) : (
+            <ChevronRight className="h-3 w-3" />
+          )}
+          <span>{t('profile_danger_section')}</span>
+        </button>
+        
+        {showDangerZone && (
+          <div className="mt-4 p-4 rounded-lg border border-border/40 bg-muted/20">
+            <p className="text-sm text-muted-foreground mb-3">
+              {t('profile_delete_description')}
+            </p>
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(true)}
+              className="flex items-center gap-2 h-8 px-3 text-xs text-muted-foreground hover:text-red-600 hover:border-red-300"
+            >
+              <Trash2 className="h-3 w-3" />
+              {t('profile_delete_button')}
+            </Button>
+          </div>
+        )}
       </div>
 
 

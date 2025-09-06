@@ -113,7 +113,7 @@ export default function CategoriesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-medium font-display">{t('categories_title')}</h1>
+          <h1 className="text-2xl font-semibold">{t('categories_title')}</h1>
           <p className="text-sm text-muted-foreground mt-1">{t('categories_subtitle')}</p>
         </div>
 
