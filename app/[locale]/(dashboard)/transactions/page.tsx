@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TransactionForm } from '@/components/forms/TransactionForm';
@@ -18,45 +18,15 @@ import { useI18n } from '@/locales/client';
 
 export default function TransactionsPage() {
   const t = useI18n();
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
 
-  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions(selectedMonth, selectedYear);
+  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
 
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
   const deleteMutation = useDeleteTransaction();
-
-  const getMonthName = (monthIndex: number) => {
-    const months = [
-      t('month_january'), t('month_february'), t('month_march'), t('month_april'),
-      t('month_may'), t('month_june'), t('month_july'), t('month_august'),
-      t('month_september'), t('month_october'), t('month_november'), t('month_december')
-    ];
-    return months[monthIndex];
-  };
-
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      if (selectedMonth === 0) {
-        setSelectedMonth(11);
-        setSelectedYear(selectedYear - 1);
-      } else {
-        setSelectedMonth(selectedMonth - 1);
-      }
-    } else {
-      if (selectedMonth === 11) {
-        setSelectedMonth(0);
-        setSelectedYear(selectedYear + 1);
-      } else {
-        setSelectedMonth(selectedMonth + 1);
-      }
-    }
-  };
 
   const handleCreateTransaction = (data: TransactionFormData) => {
     createMutation.mutate(data, {
@@ -112,46 +82,14 @@ export default function TransactionsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-4">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">{t('transactions_title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('transactions_subtitle')}</p>
+          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('transactions_subtitle')}</p>
         </div>
-
-        {/* Mobile-optimized month navigation */}
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateMonth('prev')}
-            className="h-10 w-10 p-0 touch-manipulation"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-
-          <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-lg min-w-0">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium text-sm sm:text-base whitespace-nowrap">
-              {getMonthName(selectedMonth)} {selectedYear}
-            </span>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateMonth('next')}
-            className="h-10 w-10 p-0 touch-manipulation"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Add Transaction Button */}
-      <div className="flex justify-center">
         <Button
           onClick={() => setIsFormOpen(true)}
-          className="h-11 px-6 text-sm font-medium touch-manipulation w-full sm:w-auto"
+          className="shadow-card hover:shadow-lg"
           disabled={isLoadingCategories || categories.length === 0}
         >
           <Plus className="h-4 w-4 mr-2" />
@@ -161,16 +99,31 @@ export default function TransactionsPage() {
 
       {/* Transaction Lists */}
       {isLoadingTransactions ? (
-        <div className="space-y-6">
-          <div className="animate-pulse">
-            <div className="h-6 bg-muted rounded w-32 mb-4" />
-            {[1, 2, 3].map(i => (
-              <div key={i} className="p-3 rounded-lg border border-border/40 bg-card/20 mb-2">
-                <div className="h-4 bg-muted rounded w-3/4 mb-2" />
-                <div className="h-3 bg-muted rounded w-1/2" />
+        <div className="space-y-8">
+          {[1, 2].map(i => (
+            <div key={i} className="rounded-xl border border-border bg-card shadow-card animate-pulse">
+              <div className="p-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="h-6 bg-muted rounded w-32" />
+                  <div className="h-6 bg-muted rounded-full w-20" />
+                </div>
+                <div className="space-y-3">
+                  {[1, 2, 3].map(j => (
+                    <div key={j} className="flex items-center justify-between p-4 rounded-lg bg-muted/20">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-muted rounded-lg" />
+                        <div>
+                          <div className="h-4 bg-muted rounded w-24 mb-2" />
+                          <div className="h-3 bg-muted rounded w-16" />
+                        </div>
+                      </div>
+                      <div className="h-6 bg-muted rounded w-16" />
+                    </div>
+                  ))}
+                </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="space-y-8">

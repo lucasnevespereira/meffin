@@ -132,42 +132,46 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-6">
-      <div className="text-center sm:text-left">
-        <h1 className="text-2xl font-semibold">{t('profile_title')}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{t('profile_subtitle')}</p>
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
+        <p className="text-muted-foreground mt-2">{t('profile_subtitle')}</p>
       </div>
 
-      <div className="max-w-2xl mx-auto sm:mx-0">
-        {success && (
-          <Alert className="mb-6 border-green-200 bg-green-50/50">
-            <AlertDescription className="text-green-700">{success}</AlertDescription>
-          </Alert>
-        )}
-        
-        {error && (
-          <Alert variant="destructive" className="mb-6 bg-red-50/50">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
+      {success && (
+        <Alert className="border-green-200 bg-green-50/50">
+          <AlertDescription className="text-green-700">{success}</AlertDescription>
+        </Alert>
+      )}
+      
+      {error && (
+        <Alert variant="destructive" className="bg-red-50/50">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-          {/* Profile Information */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <User className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-lg font-medium">{t('profile_info_section')}</h2>
+      {/* Profile Information Card */}
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100">
+              <User className="h-5 w-5 text-slate-600" />
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <h2 className="text-xl font-bold tracking-tight">{t('profile_info_section')}</h2>
+          </div>
+
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
                 <Input
                   id="name"
                   {...register('name')}
                   placeholder={t('register_name')}
-                  className="h-11 touch-manipulation"
+                  className="h-11"
                 />
                 {errors.name && (
-                  <p className="text-sm text-red-600">{errors.name.message}</p>
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
                 )}
               </div>
 
@@ -178,102 +182,121 @@ export default function ProfilePage() {
                   type="email"
                   {...register('email')}
                   disabled
-                  className="h-11 bg-muted/30 text-muted-foreground touch-manipulation"
+                  className="h-11 bg-muted/50 text-muted-foreground"
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('profile_email_readonly')}
                 </p>
               </div>
             </div>
+
+            <div className="flex justify-end pt-4">
+              <Button 
+                type="submit" 
+                disabled={isLoading} 
+                className="shadow-card hover:shadow-lg"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isLoading ? t('profile_saving') : t('profile_save')}
+              </Button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* Preferences Card */}
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100">
+              <Globe className="h-5 w-5 text-emerald-700" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight">{t('profile_preferences_section')}</h2>
           </div>
 
-          {/* Preferences */}
-          <div>
-            <div className="flex items-center gap-2 mb-4">
-              <Globe className="h-4 w-4 text-muted-foreground" />
-              <h2 className="text-lg font-medium">{t('profile_preferences_section')}</h2>
+          <div className="max-w-xs">
+            <div className="space-y-2">
+              <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
+              <Select
+                value={selectedCurrency}
+                onValueChange={(value) => setValue('currency', value)}
+              >
+                <SelectTrigger className="h-11">
+                  <SelectValue placeholder={t('profile_currency_select')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code} className="py-3">
+                      {t(currency.nameKey as any)}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.currency && (
+                <p className="text-sm text-destructive">{errors.currency.message}</p>
+              )}
             </div>
-            <div className="max-w-full sm:max-w-xs">
+          </div>
+        </div>
+      </div>
+
+      {/* Account Details Card */}
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100">
+              <Info className="h-5 w-5 text-blue-700" />
+            </div>
+            <h2 className="text-xl font-bold tracking-tight">Détails du compte</h2>
+          </div>
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
-                <Select
-                  value={selectedCurrency}
-                  onValueChange={(value) => setValue('currency', value)}
-                >
-                  <SelectTrigger className="h-11 touch-manipulation">
-                    <SelectValue placeholder={t('profile_currency_select')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {currencies.map((currency) => (
-                      <SelectItem key={currency.code} value={currency.code} className="py-3 touch-manipulation">
-                        {t(currency.nameKey as any)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {errors.currency && (
-                  <p className="text-sm text-red-600">{errors.currency.message}</p>
-                )}
+                <span className="text-sm font-medium text-muted-foreground">{t('profile_user_id')}</span>
+                <div className="p-3 rounded-lg bg-muted/20 font-mono text-xs break-all">{session.user.id}</div>
+              </div>
+              <div className="space-y-2">
+                <span className="text-sm font-medium text-muted-foreground">{t('profile_created_at')}</span>
+                <div className="p-3 rounded-lg bg-muted/20 text-sm">{new Date(session.user.createdAt).toLocaleDateString('fr-FR')}</div>
               </div>
             </div>
           </div>
-
-          {/* Account Details */}
-          <div className="pt-4 border-t border-border/40">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
-              <div>
-                <span className="font-medium">{t('profile_user_id')}:</span>
-                <div className="font-mono text-xs mt-1 break-all">{session.user.id}</div>
-              </div>
-              <div>
-                <span className="font-medium">{t('profile_created_at')}:</span>
-                <div className="mt-1">{new Date(session.user.createdAt).toLocaleDateString('fr-FR')}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-center sm:justify-start">
-            <Button 
-              type="submit" 
-              disabled={isLoading} 
-              className="flex items-center gap-2 h-11 px-6 touch-manipulation w-full sm:w-auto"
-            >
-              <Save className="h-4 w-4" />
-              {isLoading ? t('profile_saving') : t('profile_save')}
-            </Button>
-          </div>
-        </form>
+        </div>
       </div>
 
       {/* Danger Zone - Discrete Collapsible */}
-      <div className="pt-4 border-t border-border/20">
-        <button
-          onClick={() => setShowDangerZone(!showDangerZone)}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          {showDangerZone ? (
-            <ChevronDown className="h-3 w-3" />
-          ) : (
-            <ChevronRight className="h-3 w-3" />
+      <div className="rounded-xl border border-border/50 bg-card">
+        <div className="p-4">
+          <button
+            onClick={() => setShowDangerZone(!showDangerZone)}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full"
+          >
+            {showDangerZone ? (
+              <ChevronDown className="h-4 w-4" />
+            ) : (
+              <ChevronRight className="h-4 w-4" />
+            )}
+            <AlertTriangle className="h-4 w-4" />
+            <span>{t('profile_danger_section')}</span>
+          </button>
+          
+          {showDangerZone && (
+            <div className="mt-4 pt-4 border-t border-border/30">
+              <p className="text-sm text-muted-foreground mb-4">
+                {t('profile_delete_description')}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteDialog(true)}
+                className="text-xs text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors"
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-2" />
+                {t('profile_delete_button')}
+              </Button>
+            </div>
           )}
-          <span>{t('profile_danger_section')}</span>
-        </button>
-        
-        {showDangerZone && (
-          <div className="mt-4 p-4 rounded-lg border border-border/40 bg-muted/20">
-            <p className="text-sm text-muted-foreground mb-3">
-              {t('profile_delete_description')}
-            </p>
-            <Button
-              variant="outline"
-              onClick={() => setShowDeleteDialog(true)}
-              className="flex items-center gap-2 h-8 px-3 text-xs text-muted-foreground hover:text-red-600 hover:border-red-300"
-            >
-              <Trash2 className="h-3 w-3" />
-              {t('profile_delete_button')}
-            </Button>
-          </div>
-        )}
+        </div>
       </div>
 
 

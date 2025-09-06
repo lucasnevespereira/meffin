@@ -1,45 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { useDashboard } from '@/hooks/useDashboard';
 
 export default function DashboardPage() {
-  const currentDate = new Date();
-  const [selectedMonth, setSelectedMonth] = useState(currentDate.getMonth());
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
-
-  const { data, isLoading, error } = useDashboard(selectedMonth, selectedYear);
-
-  const getMonthName = (monthIndex: number) => {
-    const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
-    return months[monthIndex];
-  };
-
-  const navigateMonth = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      if (selectedMonth === 0) {
-        setSelectedMonth(11);
-        setSelectedYear(selectedYear - 1);
-      } else {
-        setSelectedMonth(selectedMonth - 1);
-      }
-    } else {
-      if (selectedMonth === 11) {
-        setSelectedMonth(0);
-        setSelectedYear(selectedYear + 1);
-      } else {
-        setSelectedMonth(selectedMonth + 1);
-      }
-    }
-  };
+  const { data, isLoading, error } = useDashboard();
 
   if (error) {
     return (
@@ -59,48 +27,30 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl font-semibold">Dashboard</h1>
-          <p className="text-sm text-muted-foreground mt-1">Vue d'ensemble de vos finances</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-balance">Dashboard</h1>
+          <p className="text-muted-foreground mt-2">Vue d'ensemble de vos finances personnelles</p>
         </div>
-        
-        {/* Mobile-optimized month navigation */}
-        <div className="flex items-center justify-center gap-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateMonth('prev')}
-            className="h-10 w-10 p-0 touch-manipulation"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </Button>
-          
-          <div className="flex items-center gap-2 px-4 py-2 bg-muted/30 rounded-lg min-w-0">
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-medium text-sm sm:text-base whitespace-nowrap">
-              {getMonthName(selectedMonth)} {selectedYear}
-            </span>
-          </div>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => navigateMonth('next')}
-            className="h-10 w-10 p-0 touch-manipulation"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
+          <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
+          <span className="text-xs font-medium text-muted-foreground">En temps réel</span>
         </div>
       </div>
 
       {/* Balance Cards */}
       {isLoading ? (
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-3">
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="p-4 sm:p-6 rounded-lg border border-border/40 bg-card/30 animate-pulse touch-manipulation">
-              <div className="h-4 bg-muted rounded mb-4" />
-              <div className="h-6 bg-muted rounded" />
+            <div key={i} className="rounded-xl border border-border bg-card shadow-card animate-pulse">
+              <div className="p-6">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 bg-muted rounded-lg" />
+                  <div className="h-4 bg-muted rounded w-16" />
+                </div>
+                <div className="h-8 bg-muted rounded w-24 mb-2" />
+                <div className="h-6 bg-muted rounded-full w-20" />
+              </div>
             </div>
           ))}
         </div>
@@ -133,8 +83,8 @@ export default function DashboardPage() {
       ) : data ? (
         <CategoryBreakdown
           categories={data.categoryBreakdown}
-          month={selectedMonth}
-          year={selectedYear}
+          month={data.month}
+          year={data.year}
         />
       ) : null}
     </div>

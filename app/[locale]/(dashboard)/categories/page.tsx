@@ -111,117 +111,146 @@ export default function CategoriesPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="space-y-4">
-        <div className="text-center sm:text-left">
-          <h1 className="text-2xl font-semibold">{t('categories_title')}</h1>
-          <p className="text-sm text-muted-foreground mt-1">{t('categories_subtitle')}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('categories_title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('categories_subtitle')}</p>
         </div>
-
-        <div className="flex justify-center sm:justify-start">
-          <Button 
-            onClick={() => setIsFormOpen(true)} 
-            className="h-11 px-6 text-sm font-medium touch-manipulation w-full sm:w-auto"
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('categories_add_button')}
-          </Button>
-        </div>
+        <Button
+          onClick={() => setIsFormOpen(true)}
+          className="shadow-card hover:shadow-lg"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          {t('categories_add_button')}
+        </Button>
       </div>
 
       {/* Loading State */}
       {isLoading && (
-        <div className="space-y-6">
-          <div className="h-5 bg-muted rounded w-48 mb-6" />
-          <div className="space-y-3">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="p-4 rounded-lg border border-border/40 bg-card/20 animate-pulse touch-manipulation">
-                <div className="flex items-center gap-3">
-                  <div className="w-4 h-4 bg-muted rounded-full" />
-                  <div className="h-4 w-20 bg-muted rounded" />
-                  <div className="h-4 w-16 bg-muted rounded" />
+        <div className="space-y-8">
+          {[1, 2].map(i => (
+            <div key={i} className="rounded-xl border border-border bg-card shadow-card animate-pulse">
+              <div className="p-6">
+                <div className="h-6 bg-muted rounded w-32 mb-6" />
+                <div className="space-y-3">
+                  {[1, 2, 3].map(j => (
+                    <div key={j} className="flex items-center gap-4 p-4 rounded-lg bg-muted/20">
+                      <div className="w-8 h-8 bg-muted rounded-lg" />
+                      <div className="flex-1">
+                        <div className="h-4 bg-muted rounded w-24 mb-2" />
+                        <div className="h-3 bg-muted rounded w-16" />
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
       )}
 
       {/* Default Categories */}
       {!isLoading && defaultCats.length > 0 && (
-        <div>
-          <h2 className="text-lg font-medium mb-4 px-1">{t('categories_default_title')}</h2>
-          <div className="space-y-3">
-            {defaultCats.map((category) => (
-              <div
-                key={category.id}
-                className="flex items-center gap-3 p-4 rounded-lg border border-border/40 bg-card/20 touch-manipulation"
-              >
-                <div
-                  className="w-4 h-4 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: category.color }}
-                />
-                <span className="font-medium text-sm flex-1 min-w-0 truncate">{category.name}</span>
-                <Badge variant={category.type === 'income' ? 'default' : 'secondary'} className="text-xs whitespace-nowrap">
-                  {category.type === 'income' ? t('categories_income') : t('categories_expense')}
-                </Badge>
+        <div className="rounded-xl border border-border bg-card shadow-card">
+          <div className="p-6">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-bold tracking-tight">{t('categories_default_title')}</h2>
+              <div className="px-3 py-1 rounded-full text-xs font-medium border bg-muted/50 text-muted-foreground border-border">
+                {defaultCats.length} catégorie{defaultCats.length > 1 ? 's' : ''}
               </div>
-            ))}
+            </div>
+            
+            <div className="space-y-3">
+              {defaultCats.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center gap-4 p-4 rounded-lg bg-muted/20 border border-transparent transition-all duration-200 touch-manipulation"
+                >
+                  <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: category.color }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-sm truncate">{category.name}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {category.type === 'income' ? t('categories_income') : t('categories_expense')}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
 
       {/* Custom Categories */}
-      <div>
-        <h2 className="text-lg font-medium mb-4 px-1">{t('categories_custom_title')}</h2>
-        {customCats.length === 0 ? (
-          <div className="text-center py-12 px-4 text-muted-foreground rounded-lg border border-border/40 bg-card/20">
-            <Tag className="h-8 w-8 mx-auto mb-3 opacity-50" />
-            <p className="text-sm">{t('categories_no_custom')}</p>
-            <p className="text-xs mt-1 opacity-75">
-              {t('categories_create_custom')}
-            </p>
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-bold tracking-tight">{t('categories_custom_title')}</h2>
+            <div className="px-3 py-1 rounded-full text-xs font-medium border bg-muted/50 text-muted-foreground border-border">
+              {customCats.length} catégorie{customCats.length > 1 ? 's' : ''} personnalisée{customCats.length > 1 ? 's' : ''}
+            </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            {customCats.map((category) => (
-              <div
-                key={category.id}
-                className="flex items-center justify-between p-4 rounded-lg border border-border/40 bg-card/20 hover:bg-card/40 transition-colors touch-manipulation"
-              >
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div
-                    className="w-4 h-4 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: category.color }}
-                  />
-                  <span className="font-medium text-sm flex-1 min-w-0 truncate">{category.name}</span>
-                  <Badge variant={category.type === 'income' ? 'default' : 'secondary'} className="text-xs whitespace-nowrap ml-2">
-                    {category.type === 'income' ? t('categories_income') : t('categories_expense')}
-                  </Badge>
-                </div>
 
-                <div className="flex items-center gap-2 ml-3 flex-shrink-0">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleEditCategory(category)}
-                    className="h-9 w-9 p-0 touch-manipulation"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => handleDeleteClick(category)}
-                    disabled={deleteMutation.isPending}
-                    className="h-9 w-9 p-0 touch-manipulation"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
+          {customCats.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="w-12 h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <Tag className="h-6 w-6 text-muted-foreground/60" />
               </div>
-            ))}
-          </div>
-        )}
+              <p className="text-sm text-muted-foreground font-medium">{t('categories_no_custom')}</p>
+              <p className="text-xs text-muted-foreground mt-1">
+                {t('categories_create_custom')}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {customCats.map((category) => (
+                <div
+                  key={category.id}
+                  className="group flex items-center justify-between p-4 rounded-lg bg-muted/20 hover:bg-muted/40 border border-transparent hover:border-border transition-all duration-200 touch-manipulation"
+                >
+                  <div className="flex items-center gap-4 min-w-0 flex-1">
+                    <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
+                      <div
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: category.color }}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-semibold text-sm truncate">{category.name}</div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {category.type === 'income' ? t('categories_income') : t('categories_expense')}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleEditCategory(category)}
+                      className="h-8 w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                    >
+                      <Edit className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteClick(category)}
+                      disabled={deleteMutation.isPending}
+                      className="h-8 w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Category Form Modals */}

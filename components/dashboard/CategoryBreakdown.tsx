@@ -62,80 +62,90 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-lg font-medium">Répartition par catégorie</h2>
-        <span className="text-sm text-muted-foreground">
-          {getMonthName(month)} {year}
-        </span>
+        <h2 className="text-2xl font-bold tracking-tight">Répartition par catégorie</h2>
+        <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full">
+          <span className="text-sm font-medium text-muted-foreground">
+            {getMonthName(month)} {year}
+          </span>
+        </div>
       </div>
-      <div className="space-y-2">
-        <div className="space-y-3">
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
           {expenseCategories.length > 0 ? (
-            expenseCategories.map((category) => {
-              const categoryTransactions = getCategoryTransactions(category.categoryId);
-              const isExpanded = expandedCategory === category.categoryId;
-              
-              return (
-                <div key={category.categoryId}>
-                  <div 
-                    className="flex items-center justify-between py-4 px-4 rounded-lg border border-border/40 bg-card/20 cursor-pointer hover:bg-card/40 transition-colors"
-                    onClick={() => toggleCategory(category.categoryId)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-3">
-                        {isExpanded ? (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                        )}
-                        <div 
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: category.color }}
-                        />
-                        <span className="font-medium text-sm">{category.categoryName}</span>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <div className="font-medium text-sm">
-                        {formatEuro(category.total)}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {category.transactionCount} transaction{category.transactionCount > 1 ? 's' : ''}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {isExpanded && (
-                    <div className="mt-2 ml-8 space-y-1">
-                      {categoryTransactions.length > 0 ? (
-                        categoryTransactions.map((transaction) => (
-                          <div 
-                            key={transaction.id} 
-                            className="flex items-center justify-between py-2 px-3 rounded bg-muted/30"
-                          >
-                            <div className="flex flex-col">
-                              <span className="text-sm">{transaction.description}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {formatDate(transaction.date)}
-                              </span>
-                            </div>
-                            <div className="text-sm font-medium">
-                              {formatEuro(Number(transaction.amount))}
-                            </div>
+            <div className="space-y-4">
+              {expenseCategories.map((category) => {
+                const categoryTransactions = getCategoryTransactions(category.categoryId);
+                const isExpanded = expandedCategory === category.categoryId;
+                
+                return (
+                  <div key={category.categoryId} className="group">
+                    <div 
+                      className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all duration-200 border border-transparent hover:border-border"
+                      onClick={() => toggleCategory(category.categoryId)}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3">
+                          {isExpanded ? (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform" />
+                          ) : (
+                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
+                          )}
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
+                            <div 
+                              className="w-3 h-3 rounded-full"
+                              style={{ backgroundColor: category.color }}
+                            />
                           </div>
-                        ))
-                      ) : (
-                        <div className="text-center py-4 text-sm text-muted-foreground">
-                          Aucune transaction pour cette catégorie
+                          <span className="font-semibold text-sm">{category.categoryName}</span>
                         </div>
-                      )}
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold text-base text-red-700">
+                          -{formatEuro(category.total)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {category.transactionCount} transaction{category.transactionCount > 1 ? 's' : ''}
+                        </div>
+                      </div>
                     </div>
-                  )}
-                </div>
-              );
-            })
+                    
+                    {isExpanded && (
+                      <div className="mt-3 ml-12 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                        {categoryTransactions.length > 0 ? (
+                          categoryTransactions.map((transaction) => (
+                            <div 
+                              key={transaction.id} 
+                              className="flex items-center justify-between py-3 px-4 rounded-lg bg-card border border-border/50 hover:shadow-subtle transition-shadow"
+                            >
+                              <div className="flex flex-col gap-1">
+                                <span className="text-sm font-medium">{transaction.description}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {formatDate(transaction.date)}
+                                </span>
+                              </div>
+                              <div className="text-sm font-semibold text-red-600">
+                                -{formatEuro(Number(transaction.amount))}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="text-center py-6 text-sm text-muted-foreground bg-muted/20 rounded-lg">
+                            Aucune transaction pour cette catégorie
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           ) : (
-            <div className="text-center py-8 text-muted-foreground">
-              Aucune dépense pour ce mois
+            <div className="text-center py-12 text-muted-foreground">
+              <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📊</span>
+              </div>
+              <p className="font-medium">Aucune dépense pour ce mois</p>
+              <p className="text-sm mt-1">Vos dépenses apparaîtront ici une fois ajoutées</p>
             </div>
           )}
         </div>
