@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { transactions, categories } from '@/lib/schema';
 import { auth } from '@/lib/auth';
-import { eq, and, sql, gte, lte } from 'drizzle-orm';
+import { eq, and, gte, lte } from 'drizzle-orm';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
 

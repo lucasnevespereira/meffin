@@ -1,38 +1,85 @@
 # Variables
+NODE_ENV ?= development
 PORT ?= 3000
 
-.PHONY: dev dev-clean db-push db-migrate help
+.PHONY: help dev setup db-setup db-reset build clean install
 
-# Main development command
-dev:
-	@echo "🚀 Starting development..."
-	@npm install --silent
-	@echo "✅ Ready! Starting server on port $(PORT)"
-	@npm run dev
-
-# Clean start (kills port first)
-dev-clean:
-	@echo "🧹 Cleaning port $(PORT) and starting fresh..."
-	@npx kill-port $(PORT) 2>/dev/null || true
-	@$(MAKE) --no-print-directory dev
-
-# Database commands
-db-push:
-	@echo "📊 Pushing schema changes to database..."
-	@npx drizzle-kit push
-
-db-migrate:
-	@echo "📊 Generating and running migrations..."
-	@npx drizzle-kit generate
-	@npx drizzle-kit migrate
+# Default target
+.DEFAULT_GOAL := help
 
 # Show available commands
 help:
-	@echo "Available commands:"
-	@echo "  make dev        - Install deps, start dev server (no migrations)"
-	@echo "  make dev-clean  - Kill port $(PORT) first, then start dev"
-	@echo "  make db-push    - Push schema changes directly to database"
-	@echo "  make db-migrate - Generate and run migrations"
+	@echo "🛠️  Meffin Development Commands"
+	@echo ""
+	@echo "Quick Start:"
+	@echo "  make setup      - Complete setup for new contributors (install + db setup)"
+	@echo "  make dev        - Start development server"
+	@echo ""
+	@echo "Database:"
+	@echo "  make db-setup   - Set up database schema (run migrations)"
+	@echo "  make db-reset   - Reset database and apply fresh schema"
+	@echo ""
+	@echo "Other:"
+	@echo "  make install    - Install dependencies only"
+	@echo "  make build      - Build for production"
+	@echo "  make clean      - Clean node_modules and build artifacts"
 	@echo "  make help       - Show this help"
 
-.DEFAULT_GOAL := dev
+# Complete setup for new contributors
+setup: install db-setup
+	@echo ""
+	@echo "🎉 Setup complete! Run 'make dev' to start developing."
+	@echo ""
+
+# Install dependencies
+install:
+	@echo "📦 Installing dependencies..."
+	@npm install --silent
+
+# Set up database (apply migrations)
+db-setup:
+	@echo "📊 Setting up database..."
+	@if [ ! -f ".env.local" ]; then \
+		echo "❌ .env.local file not found!"; \
+		echo "   Please copy .env.example to .env.local and add your DATABASE_URL"; \
+		exit 1; \
+	fi
+	@npx drizzle-kit migrate
+	@echo "✅ Database setup complete!"
+
+# Reset database (push current schema)
+db-reset:
+	@echo "🔄 Resetting database..."
+	@npx drizzle-kit push --force
+	@echo "✅ Database reset complete!"
+
+# Start development server
+dev:
+	@echo "🚀 Starting development server..."
+	@if [ ! -d "node_modules" ]; then \
+		echo "📦 Installing dependencies first..."; \
+		npm install --silent; \
+	fi
+	@npm run dev
+
+# Build for production
+build: install
+	@echo "🏗️  Building for production..."
+	@npm run build
+
+# Clean everything
+clean:
+	@echo "🧹 Cleaning up..."
+	@rm -rf node_modules
+	@rm -rf .next
+	@rm -rf dist
+	@echo "✅ Clean complete!"
+
+# Check if environment is set up
+check-env:
+	@if [ ! -f ".env.local" ]; then \
+		echo "❌ .env.local file not found!"; \
+		echo "   Please copy .env.example to .env.local and configure your environment variables"; \
+		exit 1; \
+	fi
+	@echo "✅ Environment file found"
