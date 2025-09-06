@@ -136,34 +136,33 @@ export default function ProfilePage() {
         <p className="text-sm text-muted-foreground mt-1">{t('profile_subtitle')}</p>
       </div>
 
-      {/* Profile Information */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <User className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-lg font-medium">{t('profile_info_section')}</h2>
-        </div>
-        <div className="space-y-6 p-6 rounded-lg border border-border/40 bg-card/20">
-          {success && (
-            <Alert className="border-green-200 bg-green-50/50">
-              <AlertDescription className="text-green-700">{success}</AlertDescription>
-            </Alert>
-          )}
-          
-          {error && (
-            <Alert variant="destructive" className="bg-red-50/50">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+      <div className="max-w-2xl">
+        {success && (
+          <Alert className="mb-6 border-green-200 bg-green-50/50">
+            <AlertDescription className="text-green-700">{success}</AlertDescription>
+          </Alert>
+        )}
+        
+        {error && (
+          <Alert variant="destructive" className="mb-6 bg-red-50/50">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+          {/* Profile Information */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <User className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-lg font-medium">{t('profile_info_section')}</h2>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
                 <Input
                   id="name"
                   {...register('name')}
                   placeholder={t('register_name')}
-                  className="border-0 bg-muted/50 focus:bg-background transition-colors"
                 />
                 {errors.name && (
                   <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -177,66 +176,69 @@ export default function ProfilePage() {
                   type="email"
                   {...register('email')}
                   disabled
-                  className="border-0 bg-muted/30 text-muted-foreground"
+                  className="bg-muted/30 text-muted-foreground"
                 />
                 <p className="text-xs text-muted-foreground">
                   {t('profile_email_readonly')}
                 </p>
               </div>
             </div>
+          </div>
 
-            <div className="p-4 bg-muted/20 rounded-lg space-y-1 text-sm">
-              <p className="text-muted-foreground">
-                <span className="font-medium">{t('profile_user_id')}:</span> {session.user.id}
-              </p>
-              <p className="text-muted-foreground">
-                <span className="font-medium">{t('profile_created_at')}:</span> {new Date(session.user.createdAt).toLocaleDateString('fr-FR')}
-              </p>
+          {/* Preferences */}
+          <div>
+            <div className="flex items-center gap-2 mb-4">
+              <Globe className="h-4 w-4 text-muted-foreground" />
+              <h2 className="text-lg font-medium">{t('profile_preferences_section')}</h2>
             </div>
-
-            <Button 
-              type="submit" 
-              disabled={isLoading} 
-              className="flex items-center gap-2 h-9 px-4 text-sm"
-            >
-              <Save className="h-4 w-4" />
-              {isLoading ? t('profile_saving') : t('profile_save')}
-            </Button>
-          </form>
-        </div>
-      </div>
-
-      {/* Preferences */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Globe className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-lg font-medium">{t('profile_preferences_section')}</h2>
-        </div>
-        <div className="space-y-6 p-6 rounded-lg border border-border/40 bg-card/20">
-          <div className="max-w-md">
-            <div className="space-y-2">
-              <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
-              <Select
-                value={selectedCurrency}
-                onValueChange={(value) => setValue('currency', value)}
-              >
-                <SelectTrigger className="border-0 bg-muted/50 focus:bg-background transition-colors">
-                  <SelectValue placeholder={t('profile_currency_select')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency.code} value={currency.code}>
-                      {t(currency.nameKey as any)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.currency && (
-                <p className="text-sm text-red-600">{errors.currency.message}</p>
-              )}
+            <div className="max-w-xs">
+              <div className="space-y-2">
+                <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
+                <Select
+                  value={selectedCurrency}
+                  onValueChange={(value) => setValue('currency', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder={t('profile_currency_select')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {currencies.map((currency) => (
+                      <SelectItem key={currency.code} value={currency.code}>
+                        {t(currency.nameKey as any)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.currency && (
+                  <p className="text-sm text-red-600">{errors.currency.message}</p>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+
+          {/* Account Details */}
+          <div className="pt-4 border-t border-border/40">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-muted-foreground">
+              <div>
+                <span className="font-medium">{t('profile_user_id')}:</span>
+                <div className="font-mono text-xs mt-1 break-all">{session.user.id}</div>
+              </div>
+              <div>
+                <span className="font-medium">{t('profile_created_at')}:</span>
+                <div className="mt-1">{new Date(session.user.createdAt).toLocaleDateString('fr-FR')}</div>
+              </div>
+            </div>
+          </div>
+
+          <Button 
+            type="submit" 
+            disabled={isLoading} 
+            className="flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {isLoading ? t('profile_saving') : t('profile_save')}
+          </Button>
+        </form>
       </div>
 
       {/* Danger Zone */}
@@ -260,32 +262,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* About */}
-      <div>
-        <div className="flex items-center gap-2 mb-4">
-          <Info className="h-4 w-4 text-muted-foreground" />
-          <h2 className="text-lg font-medium">About Meffin</h2>
-        </div>
-        <div className="p-6 rounded-lg border border-border/40 bg-card/20">
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Version</span>
-              <span className="font-mono text-xs">v{APP_VERSION}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Built with</span>
-              <span>Next.js + TypeScript</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">License</span>
-              <span>Open Source</span>
-            </div>
-            <div className="pt-2 text-xs text-muted-foreground border-t border-border/40">
-              Lightweight budget tracking app designed for simplicity and performance.
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
