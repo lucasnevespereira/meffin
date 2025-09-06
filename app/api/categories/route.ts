@@ -4,7 +4,8 @@ import { categories } from '@/lib/schema';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORY_IDS } from '@/lib/default-categories';
+import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
+import { Category } from '@/types';
 
 const createCategorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
@@ -26,29 +27,30 @@ export async function GET(request: NextRequest) {
       .where(eq(categories.userId, session.user.id))
       .orderBy(categories.name);
 
-    // Hardcoded default categories with proper structure for API
-    const defaultCategories = [
-      // Income categories
-      { id: DEFAULT_CATEGORY_IDS.salary, name: 'Salary', type: 'income' as const, color: '#10B981', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.freelance, name: 'Freelance', type: 'income' as const, color: '#3B82F6', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.investment, name: 'Investment', type: 'income' as const, color: '#8B5CF6', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.business, name: 'Business', type: 'income' as const, color: '#06B6D4', userId: null, createdAt: new Date(), isCustom: false },
-      
-      // Expense categories
-      { id: DEFAULT_CATEGORY_IDS.groceries, name: 'Groceries', type: 'expense' as const, color: '#EF4444', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.transportation, name: 'Transportation', type: 'expense' as const, color: '#F59E0B', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.housing, name: 'Housing', type: 'expense' as const, color: '#6366F1', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.utilities, name: 'Utilities', type: 'expense' as const, color: '#EC4899', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.entertainment, name: 'Entertainment', type: 'expense' as const, color: '#14B8A6', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.healthcare, name: 'Healthcare', type: 'expense' as const, color: '#F97316', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.shopping, name: 'Shopping', type: 'expense' as const, color: '#84CC16', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.education, name: 'Education', type: 'expense' as const, color: '#8B5CF6', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.insurance, name: 'Insurance', type: 'expense' as const, color: '#6B7280', userId: null, createdAt: new Date(), isCustom: false },
-      { id: DEFAULT_CATEGORY_IDS.dining, name: 'Dining Out', type: 'expense' as const, color: '#F59E0B', userId: null, createdAt: new Date(), isCustom: false },
-    ];
+    // Convert database categories to unified format
+    const customCategoriesFormatted: Category[] = customCategories.map(cat => ({
+      id: cat.id,
+      name: cat.name,
+      type: cat.type,
+      color: cat.color,
+      isCustom: true,
+      userId: cat.userId,
+      createdAt: cat.createdAt,
+    }));
+
+    // Convert default categories to unified format
+    const defaultCategoriesFormatted: Category[] = DEFAULT_CATEGORIES.map(cat => ({
+      id: cat.id,
+      name: cat.name, // This is the i18n key
+      type: cat.type,
+      color: cat.color,
+      isCustom: false,
+      userId: null,
+      createdAt: undefined,
+    }));
 
     // Combine default and custom categories
-    const allCategories = [...defaultCategories, ...customCategories];
+    const allCategories = [...defaultCategoriesFormatted, ...customCategoriesFormatted];
 
     return NextResponse.json({ categories: allCategories });
   } catch (error) {
@@ -74,10 +76,20 @@ export async function POST(request: NextRequest) {
       name: validatedData.name,
       type: validatedData.type,
       color: validatedData.color,
-      isCustom: true, // User-created categories are custom
     }).returning();
 
-    return NextResponse.json({ category: newCategory });
+    // Convert to unified format
+    const categoryResponse: Category = {
+      id: newCategory.id,
+      name: newCategory.name,
+      type: newCategory.type,
+      color: newCategory.color,
+      isCustom: true,
+      userId: newCategory.userId,
+      createdAt: newCategory.createdAt,
+    };
+
+    return NextResponse.json({ category: categoryResponse });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.message }, { status: 400 });

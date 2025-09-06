@@ -8,30 +8,31 @@ import { z } from 'zod';
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   amount: z.number().positive('Amount must be positive'),
-  categoryId: z.string().uuid('Invalid category ID'),
-  date: z.string().datetime('Invalid date'),
+  categoryId: z.uuid('Invalid category ID'),
+  date: z.date('Invalid date'),
   isFixed: z.boolean().default(false),
 });
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateTransactionSchema.parse(body);
 
-    // Verify transaction belongs to user
+    // Check if transaction exists and belongs to user
     const existingTransaction = await db.select()
       .from(transactions)
       .where(and(
-        eq(transactions.id, params.id),
+        eq(transactions.id, id),
         eq(transactions.userId, session.user.id)
       ))
       .limit(1);
@@ -55,15 +56,14 @@ export async function PUT(
 
     const [updatedTransaction] = await db.update(transactions)
       .set({
-        categoryId: validatedData.categoryId,
         description: validatedData.description,
         amount: validatedData.amount.toString(),
+        categoryId: validatedData.categoryId,
         date: new Date(validatedData.date),
         isFixed: validatedData.isFixed,
-        updatedAt: new Date(),
       })
       .where(and(
-        eq(transactions.id, params.id),
+        eq(transactions.id, id),
         eq(transactions.userId, session.user.id)
       ))
       .returning();
@@ -71,9 +71,9 @@ export async function PUT(
     return NextResponse.json({ transaction: updatedTransaction });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: error.errors }, { status: 400 });
+      return NextResponse.json({ error: error.issues }, { status: 400 });
     }
-    
+
     console.error('Error updating transaction:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -81,18 +81,20 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
+
     const result = await db.delete(transactions)
       .where(and(
-        eq(transactions.id, params.id),
+        eq(transactions.id, id),
         eq(transactions.userId, session.user.id)
       ))
       .returning();

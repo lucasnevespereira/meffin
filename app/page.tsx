@@ -3,13 +3,13 @@ import { headers } from 'next/headers';
 
 export default async function RootPage() {
   // Detect user's preferred language from Accept-Language header
-  const headersList = headers();
+  const headersList = await headers();
   const acceptLanguage = headersList.get('accept-language') || '';
-  
+
   // Simple language detection
   const prefersFrench = acceptLanguage.includes('fr');
   const locale = prefersFrench ? 'fr' : 'en';
-  
+
   // Redirect to the appropriate locale
   redirect(`/${locale}`);
 }

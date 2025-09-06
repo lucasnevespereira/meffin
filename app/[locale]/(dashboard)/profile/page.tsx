@@ -33,15 +33,8 @@ import { useSession, signOut } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-
-
-const currencies = [
-  { code: 'EUR', nameKey: 'currency_eur', symbol: '€' },
-  { code: 'USD', nameKey: 'currency_usd', symbol: '$' },
-  { code: 'GBP', nameKey: 'currency_gbp', symbol: '£' },
-  { code: 'CAD', nameKey: 'currency_cad', symbol: 'C$' },
-  { code: 'CHF', nameKey: 'currency_chf', symbol: 'CHF' },
-] as const;
+import { SUPPORTED_CURRENCIES } from '@/lib/currency-utils';
+import { useQueryClient } from '@tanstack/react-query';
 
 
 const createProfileSchema = (t: ReturnType<typeof useI18n>) =>
@@ -68,6 +61,7 @@ export default function ProfilePage() {
   const { data: profileData, isLoading: profileLoading } = useProfile();
   const t = useI18n();
   const updateProfileMutation = useUpdateProfile();
+  const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDangerZone, setShowDangerZone] = useState(false);
@@ -94,7 +88,6 @@ export default function ProfilePage() {
         currency: profileData.user.currency || 'EUR',
       });
     } else if (session?.user && !profileLoading) {
-      // Fallback to session data if profile data isn't available
       reset({
         name: session.user.name || '',
         email: session.user.email || '',
@@ -103,7 +96,12 @@ export default function ProfilePage() {
     }
   }, [profileData, session, profileLoading, reset]);
 
-  const selectedCurrency = watch('currency');
+  const selectedCurrency = watch('currency') || profileData?.user?.currency || 'EUR';
+
+  const handleRefreshProfile = () => {
+    queryClient.invalidateQueries({ queryKey: ['profile'] });
+    queryClient.refetchQueries({ queryKey: ['profile'] });
+  };
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -116,7 +114,7 @@ export default function ProfilePage() {
         description: t('profile_success_description'),
         duration: 4000,
       });
-      
+
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : t('profile_error');
       toast.error(t('profile_error'), {
@@ -131,12 +129,12 @@ export default function ProfilePage() {
     try {
       // TODO: Implement account deletion API
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      
+
       toast.success(t('profile_delete_success'), {
         description: t('profile_delete_success_description'),
         duration: 3000,
       });
-      
+
       await signOut();
       router.push('/login');
     } catch (err: unknown) {
@@ -217,7 +215,7 @@ export default function ProfilePage() {
                 className="w-full h-full object-cover"
               />
             </div>
-            
+
             {/* User Info and Status */}
             <div className="flex-1">
               <h2 className="text-xl font-bold tracking-tight">{profileData?.user?.name || session.user.name || 'User'}</h2>
@@ -278,8 +276,20 @@ export default function ProfilePage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRefreshProfile}
+                      className="text-xs text-muted-foreground"
+                    >
+                      Refresh Profile
+                    </Button>
+                  </div>
                   <Select
+                    key={`currency-${profileData?.user?.currency || 'loading'}`}
                     value={selectedCurrency}
                     onValueChange={(value) => setValue('currency', value)}
                   >
@@ -287,9 +297,12 @@ export default function ProfilePage() {
                       <SelectValue placeholder={t('profile_currency_select')} />
                     </SelectTrigger>
                     <SelectContent>
-                      {currencies.map((currency) => (
+                      {SUPPORTED_CURRENCIES.map((currency) => (
                         <SelectItem key={currency.code} value={currency.code} className="py-2">
-                          {t(currency.nameKey)}
+                          <div className="flex items-center gap-2">
+                            <span>{currency.symbol}</span>
+                            <span>{t(currency.nameKey)}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

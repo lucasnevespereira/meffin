@@ -4,7 +4,7 @@ import { transactions, categories } from '@/lib/schema';
 import { auth } from '@/lib/auth';
 import { eq, desc } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORY_IDS } from '@/lib/default-categories';
+import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
 
 const createTransactionSchema = z.object({
@@ -34,27 +34,33 @@ export async function GET(request: NextRequest) {
       .from(categories)
       .where(eq(categories.userId, session.user.id));
 
-    const defaultCategories: Record<string, Category> = {
-      [DEFAULT_CATEGORY_IDS.salary]: { id: DEFAULT_CATEGORY_IDS.salary, name: 'Salary', type: 'income', color: '#10B981', isCustom: false, createdAt: new Date() , userId: '' },
-      [DEFAULT_CATEGORY_IDS.freelance]: { id: DEFAULT_CATEGORY_IDS.freelance, name: 'Freelance', type: 'income', color: '#3B82F6', isCustom: false , createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.investment]: { id: DEFAULT_CATEGORY_IDS.investment, name: 'Investment', type: 'income', color: '#8B5CF6', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.business]: { id: DEFAULT_CATEGORY_IDS.business, name: 'Business', type: 'income', color: '#06B6D4', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.groceries]: { id: DEFAULT_CATEGORY_IDS.groceries, name: 'Groceries', type: 'expense', color: '#EF4444', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.transportation]: { id: DEFAULT_CATEGORY_IDS.transportation, name: 'Transportation', type: 'expense', color: '#F59E0B', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.housing]: { id: DEFAULT_CATEGORY_IDS.housing, name: 'Housing', type: 'expense', color: '#6366F1', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.utilities]: { id: DEFAULT_CATEGORY_IDS.utilities, name: 'Utilities', type: 'expense', color: '#EC4899', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.entertainment]: { id: DEFAULT_CATEGORY_IDS.entertainment, name: 'Entertainment', type: 'expense', color: '#14B8A6', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.healthcare]: { id: DEFAULT_CATEGORY_IDS.healthcare, name: 'Healthcare', type: 'expense', color: '#F97316', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.shopping]: { id: DEFAULT_CATEGORY_IDS.shopping, name: 'Shopping', type: 'expense', color: '#84CC16', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.education]: { id: DEFAULT_CATEGORY_IDS.education, name: 'Education', type: 'expense', color: '#8B5CF6', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.insurance]: { id: DEFAULT_CATEGORY_IDS.insurance, name: 'Insurance', type: 'expense', color: '#6B7280', isCustom: false, createdAt: new Date(), userId: '' },
-      [DEFAULT_CATEGORY_IDS.dining]: { id: DEFAULT_CATEGORY_IDS.dining, name: 'Dining Out', type: 'expense', color: '#F59E0B', isCustom: false, createdAt: new Date(), userId: '' },
-    };
+    // Create category lookup with default categories
+    const categoryLookup: Record<string, Category> = {};
 
-    // Create category lookup
-    const categoryLookup = { ...defaultCategories };
+    // Add default categories
+    DEFAULT_CATEGORIES.forEach(cat => {
+      categoryLookup[cat.id] = {
+        id: cat.id,
+        name: cat.name, // This is the i18n key
+        type: cat.type,
+        color: cat.color,
+        isCustom: false,
+        userId: null,
+        createdAt: undefined,
+      };
+    });
+
+    // Add custom categories
     customCategories.forEach(cat => {
-      categoryLookup[cat.id] = cat;
+      categoryLookup[cat.id] = {
+        id: cat.id,
+        name: cat.name,
+        type: cat.type,
+        color: cat.color,
+        isCustom: true,
+        userId: cat.userId,
+        createdAt: cat.createdAt,
+      };
     });
 
     // Map transactions with category info
@@ -64,9 +70,11 @@ export async function GET(request: NextRequest) {
       category: categoryLookup[transaction.categoryId] || {
         id: transaction.categoryId,
         name: 'Unknown',
-        type: 'expense',
+        type: 'expense' as const,
         color: '#6B7280',
-        isCustom: false
+        isCustom: false,
+        userId: null,
+        createdAt: undefined,
       }
     }));
 
@@ -87,6 +95,27 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const validatedData = createTransactionSchema.parse(body);
+
+    // Validate category exists
+    const isDefaultCategory = validatedData.categoryId.startsWith('default_');
+
+    if (!isDefaultCategory) {
+      // Check if custom category exists and belongs to user
+      const customCategory = await db.select()
+        .from(categories)
+        .where(eq(categories.id, validatedData.categoryId))
+        .limit(1);
+
+      if (customCategory.length === 0 || customCategory[0].userId !== session.user.id) {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+      }
+    } else {
+      // Check if default category exists
+      const defaultCategory = DEFAULT_CATEGORIES.find(cat => cat.id === validatedData.categoryId);
+      if (!defaultCategory) {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+      }
+    }
 
     const [newTransaction] = await db.insert(transactions).values({
       id: crypto.randomUUID(),

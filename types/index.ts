@@ -5,7 +5,18 @@ import type { users, categories, transactions } from '@/lib/schema';
 export type User = InferSelectModel<typeof users>;
 export type NewUser = InferInsertModel<typeof users>;
 
-export type Category = InferSelectModel<typeof categories>;
+// Unified Category type that combines database categories and default categories
+export type Category = {
+  id: string;
+  name: string; // For default categories, this is the i18n key; for custom, it's the actual name
+  type: 'income' | 'expense';
+  color: string;
+  isCustom: boolean;
+  userId?: string | null;
+  createdAt?: Date;
+};
+
+export type DatabaseCategory = InferSelectModel<typeof categories>;
 export type NewCategory = InferInsertModel<typeof categories>;
 
 export type Transaction = InferSelectModel<typeof transactions>;

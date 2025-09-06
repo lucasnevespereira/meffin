@@ -13,7 +13,7 @@ const updateCategorySchema = z.object({
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
@@ -22,24 +22,26 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { id } = await params;
     const body = await request.json();
     const validatedData = updateCategorySchema.parse(body);
 
-    // Verify category belongs to user and is not default
+    // Check if it's a default category (cannot be edited)
+    if (id.startsWith('default_')) {
+      return NextResponse.json({ error: 'Cannot edit default categories' }, { status: 403 });
+    }
+
+    // Verify category belongs to user
     const existingCategory = await db.select()
       .from(categories)
       .where(and(
-        eq(categories.id, params.id),
+        eq(categories.id, id),
         eq(categories.userId, session.user.id)
       ))
       .limit(1);
 
     if (existingCategory.length === 0) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
-    }
-
-    if (existingCategory[0].isDefault) {
-      return NextResponse.json({ error: 'Cannot edit default categories' }, { status: 403 });
     }
 
     const [updatedCategory] = await db.update(categories)
@@ -49,12 +51,23 @@ export async function PUT(
         color: validatedData.color,
       })
       .where(and(
-        eq(categories.id, params.id),
+        eq(categories.id, id),
         eq(categories.userId, session.user.id)
       ))
       .returning();
 
-    return NextResponse.json({ category: updatedCategory });
+    // Convert to unified format
+    const categoryResponse = {
+      id: updatedCategory.id,
+      name: updatedCategory.name,
+      type: updatedCategory.type,
+      color: updatedCategory.color,
+      isCustom: true,
+      userId: updatedCategory.userId,
+      createdAt: updatedCategory.createdAt,
+    };
+
+    return NextResponse.json({ category: categoryResponse });
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json({ error: error.message }, { status: 400 });
@@ -67,7 +80,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
@@ -76,11 +89,18 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify category belongs to user and is not default
+    const { id } = await params;
+
+    // Check if it's a default category (cannot be deleted)
+    if (id.startsWith('default_')) {
+      return NextResponse.json({ error: 'Cannot delete default categories' }, { status: 403 });
+    }
+
+    // Verify category belongs to user
     const existingCategory = await db.select()
       .from(categories)
       .where(and(
-        eq(categories.id, params.id),
+        eq(categories.id, id),
         eq(categories.userId, session.user.id)
       ))
       .limit(1);
@@ -89,14 +109,10 @@ export async function DELETE(
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
     }
 
-    if (existingCategory[0].isDefault) {
-      return NextResponse.json({ error: 'Cannot delete default categories' }, { status: 403 });
-    }
-
     // Check if category has transactions
     const categoryTransactions = await db.select()
       .from(transactions)
-      .where(eq(transactions.categoryId, params.id))
+      .where(eq(transactions.categoryId, id))
       .limit(1);
 
     if (categoryTransactions.length > 0) {
@@ -107,7 +123,7 @@ export async function DELETE(
 
     await db.delete(categories)
       .where(and(
-        eq(categories.id, params.id),
+        eq(categories.id, id),
         eq(categories.userId, session.user.id)
       ))
       .returning();

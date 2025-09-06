@@ -3,12 +3,13 @@ import { db } from '@/lib/db';
 import { transactions, categories } from '@/lib/schema';
 import { auth } from '@/lib/auth';
 import { eq, and, sql, gte, lte } from 'drizzle-orm';
-import { DEFAULT_CATEGORY_IDS } from '@/lib/default-categories';
+import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
+import { Category } from '@/types';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    
+
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -34,39 +35,44 @@ export async function GET(request: NextRequest) {
       .from(categories)
       .where(eq(categories.userId, session.user.id));
 
-    // Default categories lookup
-    const defaultCategories = {
-      [DEFAULT_CATEGORY_IDS.salary]: { id: DEFAULT_CATEGORY_IDS.salary, name: 'Salary', type: 'income', color: '#10B981' },
-      [DEFAULT_CATEGORY_IDS.freelance]: { id: DEFAULT_CATEGORY_IDS.freelance, name: 'Freelance', type: 'income', color: '#3B82F6' },
-      [DEFAULT_CATEGORY_IDS.investment]: { id: DEFAULT_CATEGORY_IDS.investment, name: 'Investment', type: 'income', color: '#8B5CF6' },
-      [DEFAULT_CATEGORY_IDS.business]: { id: DEFAULT_CATEGORY_IDS.business, name: 'Business', type: 'income', color: '#06B6D4' },
-      [DEFAULT_CATEGORY_IDS.groceries]: { id: DEFAULT_CATEGORY_IDS.groceries, name: 'Groceries', type: 'expense', color: '#EF4444' },
-      [DEFAULT_CATEGORY_IDS.transportation]: { id: DEFAULT_CATEGORY_IDS.transportation, name: 'Transportation', type: 'expense', color: '#F59E0B' },
-      [DEFAULT_CATEGORY_IDS.housing]: { id: DEFAULT_CATEGORY_IDS.housing, name: 'Housing', type: 'expense', color: '#6366F1' },
-      [DEFAULT_CATEGORY_IDS.utilities]: { id: DEFAULT_CATEGORY_IDS.utilities, name: 'Utilities', type: 'expense', color: '#EC4899' },
-      [DEFAULT_CATEGORY_IDS.entertainment]: { id: DEFAULT_CATEGORY_IDS.entertainment, name: 'Entertainment', type: 'expense', color: '#14B8A6' },
-      [DEFAULT_CATEGORY_IDS.healthcare]: { id: DEFAULT_CATEGORY_IDS.healthcare, name: 'Healthcare', type: 'expense', color: '#F97316' },
-      [DEFAULT_CATEGORY_IDS.shopping]: { id: DEFAULT_CATEGORY_IDS.shopping, name: 'Shopping', type: 'expense', color: '#84CC16' },
-      [DEFAULT_CATEGORY_IDS.education]: { id: DEFAULT_CATEGORY_IDS.education, name: 'Education', type: 'expense', color: '#8B5CF6' },
-      [DEFAULT_CATEGORY_IDS.insurance]: { id: DEFAULT_CATEGORY_IDS.insurance, name: 'Insurance', type: 'expense', color: '#6B7280' },
-      [DEFAULT_CATEGORY_IDS.dining]: { id: DEFAULT_CATEGORY_IDS.dining, name: 'Dining Out', type: 'expense', color: '#F59E0B' },
-    };
+    // Create category lookup with default categories
+    const categoryLookup: Record<string, Category> = {};
 
-    // Create category lookup
-    const categoryLookup = { ...defaultCategories };
+    // Add default categories
+    DEFAULT_CATEGORIES.forEach(cat => {
+      categoryLookup[cat.id] = {
+        id: cat.id,
+        name: cat.name, // This is the i18n key
+        type: cat.type,
+        color: cat.color,
+        isCustom: false,
+        userId: null,
+        createdAt: undefined,
+      };
+    });
+
+    // Add custom categories
     customCategories.forEach(cat => {
-      categoryLookup[cat.id] = cat;
+      categoryLookup[cat.id] = {
+        id: cat.id,
+        name: cat.name,
+        type: cat.type,
+        color: cat.color,
+        isCustom: true,
+        userId: cat.userId,
+        createdAt: cat.createdAt,
+      };
     });
 
     // Calculate balance and category breakdown
     let income = 0;
     let expenses = 0;
-    const categoryTotals: Record<string, { categoryId: string; categoryName: string; color: string; type: string; total: number; transactionCount: number; isCustom: boolean }> = {};
+    const categoryTotals: Record<string, { categoryId: string; category: Category; total: number; transactionCount: number }> = {};
 
     userTransactions.forEach(transaction => {
       const amount = Number(transaction.amount);
       const category = categoryLookup[transaction.categoryId];
-      
+
       if (!category) return;
 
       if (category.type === 'income') {
@@ -77,15 +83,11 @@ export async function GET(request: NextRequest) {
 
       // Update category totals
       if (!categoryTotals[transaction.categoryId]) {
-        const isCustom = !defaultCategories[transaction.categoryId];
         categoryTotals[transaction.categoryId] = {
           categoryId: transaction.categoryId,
-          categoryName: category.name,
-          color: category.color,
-          type: category.type,
+          category: category,
           total: 0,
           transactionCount: 0,
-          isCustom,
         };
       }
       categoryTotals[transaction.categoryId].total += amount;
@@ -94,7 +96,7 @@ export async function GET(request: NextRequest) {
 
     const balance = income - expenses;
     const categoryData = Object.values(categoryTotals)
-      .filter(cat => cat.type === 'expense') // Only show expenses in breakdown
+      .filter(cat => cat.category.type === 'expense') // Only show expenses in breakdown
       .sort((a, b) => b.total - a.total);
 
     return NextResponse.json({

@@ -74,7 +74,6 @@ export const categories = pgTable('categories', {
   type: transactionTypeEnum('type').notNull(),
   color: varchar('color', { length: 7 }).notNull(), // Hex color code
   createdAt: timestamp('created_at').defaultNow().notNull(),
-  isCustom : boolean('is_custom').default(false).notNull(),
 });
 
 // Transactions table

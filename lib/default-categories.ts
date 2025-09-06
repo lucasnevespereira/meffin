@@ -1,137 +1,117 @@
-import { useI18n } from '@/locales/client';
-
 export type DefaultCategory = {
   id: string;
-  name: string;
+  name: string; // i18n key
   type: 'income' | 'expense';
   color: string;
-  isDefault: boolean;
+  isCustom: false;
 };
 
-export const DEFAULT_CATEGORY_IDS = {
-  // Income
-  salary: 'default_salary',
-  freelance: 'default_freelance',
-  investment: 'default_investment',
-  business: 'default_business',
+export const DEFAULT_CATEGORIES: DefaultCategory[] = [
+  // Income categories
+  {
+    id: 'default_salary',
+    name: 'category_salary',
+    type: 'income',
+    color: '#10B981',
+    isCustom: false,
+  },
+  {
+    id: 'default_freelance',
+    name: 'category_freelance',
+    type: 'income',
+    color: '#3B82F6',
+    isCustom: false,
+  },
+  {
+    id: 'default_investment',
+    name: 'category_investment',
+    type: 'income',
+    color: '#8B5CF6',
+    isCustom: false,
+  },
+  {
+    id: 'default_business',
+    name: 'category_business',
+    type: 'income',
+    color: '#06B6D4',
+    isCustom: false,
+  },
 
-  // Expense
-  groceries: 'default_groceries',
-  transportation: 'default_transportation',
-  housing: 'default_housing',
-  utilities: 'default_utilities',
-  entertainment: 'default_entertainment',
-  healthcare: 'default_healthcare',
-  shopping: 'default_shopping',
-  education: 'default_education',
-  insurance: 'default_insurance',
-  dining: 'default_dining',
-} as const;
+  // Expense categories
+  {
+    id: 'default_groceries',
+    name: 'category_groceries',
+    type: 'expense',
+    color: '#EF4444',
+    isCustom: false,
+  },
+  {
+    id: 'default_transportation',
+    name: 'category_transportation',
+    type: 'expense',
+    color: '#F59E0B',
+    isCustom: false,
+  },
+  {
+    id: 'default_housing',
+    name: 'category_housing',
+    type: 'expense',
+    color: '#6366F1',
+    isCustom: false,
+  },
+  {
+    id: 'default_utilities',
+    name: 'category_utilities',
+    type: 'expense',
+    color: '#EC4899',
+    isCustom: false,
+  },
+  {
+    id: 'default_entertainment',
+    name: 'category_entertainment',
+    type: 'expense',
+    color: '#14B8A6',
+    isCustom: false,
+  },
+  {
+    id: 'default_healthcare',
+    name: 'category_healthcare',
+    type: 'expense',
+    color: '#F97316',
+    isCustom: false,
+  },
+  {
+    id: 'default_shopping',
+    name: 'category_shopping',
+    type: 'expense',
+    color: '#84CC16',
+    isCustom: false,
+  },
+  {
+    id: 'default_education',
+    name: 'category_education',
+    type: 'expense',
+    color: '#8B5CF6',
+    isCustom: false,
+  },
+  {
+    id: 'default_insurance',
+    name: 'category_insurance',
+    type: 'expense',
+    color: '#6B7280',
+    isCustom: false,
+  },
+  {
+    id: 'default_dining',
+    name: 'category_dining',
+    type: 'expense',
+    color: '#F59E0B',
+    isCustom: false,
+  },
+];
 
-export function useDefaultCategories(): DefaultCategory[] {
-  const t = useI18n();
-
-  return [
-    // Income categories
-    {
-      id: DEFAULT_CATEGORY_IDS.salary,
-      name: t('category_salary'),
-      type: 'income',
-      color: '#10B981',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.freelance,
-      name: t('category_freelance'),
-      type: 'income',
-      color: '#3B82F6',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.investment,
-      name: t('category_investment'),
-      type: 'income',
-      color: '#8B5CF6',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.business,
-      name: t('category_business'),
-      type: 'income',
-      color: '#06B6D4',
-      isDefault: true,
-    },
-
-    // Expense categories
-    {
-      id: DEFAULT_CATEGORY_IDS.groceries,
-      name: t('category_groceries'),
-      type: 'expense',
-      color: '#EF4444',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.transportation,
-      name: t('category_transportation'),
-      type: 'expense',
-      color: '#F59E0B',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.housing,
-      name: t('category_housing'),
-      type: 'expense',
-      color: '#6366F1',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.utilities,
-      name: t('category_utilities'),
-      type: 'expense',
-      color: '#EC4899',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.entertainment,
-      name: t('category_entertainment'),
-      type: 'expense',
-      color: '#14B8A6',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.healthcare,
-      name: t('category_healthcare'),
-      type: 'expense',
-      color: '#F97316',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.shopping,
-      name: t('category_shopping'),
-      type: 'expense',
-      color: '#84CC16',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.education,
-      name: t('category_education'),
-      type: 'expense',
-      color: '#8B5CF6',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.insurance,
-      name: t('category_insurance'),
-      type: 'expense',
-      color: '#6B7280',
-      isDefault: true,
-    },
-    {
-      id: DEFAULT_CATEGORY_IDS.dining,
-      name: t('category_dining'),
-      type: 'expense',
-      color: '#F59E0B',
-      isDefault: true,
-    },
-  ];
-}
+export const DEFAULT_CATEGORY_IDS = DEFAULT_CATEGORIES.reduce((acc, cat) => {
+  const key = cat.id.replace('default_', '');
+  acc[key] = cat.id;
+  return acc;
+}, {} as Record<string, string>);

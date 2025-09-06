@@ -19,18 +19,8 @@ import {
 import { TransactionWithCategory } from '@/types';
 import { useI18n } from '@/locales/client';
 
-// Helper function to get translated category name
-const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
-  // For default categories, try to get translation, fallback to original name
-  if (!isCustom) {
-    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
-    const translated = t(categoryName as any);
-    // If translation exists and is different from the key, use it
-    return translated !== categoryName ? translated : categoryName;
-  }
-  // For custom categories, use the name as is
-  return categoryName;
-};
+import { getCategoryDisplayName } from '@/lib/category-utils';
+import { useFormatCurrency } from '@/lib/currency-utils';
 
 interface TransactionListProps {
   transactions: TransactionWithCategory[];
@@ -51,12 +41,7 @@ export function TransactionList({
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   const t = useI18n();
 
-  const formatEuro = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  };
+  const formatCurrency = useFormatCurrency();
 
   const filteredTransactions = transactions.filter(
     transaction => transaction.category.type === type
@@ -101,14 +86,14 @@ export function TransactionList({
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold tracking-tight">{sectionTitle}</h2>
             <div className={`px-3 py-1 rounded-full text-xs font-medium border ${
-              type === 'income' 
-                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800' 
+              type === 'income'
+                ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800'
                 : 'bg-destructive/10 text-destructive border-destructive/20'
             }`}>
               {filteredTransactions.length} transaction{filteredTransactions.length > 1 ? 's' : ''}
             </div>
           </div>
-          
+
           <div className="space-y-3">
             {filteredTransactions.map((transaction) => (
               <div
@@ -117,7 +102,7 @@ export function TransactionList({
               >
                 <div className="flex items-center gap-4 min-w-0 flex-1">
                   <div className="flex items-center justify-center w-10 h-10 rounded-lg" style={{ backgroundColor: `${transaction.category.color}20` }}>
-                    <div 
+                    <div
                       className="w-3 h-3 rounded-full"
                       style={{ backgroundColor: transaction.category.color }}
                     />
@@ -125,7 +110,7 @@ export function TransactionList({
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-sm truncate">{transaction.description}</div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                      <span>{getCategoryName(transaction.category.name, transaction.category.isCustom, t)}</span>
+                      <span>{getCategoryDisplayName(transaction.category, t)}</span>
                       {transaction.isFixed && (
                         <Badge variant="outline" className="text-xs py-0.5 px-1.5">
                           {t('transaction_fixed_badge')}
@@ -143,9 +128,9 @@ export function TransactionList({
                   <div className={`font-bold text-base ${
                     type === 'income' ? 'text-green-600 dark:text-green-400' : 'text-destructive'
                   }`}>
-                    {type === 'income' ? '+' : '-'}{formatEuro(Number(transaction.amount))}
+                    {type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
                   </div>
-                  
+
                   <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       size="sm"
@@ -182,7 +167,7 @@ export function TransactionList({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"

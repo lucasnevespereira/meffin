@@ -1,6 +1,7 @@
 'use client';
 
 import { useQuery } from '@tanstack/react-query';
+import { Category } from '@/types';
 
 interface MonthlyBalance {
   balance: number;
@@ -10,12 +11,9 @@ interface MonthlyBalance {
 
 interface CategorySummary {
   categoryId: string;
-  categoryName: string;
-  color: string;
-  type: 'income' | 'expense';
+  category: Category;
   total: number;
   transactionCount: number;
-  isCustom?: boolean;
 }
 
 interface DashboardData {
@@ -29,15 +27,15 @@ async function fetchDashboardData(month?: number, year?: number): Promise<Dashbo
   const params = new URLSearchParams();
   if (month !== undefined) params.append('month', month.toString());
   if (year !== undefined) params.append('year', year.toString());
-  
+
   const response = await fetch(`/api/dashboard?${params}`, {
     credentials: 'include',
   });
-  
+
   if (!response.ok) {
     throw new Error('Failed to fetch dashboard data');
   }
-  
+
   return response.json();
 }
 

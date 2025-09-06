@@ -23,19 +23,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { TransactionFormData, Category } from '@/types';
 import { useSession } from '@/lib/auth-client';
-
-// Helper function to get translated category name
-const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
-  // For default categories, try to get translation, fallback to original name
-  if (!isCustom) {
-    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
-    const translated = t(categoryName as any);
-    // If translation exists and is different from the key, use it
-    return translated !== categoryName ? translated : categoryName;
-  }
-  // For custom categories, use the name as is
-  return categoryName;
-};
+import { getCategoryDisplayName } from '@/lib/category-utils';
 
 interface TransactionFormProps {
   isOpen: boolean;
@@ -120,7 +108,7 @@ export function TransactionForm({
               placeholder={t('transaction_placeholder_desc')}
             />
             {errors.description && (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
+              <p className="text-sm text-red-600">{errors.description.message}</p>
             )}
           </div>
 
@@ -135,7 +123,7 @@ export function TransactionForm({
               placeholder={t('transaction_placeholder_amount')}
             />
             {errors.amount && (
-              <p className="text-sm text-destructive">{errors.amount.message}</p>
+              <p className="text-sm text-red-600">{errors.amount.message}</p>
             )}
           </div>
 
@@ -156,7 +144,7 @@ export function TransactionForm({
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: category.color }}
                       />
-                      <span>{getCategoryName(category.name, category.isCustom, t)}</span>
+                      <span>{getCategoryDisplayName(category, t)}</span>
                       <Badge variant={category.type === 'income' ? 'default' : 'secondary'}>
                         {category.type === 'income' ? t('transactions_income_section') : t('transactions_expenses_section')}
                       </Badge>
@@ -166,7 +154,7 @@ export function TransactionForm({
               </SelectContent>
             </Select>
             {errors.categoryId && (
-              <p className="text-sm text-destructive">{errors.categoryId.message}</p>
+              <p className="text-sm text-red-600">{errors.categoryId.message}</p>
             )}
           </div>
 
@@ -178,7 +166,7 @@ export function TransactionForm({
               {...register('date', { valueAsDate: true })}
             />
             {errors.date && (
-              <p className="text-sm text-destructive">{errors.date.message}</p>
+              <p className="text-sm text-red-600">{errors.date.message}</p>
             )}
           </div>
 

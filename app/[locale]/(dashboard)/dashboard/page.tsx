@@ -54,9 +54,7 @@ export default function DashboardPage() {
         </div>
       ) : data ? (
         <BalanceCards
-          balance={data.balance.balance}
-          income={data.balance.income}
-          expenses={data.balance.expenses}
+          balance={data.balance}
         />
       ) : null}
 

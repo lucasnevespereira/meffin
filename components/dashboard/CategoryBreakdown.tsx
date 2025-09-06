@@ -1,33 +1,18 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useI18n } from '@/locales/client';
-
-// Helper function to get translated category name
-const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
-  // For default categories, try to get translation, fallback to original name
-  if (!isCustom) {
-    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
-    const translated = t(categoryName as any);
-    // If translation exists and is different from the key, use it
-    return translated !== categoryName ? translated : categoryName;
-  }
-  // For custom categories, use the name as is
-  return categoryName;
-};
+import { getCategoryDisplayName } from '@/lib/category-utils';
+import { useFormatCurrency } from '@/lib/currency-utils';
+import { Category } from '@/types';
 
 interface CategorySummary {
   categoryId: string;
-  categoryName: string;
-  color: string;
-  type: 'income' | 'expense';
+  category: Category;
   total: number;
   transactionCount: number;
-  isCustom?: boolean;
 }
 
 interface CategoryBreakdownProps {
@@ -40,13 +25,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const { data: transactionsData } = useTransactions(month, year);
   const t = useI18n();
-
-  const formatEuro = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', {
-      style: 'currency',
-      currency: 'EUR',
-    }).format(amount);
-  };
+  const formatCurrency = useFormatCurrency();
 
   const formatDate = (date: string | Date) => {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
@@ -57,13 +36,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
     }).format(dateObj);
   };
 
-  const getMonthName = (monthIndex: number) => {
-    const months = [
-      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-      'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'
-    ];
-    return months[monthIndex];
-  };
+
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
@@ -73,7 +46,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
     return transactionsData?.transactions?.filter(t => t.categoryId === categoryId) || [];
   };
 
-  const expenseCategories = categories.filter(cat => cat.type === 'expense');
+  const expenseCategories = categories.filter(cat => cat.category.type === 'expense');
 
   return (
     <div className="mt-8">
@@ -84,10 +57,10 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
               {expenseCategories.map((category) => {
                 const categoryTransactions = getCategoryTransactions(category.categoryId);
                 const isExpanded = expandedCategory === category.categoryId;
-                
+
                 return (
                   <div key={category.categoryId} className="group">
-                    <div 
+                    <div
                       className="flex items-center justify-between p-4 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all duration-200 border border-transparent hover:border-border"
                       onClick={() => toggleCategory(category.categoryId)}
                     >
@@ -98,31 +71,31 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                           ) : (
                             <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform" />
                           )}
-                          <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: `${category.color}20` }}>
-                            <div 
+                          <div className="flex items-center justify-center w-8 h-8 rounded-lg" style={{ backgroundColor: `${category.category.color}20` }}>
+                            <div
                               className="w-3 h-3 rounded-full"
-                              style={{ backgroundColor: category.color }}
+                              style={{ backgroundColor: category.category.color }}
                             />
                           </div>
-                          <span className="font-semibold text-sm">{getCategoryName(category.categoryName, category.isCustom || false, t)}</span>
+                          <span className="font-semibold text-sm">{getCategoryDisplayName(category.category, t)}</span>
                         </div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-base text-destructive">
-                          -{formatEuro(category.total)}
+                          -{formatCurrency(category.total)}
                         </div>
                         <div className="text-xs text-muted-foreground">
                           {category.transactionCount} transaction{category.transactionCount > 1 ? 's' : ''}
                         </div>
                       </div>
                     </div>
-                    
+
                     {isExpanded && (
                       <div className="mt-3 ml-12 space-y-2 animate-in slide-in-from-top-2 duration-200">
                         {categoryTransactions.length > 0 ? (
                           categoryTransactions.map((transaction) => (
-                            <div 
-                              key={transaction.id} 
+                            <div
+                              key={transaction.id}
                               className="flex items-center justify-between py-3 px-4 rounded-lg bg-card border border-border/50 hover:shadow-subtle transition-shadow"
                             >
                               <div className="flex flex-col gap-1">
@@ -132,7 +105,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                                 </span>
                               </div>
                               <div className="text-sm font-semibold text-destructive">
-                                -{formatEuro(Number(transaction.amount))}
+                                -{formatCurrency(Number(transaction.amount))}
                               </div>
                             </div>
                           ))

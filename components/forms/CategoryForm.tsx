@@ -31,7 +31,7 @@ const predefinedColors = [
 
 const createCategorySchema = (t: ReturnType<typeof useI18n>) => z.object({
   name: z.string().min(1, t('validation_nameRequired')).max(100, t('validation_nameMinLength')),
-  type: z.enum(['income', 'expense'], { required_error: t('validation_categoryRequired') }),
+  type: z.enum(['income', 'expense']),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
 });
 
@@ -93,7 +93,7 @@ export function CategoryForm({
             {mode === 'create' ? t('category_form_add_title') : t('category_form_edit_title')}
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">{t('category_form_name_label')}</Label>
@@ -135,8 +135,8 @@ export function CategoryForm({
                   type="button"
                   onClick={() => setValue('color', color)}
                   className={`w-8 h-8 rounded-full border-2 transition-all ${
-                    selectedColor === color 
-                      ? 'border-foreground scale-110' 
+                    selectedColor === color
+                      ? 'border-foreground scale-110'
                       : 'border-border hover:scale-105'
                   }`}
                   style={{ backgroundColor: color }}

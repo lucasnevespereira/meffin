@@ -18,31 +18,7 @@ import { CategoryForm } from '@/components/forms/CategoryForm';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { Category, CategoryFormData } from '@/types';
 import { useI18n } from '@/locales/client';
-
-// Helper function to get translated category name
-const getCategoryName = (category: Category, t: ReturnType<typeof useI18n>): string => {
-  // For default categories, try to get translation, fallback to original name
-  if (!category.isCustom) {
-    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
-    const translated = t(category.name as any);
-    // If translation exists and is different from the key, use it
-    return translated !== category.name ? translated : category.name;
-  }
-  // For custom categories, use the name as is
-  return category.name;
-};
-
-// Default categories that should be created for new users
-// const defaultCategories = [
-//   { name: 'Maison', type: 'expense' as const, color: '#EF4444', isDefault: true },
-//   { name: 'Transports', type: 'expense' as const, color: '#3B82F6', isDefault: true },
-//   { name: 'Banque', type: 'expense' as const, color: '#D946EF', isDefault: true },
-//   { name: 'Abonnements', type: 'expense' as const, color: '#06B6D4', isDefault: true },
-//   { name: 'Sorties', type: 'expense' as const, color: '#F59E0B', isDefault: true },
-//   { name: 'Divers', type: 'expense' as const, color: '#F97316', isDefault: true },
-//   { name: 'Travail', type: 'income' as const, color: '#EF4444', isDefault: true },
-//   { name: 'Investissement', type: 'income' as const, color: '#DC2626', isDefault: true },
-// ];
+import { getCategoryDisplayName } from '@/lib/category-utils';
 
 export default function CategoriesPage() {
   const t = useI18n();
@@ -185,7 +161,7 @@ export default function CategoriesPage() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{getCategoryName(category, t)}</div>
+                    <div className="font-semibold text-sm truncate">{getCategoryDisplayName(category, t)}</div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {category.type === 'income' ? t('categories_income') : t('categories_expense')}
                     </div>
@@ -232,7 +208,7 @@ export default function CategoriesPage() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-sm truncate">{getCategoryName(category, t)}</div>
+                      <div className="font-semibold text-sm truncate">{getCategoryDisplayName(category, t)}</div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {category.type === 'income' ? t('categories_income') : t('categories_expense')}
                       </div>
