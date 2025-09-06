@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import Image from 'next/image';
 import { User, Globe, Trash2, Save, AlertTriangle, Info, ChevronDown, ChevronRight } from 'lucide-react';
 
 const APP_VERSION = '0.1.0';
@@ -53,6 +54,11 @@ type ProfileFormData = {
   name: string;
   email: string;
   currency: string;
+};
+
+// Generate a consistent avatar URL based on user's name or email
+const generateAvatarUrl = (seed: string): string => {
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
 };
 
 export default function ProfilePage() {
@@ -153,11 +159,31 @@ export default function ProfilePage() {
       {/* Profile Information Card */}
       <div className="rounded-xl border border-border bg-card shadow-card">
         <div className="p-6">
+          {/* Avatar Section */}
+          <div className="flex items-center gap-6 mb-8">
+            <div className="w-20 h-20 rounded-2xl overflow-hidden ring-4 ring-border shadow-card">
+              <Image
+                src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
+                alt={session.user.name || 'User Avatar'}
+                width={80}
+                height={80}
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <h2 className="text-2xl font-bold tracking-tight">{session.user.name || t('profile_info_section')}</h2>
+              <p className="text-muted-foreground mt-1">{session.user.email}</p>
+              <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 mt-2">
+                Compte actif
+              </div>
+            </div>
+          </div>
+
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100">
               <User className="h-5 w-5 text-slate-600" />
             </div>
-            <h2 className="text-xl font-bold tracking-tight">{t('profile_info_section')}</h2>
+            <h3 className="text-xl font-bold tracking-tight">{t('profile_info_section')}</h3>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
