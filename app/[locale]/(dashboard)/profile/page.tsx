@@ -64,7 +64,6 @@ export default function ProfilePage() {
   const queryClient = useQueryClient();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showDangerZone, setShowDangerZone] = useState(false);
 
   const profileSchema = createProfileSchema(t);
 
@@ -166,24 +165,24 @@ export default function ProfilePage() {
 
   if (profileLoading) {
     return (
-      <div className="space-y-6">
+      <div className="space-y-3 md:space-y-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
-          <p className="text-muted-foreground mt-2">{t('profile_subtitle')}</p>
+          <h1 className="text-xl md:text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
+          <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
         </div>
-        <div className="rounded-xl border border-border bg-card shadow-card animate-pulse">
-          <div className="p-6 space-y-4">
-            <div className="flex items-center gap-4 pb-6 border-b border-border">
-              <div className="w-16 h-16 bg-muted/60 rounded-xl" />
-              <div className="space-y-2">
-                <div className="h-6 w-32 bg-muted/60 rounded" />
-                <div className="h-4 w-48 bg-muted/60 rounded" />
+        <div className="rounded-lg md:rounded-xl border border-border bg-card shadow-card animate-pulse">
+          <div className="p-4 md:p-6 space-y-4">
+            <div className="flex items-center gap-3 md:gap-4 pb-4 md:pb-6 border-b border-border">
+              <div className="w-12 h-12 md:w-16 md:h-16 bg-muted/60 rounded-lg md:rounded-xl" />
+              <div className="space-y-2 flex-1">
+                <div className="h-4 md:h-6 w-24 md:w-32 bg-muted/60 rounded" />
+                <div className="h-3 md:h-4 w-32 md:w-48 bg-muted/60 rounded" />
               </div>
             </div>
-            <div className="space-y-3">
-              <div className="h-10 bg-muted/60 rounded" />
-              <div className="h-10 bg-muted/60 rounded" />
-              <div className="h-10 bg-muted/60 rounded w-40" />
+            <div className="space-y-3 pt-4 md:pt-6">
+              <div className="h-9 md:h-10 bg-muted/60 rounded" />
+              <div className="h-9 md:h-10 bg-muted/60 rounded" />
+              <div className="h-9 md:h-10 bg-muted/60 rounded w-full md:w-40" />
             </div>
           </div>
         </div>
@@ -192,21 +191,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6">
+    <div className="space-y-3 md:space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
-        <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('profile_subtitle')}</p>
+        <h1 className="text-xl md:text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
+        <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
       </div>
 
-
       {/* Profile Card */}
-      <div className="rounded-xl border border-border bg-card shadow-card">
+      <div className="rounded-lg md:rounded-xl border border-border bg-card shadow-card">
         <div className="p-4 md:p-6">
-          {/* Avatar and Basic Info Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-4 md:pb-6 border-b border-border">
-            {/* Avatar Section */}
-            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl overflow-hidden ring-2 ring-border shadow-sm shrink-0 mx-auto sm:mx-0">
+          {/* Profile Header */}
+          <div className="flex items-start md:items-center gap-3 md:gap-4 pb-5 md:pb-6 border-b border-border">
+            <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl overflow-hidden ring-2 ring-border shadow-sm shrink-0">
               <Image
                 src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
                 alt={session.user.name || 'User Avatar'}
@@ -215,132 +212,76 @@ export default function ProfilePage() {
                 className="w-full h-full object-cover"
               />
             </div>
-
-            {/* User Info and Status */}
-            <div className="flex-1 text-center sm:text-left">
-              <h2 className="text-lg sm:text-xl font-bold tracking-tight">{profileData?.user?.name || session.user.name || 'User'}</h2>
-              <p className="text-muted-foreground text-sm">{profileData?.user?.email || session.user.email}</p>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mt-2">
-                <div className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium status-success">
-                  ✓ {t('profile_status_active')}
-                </div>
-                <div className="inline-flex items-center justify-center px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
-                  {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
-                </div>
-              </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-base md:text-xl font-bold tracking-tight truncate">{profileData?.user?.name || session.user.name || 'User'}</h2>
+              <p className="text-muted-foreground text-xs md:text-sm truncate">{profileData?.user?.email || session.user.email}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 md:mt-1">
+                {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
+              </p>
+            </div>
+            <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 shrink-0">
+              ✓ {t('profile_status_active')}
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Edit Profile Card */}
-      <div className="rounded-xl border border-border bg-card shadow-card">
-        <div className="p-4 md:p-6">
-          <div className="flex items-center gap-3 mb-4 md:mb-6">
-            <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg bg-slate-100">
-              <User className="h-4 w-4 md:h-5 md:w-5 text-slate-600" />
-            </div>
-            <h2 className="text-lg md:text-xl font-bold tracking-tight">{t('profile_edit_title')}</h2>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-              <div className="lg:col-span-2 space-y-4 md:space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
-                    <Input
-                      id="name"
-                      {...register('name')}
-                      placeholder={t('register_name')}
-                      className="h-10 border-border focus:border-primary focus:ring-primary/20"
-                    />
-                    {errors.name && (
-                      <p className="text-sm text-destructive">{errors.name.message}</p>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-medium text-foreground">{t('profile_email')}</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...register('email')}
-                      disabled
-                      className="h-10 bg-muted/30 text-muted-foreground border-border"
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      {t('profile_email_readonly')}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRefreshProfile}
-                      className="text-xs text-muted-foreground"
-                    >
-                      Refresh Profile
-                    </Button>
-                  </div>
-                  <Select
-                    key={`currency-${profileData?.user?.currency || 'loading'}`}
-                    value={selectedCurrency}
-                    onValueChange={(value) => setValue('currency', value)}
-                  >
-                    <SelectTrigger className="h-10 max-w-xs border-border focus:border-primary focus:ring-primary/20">
-                      <SelectValue placeholder={t('profile_currency_select')} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SUPPORTED_CURRENCIES.map((currency) => (
-                        <SelectItem key={currency.code} value={currency.code} className="py-2">
-                          <div className="flex items-center gap-2">
-                            <span>{currency.symbol}</span>
-                            <span>{t(currency.nameKey)}</span>
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.currency && (
-                    <p className="text-sm text-destructive">{errors.currency.message}</p>
-                  )}
-                </div>
+          {/* Profile Form */}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 pt-5 md:pt-6">
+            <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
+                <Input
+                  id="name"
+                  {...register('name')}
+                  placeholder={t('register_name')}
+                  className="h-9 md:h-10"
+                />
+                {errors.name && (
+                  <p className="text-sm text-destructive">{errors.name.message}</p>
+                )}
               </div>
 
-              <div className="lg:col-span-1">
-                <div className="p-4 md:p-6 rounded-xl bg-muted/20 border border-border/50">
-                  <h4 className="font-semibold text-sm text-muted-foreground mb-2 md:mb-3">{t('profile_quick_stats')}</h4>
-                  <div className="space-y-2 md:space-y-3">
-                    <div className="flex justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">{t('profile_member_since_label')}</span>
-                      <span className="font-medium">{new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}</span>
-                    </div>
-                    <div className="flex justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">{t('profile_account_type')}</span>
-                      <span className="font-medium text-emerald-700 dark:text-emerald-400">{t('profile_status_active')}</span>
-                    </div>
-                    <div className="flex justify-between text-xs md:text-sm">
-                      <span className="text-muted-foreground">{t('profile_profile_id')}</span>
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {(profileData?.user?.id || session.user.id).slice(-8)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-foreground">{t('profile_email')}</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  {...register('email')}
+                  disabled
+                  className="h-9 md:h-10 bg-muted/30 text-muted-foreground"
+                />
+                <p className="text-xs text-muted-foreground">
+                  {t('profile_email_readonly')}
+                </p>
               </div>
             </div>
 
-            <div className="flex justify-center sm:justify-end pt-3 md:pt-4">
+            <div className="space-y-2">
+              <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
+              <Select
+                value={selectedCurrency}
+                onValueChange={(value) => setValue('currency', value)}
+              >
+                <SelectTrigger className="h-9 md:h-10 w-full sm:max-w-xs">
+                  <SelectValue placeholder={t('profile_currency_select')} />
+                </SelectTrigger>
+                <SelectContent>
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code} className="py-2">
+                      <span>{t(currency.nameKey)}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {errors.currency && (
+                <p className="text-sm text-destructive">{errors.currency.message}</p>
+              )}
+            </div>
+
+            <div className="flex justify-end pt-2 md:pt-4">
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
-                className="shadow-card hover:shadow-lg w-full sm:w-auto"
+                className="px-4 md:px-6 w-full sm:w-auto"
               >
                 <Save className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? t('profile_saving') : t('profile_save')}
@@ -351,38 +292,29 @@ export default function ProfilePage() {
       </div>
 
 
-      {/* Danger Zone - Discrete Collapsible */}
-      <div className="rounded-xl border border-border/50 bg-card">
-        <div className="p-3 md:p-4">
-          <button
-            onClick={() => setShowDangerZone(!showDangerZone)}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors w-full touch-manipulation"
-          >
-            {showDangerZone ? (
-              <ChevronDown className="h-4 w-4 shrink-0" />
-            ) : (
-              <ChevronRight className="h-4 w-4 shrink-0" />
-            )}
+      {/* Danger Zone - Minimal */}
+      <div className="pt-4 md:pt-8 border-t border-border/30">
+        <details className="group">
+          <summary className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer touch-manipulation">
+            <ChevronRight className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90" />
             <AlertTriangle className="h-4 w-4 shrink-0" />
             <span>{t('profile_danger_section')}</span>
-          </button>
-
-          {showDangerZone && (
-            <div className="mt-3 md:mt-4 pt-3 md:pt-4 border-t border-border/30">
-              <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
-                {t('profile_delete_description')}
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => setShowDeleteDialog(true)}
-                className="text-xs text-muted-foreground hover:text-destructive hover:border-destructive/30 transition-colors w-full sm:w-auto"
-              >
-                <Trash2 className="h-3.5 w-3.5 mr-2" />
-                {t('profile_delete_button')}
-              </Button>
-            </div>
-          )}
-        </div>
+          </summary>
+          <div className="mt-3 md:mt-4 pl-6 md:pl-10">
+            <p className="text-xs text-muted-foreground mb-3">
+              {t('profile_delete_description')}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDeleteDialog(true)}
+              className="text-xs text-destructive hover:text-destructive hover:border-destructive/50 transition-colors w-full sm:w-auto"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-2" />
+              {t('profile_delete_button')}
+            </Button>
+          </div>
+        </details>
       </div>
 
 
