@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { CategoryFormData } from '@/types';
+import { useI18n } from '@/locales/client';
 
 const predefinedColors = [
   '#EF4444', '#F97316', '#F59E0B', '#EAB308',
@@ -28,10 +29,10 @@ const predefinedColors = [
   '#A855F7', '#D946EF', '#EC4899', '#F43F5E'
 ];
 
-const categorySchema = z.object({
-  name: z.string().min(1, 'Le nom est requis').max(100, 'Nom trop long'),
-  type: z.enum(['income', 'expense'], { required_error: 'Type requis' }),
-  color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Format de couleur invalide'),
+const createCategorySchema = (t: ReturnType<typeof useI18n>) => z.object({
+  name: z.string().min(1, t('validation_nameRequired')).max(100, t('validation_nameMinLength')),
+  type: z.enum(['income', 'expense'], { required_error: t('validation_categoryRequired') }),
+  color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
 });
 
 interface CategoryFormProps {
@@ -51,6 +52,8 @@ export function CategoryForm({
   mode = 'create',
   isSubmitting = false,
 }: CategoryFormProps) {
+  const t = useI18n();
+  const categorySchema = createCategorySchema(t);
   const {
     register,
     handleSubmit,
@@ -87,17 +90,17 @@ export function CategoryForm({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>
-            {mode === 'create' ? 'Ajouter une catégorie' : 'Modifier la catégorie'}
+            {mode === 'create' ? t('category_form_add_title') : t('category_form_edit_title')}
           </DialogTitle>
         </DialogHeader>
         
         <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nom de la catégorie</Label>
+            <Label htmlFor="name">{t('category_form_name_label')}</Label>
             <Input
               id="name"
               {...register('name')}
-              placeholder="Ex: Alimentation, Salaire..."
+              placeholder={t('category_form_name_placeholder')}
             />
             {errors.name && (
               <p className="text-sm text-red-600">{errors.name.message}</p>
@@ -105,17 +108,17 @@ export function CategoryForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
+            <Label htmlFor="type">{t('category_form_type_label')}</Label>
             <Select
               value={selectedType}
               onValueChange={(value: 'income' | 'expense') => setValue('type', value)}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Sélectionner un type" />
+                <SelectValue placeholder={t('category_form_type_placeholder')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="income">Revenus</SelectItem>
-                <SelectItem value="expense">Dépenses</SelectItem>
+                <SelectItem value="income">{t('categories_income')}</SelectItem>
+                <SelectItem value="expense">{t('categories_expense')}</SelectItem>
               </SelectContent>
             </Select>
             {errors.type && (
@@ -124,7 +127,7 @@ export function CategoryForm({
           </div>
 
           <div className="space-y-2">
-            <Label>Couleur</Label>
+            <Label>{t('category_form_color_label')}</Label>
             <div className="grid grid-cols-8 gap-2">
               {predefinedColors.map((color) => (
                 <button

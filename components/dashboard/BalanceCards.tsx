@@ -2,6 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { useI18n } from '@/locales/client';
 
 interface BalanceCardsProps {
   balance: number;
@@ -10,6 +11,7 @@ interface BalanceCardsProps {
 }
 
 export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
+  const t = useI18n();
   const formatEuro = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
@@ -27,7 +29,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100 group-hover:bg-slate-200 transition-colors">
                 <DollarSign className="h-5 w-5 text-slate-600" />
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Solde</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('dashboard_balance')}</span>
             </div>
           </div>
           <div className={`text-2xl font-bold tracking-tight ${
@@ -53,7 +55,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100 group-hover:bg-emerald-200 transition-colors">
                 <TrendingUp className="h-5 w-5 text-emerald-700" />
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Entrées</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('dashboard_income')}</span>
             </div>
           </div>
           <div className="text-2xl font-bold tracking-tight text-emerald-700">
@@ -61,7 +63,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700">
-              Revenus du mois
+              {t('dashboard_income_month')}
             </div>
           </div>
         </div>
@@ -75,7 +77,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
               <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-red-100 group-hover:bg-red-200 transition-colors">
                 <TrendingDown className="h-5 w-5 text-red-700" />
               </div>
-              <span className="text-sm font-medium text-muted-foreground">Sorties</span>
+              <span className="text-sm font-medium text-muted-foreground">{t('dashboard_expenses')}</span>
             </div>
           </div>
           <div className="text-2xl font-bold tracking-tight text-red-700">
@@ -83,7 +85,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
-              Dépenses du mois
+              {t('dashboard_expenses_month')}
             </div>
           </div>
         </div>

@@ -1,6 +1,5 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentLocale, useChangeLocale } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -19,11 +18,9 @@ const languages = [
 export function LanguageSwitcher() {
   const locale = useCurrentLocale();
   const changeLocale = useChangeLocale();
-  const router = useRouter();
-  const pathname = usePathname();
 
   const switchLanguage = (newLocale: string) => {
-    changeLocale(newLocale);
+    changeLocale(newLocale as 'en' | 'fr');
   };
 
   const currentLanguage = languages.find(lang => lang.code === locale);

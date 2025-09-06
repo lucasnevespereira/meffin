@@ -24,6 +24,19 @@ import { Badge } from '@/components/ui/badge';
 import { TransactionFormData, Category } from '@/types';
 import { useSession } from '@/lib/auth-client';
 
+// Helper function to get translated category name
+const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
+  // For default categories, try to get translation, fallback to original name
+  if (!isCustom) {
+    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
+    const translated = t(categoryName as any);
+    // If translation exists and is different from the key, use it
+    return translated !== categoryName ? translated : categoryName;
+  }
+  // For custom categories, use the name as is
+  return categoryName;
+};
+
 interface TransactionFormProps {
   isOpen: boolean;
   onClose: () => void;
@@ -72,9 +85,6 @@ export function TransactionForm({
   });
 
   const selectedCategoryId = watch('categoryId');
-  const isFixed = watch('isFixed');
-
-  const selectedCategory = categories.find(c => c.id === selectedCategoryId);
 
   const onFormSubmit = (data: TransactionFormData) => {
     if (!session?.user?.id) {
@@ -146,7 +156,7 @@ export function TransactionForm({
                         className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: category.color }}
                       />
-                      <span>{category.name}</span>
+                      <span>{getCategoryName(category.name, category.isCustom, t)}</span>
                       <Badge variant={category.type === 'income' ? 'default' : 'secondary'}>
                         {category.type === 'income' ? t('transactions_income_section') : t('transactions_expenses_section')}
                       </Badge>

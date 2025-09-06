@@ -1,5 +1,5 @@
 import { db } from './db';
-import { users, categories } from './schema';
+import { categories } from './schema';
 import { eq } from 'drizzle-orm';
 
 export async function seedDefaultCategories(userId: string) {
@@ -8,7 +8,7 @@ export async function seedDefaultCategories(userId: string) {
     { name: 'Salary', type: 'income' as const, color: '#10B981' },
     { name: 'Freelance', type: 'income' as const, color: '#3B82F6' },
     { name: 'Investment', type: 'income' as const, color: '#8B5CF6' },
-    
+
     // Expense categories
     { name: 'Groceries', type: 'expense' as const, color: '#EF4444' },
     { name: 'Transportation', type: 'expense' as const, color: '#F59E0B' },

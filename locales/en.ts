@@ -79,6 +79,7 @@ export default {
   "transaction_placeholder_desc": "e.g. Salary, Groceries...",
   "transaction_placeholder_amount": "0.00",
   "transaction_select_category": "Select a category",
+  "transaction_fixed_badge": "FIXED",
 
   // Months
   "month_january": "January",
@@ -104,6 +105,8 @@ export default {
   "transactions_no_expenses": "No expenses for this month",
   "transactions_loading_error": "Error loading data",
   "transactions_login_required": "Please sign in to access transactions",
+  "transactions_my_income": "My income",
+  "transactions_my_expenses": "My expenses",
 
   // Default Categories - Income
   "category_salary": "Salary",
@@ -122,6 +125,22 @@ export default {
   "category_education": "Education",
   "category_insurance": "Insurance",
   "category_dining": "Dining Out",
+
+  // Direct mappings for seeded English category names (keeping English names)
+  "Salary": "Salary",
+  "Freelance": "Freelance", 
+  "Investment": "Investment",
+  "Business": "Business",
+  "Groceries": "Groceries",
+  "Transportation": "Transportation",
+  "Housing": "Housing",
+  "Utilities": "Utilities", 
+  "Entertainment": "Entertainment",
+  "Healthcare": "Healthcare",
+  "Shopping": "Shopping",
+  "Education": "Education",
+  "Insurance": "Insurance",
+  "Dining Out": "Dining Out",
 
   // Profile Page
   "profile_title": "My Profile",
@@ -178,5 +197,36 @@ export default {
   "currency_usd": "US Dollar - $", 
   "currency_gbp": "British Pound - £",
   "currency_cad": "Canadian Dollar - C$",
-  "currency_chf": "Swiss Franc - CHF"
+  "currency_chf": "Swiss Franc - CHF",
+
+  // Profile status badges
+  "profile_status_active": "Active Account",
+  "profile_member_since": "Member since",
+
+  // Category counters
+  "categories_count_single": "category",
+  "categories_count_plural": "categories",
+  "categories_custom_single": "custom category",
+  "categories_custom_plural": "custom categories",
+
+  // Category form
+  "category_form_add_title": "Add Category",
+  "category_form_edit_title": "Edit Category",
+  "category_form_name_label": "Category Name",
+  "category_form_name_placeholder": "e.g. Groceries, Salary...",
+  "category_form_type_label": "Type",
+  "category_form_type_placeholder": "Select type",
+  "category_form_color_label": "Color",
+
+  // Dashboard
+  "dashboard_category_breakdown": "Category Breakdown",
+  "dashboard_no_transactions_category": "No transactions for this category",
+  "dashboard_no_expenses_month": "No expenses for this month",
+  "dashboard_expenses_will_appear": "Your expenses will appear here once added",
+  "dashboard_balance": "Balance",
+  "dashboard_income": "Income",
+  "dashboard_expenses": "Expenses",
+  "dashboard_balance_month": "Current balance",
+  "dashboard_income_month": "Monthly income",
+  "dashboard_expenses_month": "Monthly expenses"
 } as const;

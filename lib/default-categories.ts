@@ -1,5 +1,4 @@
 import { useI18n } from '@/locales/client';
-import { Category } from '@/types';
 
 export type DefaultCategory = {
   id: string;
@@ -12,10 +11,10 @@ export type DefaultCategory = {
 export const DEFAULT_CATEGORY_IDS = {
   // Income
   salary: 'default_salary',
-  freelance: 'default_freelance', 
+  freelance: 'default_freelance',
   investment: 'default_investment',
   business: 'default_business',
-  
+
   // Expense
   groceries: 'default_groceries',
   transportation: 'default_transportation',
@@ -31,7 +30,7 @@ export const DEFAULT_CATEGORY_IDS = {
 
 export function useDefaultCategories(): DefaultCategory[] {
   const t = useI18n();
-  
+
   return [
     // Income categories
     {
@@ -44,7 +43,7 @@ export function useDefaultCategories(): DefaultCategory[] {
     {
       id: DEFAULT_CATEGORY_IDS.freelance,
       name: t('category_freelance'),
-      type: 'income', 
+      type: 'income',
       color: '#3B82F6',
       isDefault: true,
     },
@@ -59,10 +58,10 @@ export function useDefaultCategories(): DefaultCategory[] {
       id: DEFAULT_CATEGORY_IDS.business,
       name: t('category_business'),
       type: 'income',
-      color: '#06B6D4', 
+      color: '#06B6D4',
       isDefault: true,
     },
-    
+
     // Expense categories
     {
       id: DEFAULT_CATEGORY_IDS.groceries,
@@ -135,14 +134,4 @@ export function useDefaultCategories(): DefaultCategory[] {
       isDefault: true,
     },
   ];
-}
-
-// Helper function to get display name for a category
-export function getCategoryDisplayName(category: Category, t: (key: string) => string): string {
-  // If it's a default category (stored with translation key), translate it
-  if (!category.isCustom && category.name.startsWith('category_')) {
-    return t(category.name as any);
-  }
-  // Otherwise, use the stored name directly
-  return category.name;
 }

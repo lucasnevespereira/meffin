@@ -7,7 +7,7 @@ export default {
   // Auth
   "login_title": "Connexion",
   "login_subtitle": "Connectez-vous à votre compte Meffin",
-  "login_email": "Email", 
+  "login_email": "Email",
   "login_password": "Mot de passe",
   "login_submit": "Se connecter",
   "login_submitting": "Connexion...",
@@ -20,7 +20,7 @@ export default {
   "register_subtitle": "Rejoignez Meffin pour gérer votre budget",
   "register_name": "Nom complet",
   "register_email": "Email",
-  "register_password": "Mot de passe", 
+  "register_password": "Mot de passe",
   "register_confirmPassword": "Confirmer le mot de passe",
   "register_submit": "Créer un compte",
   "register_submitting": "Création...",
@@ -44,7 +44,7 @@ export default {
   // Navigation
   "nav_dashboard": "Dashboard",
   "nav_transactions": "Transactions",
-  "nav_categories": "Catégories", 
+  "nav_categories": "Catégories",
   "nav_profile": "Mon Profil",
   "nav_signOut": "Déconnexion",
 
@@ -79,10 +79,11 @@ export default {
   "transaction_placeholder_desc": "Ex: Salaire, Courses...",
   "transaction_placeholder_amount": "0.00",
   "transaction_select_category": "Sélectionner une catégorie",
+  "transaction_fixed_badge": "FIXE",
 
   // Months
   "month_january": "Janvier",
-  "month_february": "Février", 
+  "month_february": "Février",
   "month_march": "Mars",
   "month_april": "Avril",
   "month_may": "Mai",
@@ -104,13 +105,15 @@ export default {
   "transactions_no_expenses": "Aucune dépense pour ce mois",
   "transactions_loading_error": "Erreur lors du chargement des données",
   "transactions_login_required": "Veuillez vous connecter pour accéder aux transactions",
+  "transactions_my_income": "Mes entrées",
+  "transactions_my_expenses": "Mes dépenses",
 
   // Default Categories - Income
   "category_salary": "Salaire",
   "category_freelance": "Freelance",
   "category_investment": "Investissement",
   "category_business": "Entreprise",
-  
+
   // Default Categories - Expense
   "category_groceries": "Courses",
   "category_transportation": "Transport",
@@ -123,11 +126,27 @@ export default {
   "category_insurance": "Assurance",
   "category_dining": "Restaurant",
 
+  // Direct mappings for seeded English category names
+  "Salary": "Salaire",
+  "Freelance": "Freelance", 
+  "Investment": "Investissement",
+  "Business": "Entreprise",
+  "Groceries": "Courses",
+  "Transportation": "Transport",
+  "Housing": "Logement",
+  "Utilities": "Factures", 
+  "Entertainment": "Loisirs",
+  "Healthcare": "Santé",
+  "Shopping": "Shopping",
+  "Education": "Éducation",
+  "Insurance": "Assurance",
+  "Dining Out": "Restaurant",
+
   // Profile Page
   "profile_title": "Mon Profil",
   "profile_subtitle": "Gérez vos informations personnelles et vos préférences",
   "profile_info_section": "Informations du profil",
-  "profile_preferences_section": "Préférences", 
+  "profile_preferences_section": "Préférences",
   "profile_danger_section": "Zone de danger",
   "profile_name": "Nom complet",
   "profile_email": "Email",
@@ -146,7 +165,7 @@ export default {
   "profile_delete_dialog_title": "Supprimer définitivement votre compte",
   "profile_delete_dialog_description": "Cette action ne peut pas être annulée. Cela supprimera définitivement votre compte et toutes vos données, y compris :",
   "profile_delete_data_transactions": "Toutes vos transactions",
-  "profile_delete_data_categories": "Vos catégories personnalisées", 
+  "profile_delete_data_categories": "Vos catégories personnalisées",
   "profile_delete_data_history": "Votre historique financier",
   "profile_delete_data_preferences": "Vos préférences",
   "profile_delete_confirm": "Oui, supprimer mon compte",
@@ -175,8 +194,39 @@ export default {
 
   // Currencies
   "currency_eur": "Euro - €",
-  "currency_usd": "US Dollar - $", 
+  "currency_usd": "US Dollar - $",
   "currency_gbp": "British Pound - £",
   "currency_cad": "Canadian Dollar - C$",
-  "currency_chf": "Swiss Franc - CHF"
+  "currency_chf": "Swiss Franc - CHF",
+
+  // Profile status badges
+  "profile_status_active": "Compte actif",
+  "profile_member_since": "Membre depuis",
+
+  // Category counters
+  "categories_count_single": "catégorie",
+  "categories_count_plural": "catégories",
+  "categories_custom_single": "catégorie personnalisée",
+  "categories_custom_plural": "catégories personnalisées",
+
+  // Category form
+  "category_form_add_title": "Ajouter une catégorie",
+  "category_form_edit_title": "Modifier la catégorie",
+  "category_form_name_label": "Nom de la catégorie",
+  "category_form_name_placeholder": "Ex: Alimentation, Salaire...",
+  "category_form_type_label": "Type",
+  "category_form_type_placeholder": "Sélectionner un type",
+  "category_form_color_label": "Couleur",
+
+  // Dashboard
+  "dashboard_category_breakdown": "Répartition par catégorie",
+  "dashboard_no_transactions_category": "Aucune transaction pour cette catégorie",
+  "dashboard_no_expenses_month": "Aucune dépense pour ce mois",
+  "dashboard_expenses_will_appear": "Vos dépenses apparaîtront ici une fois ajoutées",
+  "dashboard_balance": "Solde",
+  "dashboard_income": "Entrées",
+  "dashboard_expenses": "Sorties",
+  "dashboard_balance_month": "Solde actuel",
+  "dashboard_income_month": "Revenus du mois",
+  "dashboard_expenses_month": "Dépenses du mois"
 } as const;

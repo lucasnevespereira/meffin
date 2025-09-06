@@ -1,4 +1,3 @@
-import { DollarSign } from 'lucide-react';
 import Image from 'next/image';
 import { getI18n } from '@/locales/server';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
@@ -13,7 +12,7 @@ export default async function AuthLayout({
   // Await params to fix Next.js warning
   await params;
   const t = await getI18n();
-  
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background relative">
       {/* Locale Switcher - Top Right */}
@@ -39,7 +38,7 @@ export default async function AuthLayout({
             <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-sm">
               {t('app_description')}
             </p>
-            <div className="flex items-center justify-center gap-2 px-3 py-1 bg-background border border-border rounded-lg text-sm inline-flex mx-auto">
+            <div className="flex items-center justify-center gap-2 px-3 py-1 bg-background border border-border rounded-lg text-sm mx-auto">
               <div className="w-2 h-2 bg-green-500 rounded-full" />
               <span className="text-muted-foreground">Sécurisé et fiable</span>
             </div>
@@ -66,7 +65,7 @@ export default async function AuthLayout({
               <p className="text-sm text-muted-foreground">{t('app_tagline')}</p>
             </div>
           </div>
-          
+
           {/* Auth Form */}
           <div className="space-y-6">
             {children}

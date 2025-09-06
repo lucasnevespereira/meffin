@@ -6,10 +6,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
-import { User, Globe, Trash2, Save, AlertTriangle, Info, ChevronDown, ChevronRight } from 'lucide-react';
+import { User, Trash2, Save, AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 
-const APP_VERSION = '0.1.0';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -31,9 +30,9 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
 import { useSession, signOut } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
+
 
 const currencies = [
   { code: 'EUR', nameKey: 'currency_eur', symbol: '€' },
@@ -41,14 +40,15 @@ const currencies = [
   { code: 'GBP', nameKey: 'currency_gbp', symbol: '£' },
   { code: 'CAD', nameKey: 'currency_cad', symbol: 'C$' },
   { code: 'CHF', nameKey: 'currency_chf', symbol: 'CHF' },
-];
+] as const;
 
 
-const createProfileSchema = (t: any) => z.object({
-  name: z.string().min(2, t('validation_nameMinLength')),
-  email: z.string().email(t('validation_emailInvalid')),
-  currency: z.string().min(1, t('validation_categoryRequired')),
-});
+const createProfileSchema = (t: ReturnType<typeof useI18n>) =>
+  z.object({
+    name: z.string().min(2, t('validation_nameMinLength')),
+    email: z.email(t('validation_emailInvalid')),
+    currency: z.string().min(1, t('validation_categoryRequired')),
+  });
 
 type ProfileFormData = {
   name: string;
@@ -97,11 +97,12 @@ export default function ProfilePage() {
     setError('');
 
     try {
-      // TODO: Implement profile update API
+      //TODO: Implement profile update API
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       setSuccess(t('profile_success'));
-    } catch (err: any) {
-      setError(err.message || t('profile_error'));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : t('profile_error');
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -114,8 +115,9 @@ export default function ProfilePage() {
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
       await signOut();
       router.push('/login');
-    } catch (err: any) {
-      setError(err.message || t('profile_error'));
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : t('profile_error');
+      setError(errorMessage);
       setIsDeleting(false);
     }
   };
@@ -150,7 +152,7 @@ export default function ProfilePage() {
           <AlertDescription className="text-green-700">{success}</AlertDescription>
         </Alert>
       )}
-      
+
       {error && (
         <Alert variant="destructive" className="bg-red-50/50">
           <AlertDescription>{error}</AlertDescription>
@@ -173,17 +175,17 @@ export default function ProfilePage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              
+
               {/* User Info and Status */}
               <div className="text-center sm:text-left flex-1">
                 <h1 className="text-3xl font-bold tracking-tight">{session.user.name || 'User'}</h1>
                 <p className="text-muted-foreground mt-2 text-lg">{session.user.email}</p>
                 <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
                   <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    ✓ Compte actif
+                    ✓ {t('profile_status_active')}
                   </div>
                   <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
-                    Membre depuis {new Date(session.user.createdAt).getFullYear()}
+                    {t('profile_member_since')} {new Date(session.user.createdAt).getFullYear()}
                   </div>
                 </div>
               </div>
@@ -247,7 +249,7 @@ export default function ProfilePage() {
                     <SelectContent>
                       {currencies.map((currency) => (
                         <SelectItem key={currency.code} value={currency.code} className="py-3">
-                          {t(currency.nameKey as any)}
+                          {t(currency.nameKey)}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -282,9 +284,9 @@ export default function ProfilePage() {
             </div>
 
             <div className="flex justify-end pt-4">
-              <Button 
-                type="submit" 
-                disabled={isLoading} 
+              <Button
+                type="submit"
+                disabled={isLoading}
                 className="shadow-card hover:shadow-lg"
               >
                 <Save className="h-4 w-4 mr-2" />
@@ -311,7 +313,7 @@ export default function ProfilePage() {
             <AlertTriangle className="h-4 w-4" />
             <span>{t('profile_danger_section')}</span>
           </button>
-          
+
           {showDangerZone && (
             <div className="mt-4 pt-4 border-t border-border/30">
               <p className="text-sm text-muted-foreground mb-4">

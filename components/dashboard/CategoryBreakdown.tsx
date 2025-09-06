@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
+import { useI18n } from '@/locales/client';
 
 interface CategorySummary {
   categoryId: string;
@@ -24,6 +25,7 @@ interface CategoryBreakdownProps {
 export function CategoryBreakdown({ categories, month, year }: CategoryBreakdownProps) {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const { data: transactionsData } = useTransactions(month, year);
+  const t = useI18n();
 
   const formatEuro = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -62,7 +64,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">Répartition par catégorie</h2>
+        <h2 className="text-2xl font-bold tracking-tight">{t('dashboard_category_breakdown')}</h2>
         <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full">
           <span className="text-sm font-medium text-muted-foreground">
             {getMonthName(month)} {year}
@@ -130,7 +132,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                           ))
                         ) : (
                           <div className="text-center py-6 text-sm text-muted-foreground bg-muted/20 rounded-lg">
-                            Aucune transaction pour cette catégorie
+                            {t('dashboard_no_transactions_category')}
                           </div>
                         )}
                       </div>
@@ -144,8 +146,8 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
               <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📊</span>
               </div>
-              <p className="font-medium">Aucune dépense pour ce mois</p>
-              <p className="text-sm mt-1">Vos dépenses apparaîtront ici une fois ajoutées</p>
+              <p className="font-medium">{t('dashboard_no_expenses_month')}</p>
+              <p className="text-sm mt-1">{t('dashboard_expenses_will_appear')}</p>
             </div>
           )}
         </div>

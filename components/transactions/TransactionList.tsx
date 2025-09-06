@@ -17,6 +17,20 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { TransactionWithCategory } from '@/types';
+import { useI18n } from '@/locales/client';
+
+// Helper function to get translated category name
+const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
+  // For default categories, try to get translation, fallback to original name
+  if (!isCustom) {
+    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
+    const translated = t(categoryName as any);
+    // If translation exists and is different from the key, use it
+    return translated !== categoryName ? translated : categoryName;
+  }
+  // For custom categories, use the name as is
+  return categoryName;
+};
 
 interface TransactionListProps {
   transactions: TransactionWithCategory[];
@@ -35,6 +49,7 @@ export function TransactionList({
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const t = useI18n();
 
   const formatEuro = (amount: number) => {
     return new Intl.NumberFormat('fr-FR', {
@@ -60,8 +75,8 @@ export function TransactionList({
     }
   };
 
-  const sectionTitle = type === 'income' ? 'Mes entrées' : 'Mes dépenses';
-  const emptyMessage = type === 'income' ? 'Aucune entrée pour ce mois' : 'Aucune dépense pour ce mois';
+  const sectionTitle = type === 'income' ? t('transactions_my_income') : t('transactions_my_expenses');
+  const emptyMessage = type === 'income' ? t('transactions_no_income') : t('transactions_no_expenses');
 
   if (filteredTransactions.length === 0) {
     return (
@@ -110,10 +125,10 @@ export function TransactionList({
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-sm truncate">{transaction.description}</div>
                     <div className="flex items-center gap-3 mt-1 text-xs text-muted-foreground">
-                      <span>{transaction.category.name}</span>
+                      <span>{getCategoryName(transaction.category.name, transaction.category.isCustom, t)}</span>
                       {transaction.isFixed && (
                         <Badge variant="outline" className="text-xs py-0.5 px-1.5">
-                          FIXE
+                          {t('transaction_fixed_badge')}
                         </Badge>
                       )}
                       <div className="flex items-center gap-1">

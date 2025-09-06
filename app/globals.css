@@ -125,11 +125,11 @@
   .shadow-subtle {
     box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
-  
+
   .shadow-card {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
-  
+
 
   /* Refined borders */
   .border-subtle {
@@ -150,11 +150,11 @@
   .status-success {
     @apply text-emerald-600 bg-emerald-50 border-emerald-200;
   }
-  
+
   .status-danger {
     @apply text-red-600 bg-red-50 border-red-200;
   }
-  
+
   .status-warning {
     @apply text-amber-600 bg-amber-50 border-amber-200;
   }
@@ -173,7 +173,7 @@
   .interactive {
     @apply transition-all duration-200 ease-in-out cursor-pointer;
   }
-  
+
   .interactive:hover {
     @apply scale-[1.02] brightness-105;
   }

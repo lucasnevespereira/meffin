@@ -3,8 +3,7 @@
 import { useState } from 'react';
 import { Plus, Edit, Trash2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +18,19 @@ import { CategoryForm } from '@/components/forms/CategoryForm';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
 import { Category, CategoryFormData } from '@/types';
 import { useI18n } from '@/locales/client';
+
+// Helper function to get translated category name
+const getCategoryName = (category: Category, t: ReturnType<typeof useI18n>): string => {
+  // For default categories, try to get translation, fallback to original name
+  if (!category.isCustom) {
+    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
+    const translated = t(category.name as any);
+    // If translation exists and is different from the key, use it
+    return translated !== category.name ? translated : category.name;
+  }
+  // For custom categories, use the name as is
+  return category.name;
+};
 
 // Default categories that should be created for new users
 // const defaultCategories = [
@@ -156,10 +168,10 @@ export default function CategoriesPage() {
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold tracking-tight">{t('categories_default_title')}</h2>
               <div className="px-3 py-1 rounded-full text-xs font-medium border bg-muted/50 text-muted-foreground border-border">
-                {defaultCats.length} catégorie{defaultCats.length > 1 ? 's' : ''}
+                {defaultCats.length} {defaultCats.length > 1 ? t('categories_count_plural') : t('categories_count_single')}
               </div>
             </div>
-            
+
             <div className="space-y-3">
               {defaultCats.map((category) => (
                 <div
@@ -173,7 +185,7 @@ export default function CategoriesPage() {
                     />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-sm truncate">{category.name}</div>
+                    <div className="font-semibold text-sm truncate">{getCategoryName(category, t)}</div>
                     <div className="text-xs text-muted-foreground mt-1">
                       {category.type === 'income' ? t('categories_income') : t('categories_expense')}
                     </div>
@@ -191,7 +203,7 @@ export default function CategoriesPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold tracking-tight">{t('categories_custom_title')}</h2>
             <div className="px-3 py-1 rounded-full text-xs font-medium border bg-muted/50 text-muted-foreground border-border">
-              {customCats.length} catégorie{customCats.length > 1 ? 's' : ''} personnalisée{customCats.length > 1 ? 's' : ''}
+              {customCats.length} {customCats.length > 1 ? t('categories_custom_plural') : t('categories_custom_single')}
             </div>
           </div>
 
@@ -220,7 +232,7 @@ export default function CategoriesPage() {
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="font-semibold text-sm truncate">{category.name}</div>
+                      <div className="font-semibold text-sm truncate">{getCategoryName(category, t)}</div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {category.type === 'income' ? t('categories_income') : t('categories_expense')}
                       </div>

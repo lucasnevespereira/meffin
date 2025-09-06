@@ -26,7 +26,7 @@ export type TransactionFormData = {
   amount: number;
   categoryId: string;
   date: Date;
-  isFixed: boolean;
+  isFixed?: boolean;
 };
 
 export type CategoryFormData = {
