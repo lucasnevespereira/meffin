@@ -25,9 +25,9 @@ import { useI18n } from '@/locales/client';
 
 const APP_VERSION = '0.1.0';
 
-// Generate a consistent avatar URL based on user's name or email
+// Generate a consistent avatar URL based on user's name or email using initials
 const generateAvatarUrl = (seed: string): string => {
-  return `https://api.dicebear.com/7.x/micah/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
+  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
 };
 
 export function AppSidebar() {
@@ -68,17 +68,19 @@ export function AppSidebar() {
   return (
     <Sidebar variant="inset" className="border-r border-border shadow-subtle">
       <SidebarHeader className="border-b border-border">
-        <div className="flex items-center gap-2">
-            <Image
-              src="/logo.png"
-              alt="Meffin Logo"
-              width={80}
-              height={80}
-              className="invert object-cover"
-            />
+        <div className="flex items-center gap-4 px-4 py-2">
+          <Image
+            src="/logo.png"
+            alt="Meffin Logo"
+            width={40}
+            height={40}
+            className="object-cover invert"
+          />
           <div className="flex flex-col min-w-0">
-            <span className="text-xl font-mon font-bold tracking-tight">{t('app_name')}</span>
-            <span className="text-xs text-muted-foreground">v{APP_VERSION}</span>
+            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+              Meffin
+            </span>
+            <span className="text-xs text-muted-foreground font-medium">v{APP_VERSION}</span>
           </div>
         </div>
       </SidebarHeader>
@@ -117,8 +119,8 @@ export function AppSidebar() {
             {session && (
               <>
                 <SidebarMenuItem>
-                  <SidebarMenuButton
-                    asChild
+                  <SidebarMenuButton 
+                    asChild 
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group"
                   >
                     <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-4 py-3 min-h-[52px]">

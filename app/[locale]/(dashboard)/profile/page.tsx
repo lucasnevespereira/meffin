@@ -56,7 +56,7 @@ type ProfileFormData = {
   currency: string;
 };
 
-// Generate a consistent avatar URL based on user's name or email
+// Generate a consistent avatar URL based on user's name or email using initials
 const generateAvatarUrl = (seed: string): string => {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
 };
@@ -120,6 +120,7 @@ export default function ProfilePage() {
     }
   };
 
+
   if (!session) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -156,63 +157,127 @@ export default function ProfilePage() {
         </Alert>
       )}
 
-      {/* Profile Information Card */}
+      {/* Profile Card */}
       <div className="rounded-xl border border-border bg-card shadow-card">
-        <div className="p-6">
-          {/* Avatar Section */}
-          <div className="flex items-center gap-6 mb-8">
-            <div className="w-20 h-20 rounded-2xl overflow-hidden ring-4 ring-border shadow-card">
-              <Image
-                src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
-                alt={session.user.name || 'User Avatar'}
-                width={80}
-                height={80}
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold tracking-tight">{session.user.name || t('profile_info_section')}</h2>
-              <p className="text-muted-foreground mt-1">{session.user.email}</p>
-              <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 mt-2">
-                Compte actif
+        <div className="p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Avatar and Basic Info Section */}
+            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
+              {/* Avatar Section */}
+              <div className="w-24 h-24 rounded-2xl overflow-hidden ring-4 ring-border shadow-card">
+                <Image
+                  src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
+                  alt={session.user.name || 'User Avatar'}
+                  width={96}
+                  height={96}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* User Info and Status */}
+              <div className="text-center sm:text-left flex-1">
+                <h1 className="text-3xl font-bold tracking-tight">{session.user.name || 'User'}</h1>
+                <p className="text-muted-foreground mt-2 text-lg">{session.user.email}</p>
+                <div className="flex items-center justify-center sm:justify-start gap-4 mt-4">
+                  <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    ✓ Compte actif
+                  </div>
+                  <div className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-200">
+                    Membre depuis {new Date(session.user.createdAt).getFullYear()}
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
+          </form>
+        </div>
+      </div>
+
+      {/* Edit Profile Card */}
+      <div className="rounded-xl border border-border bg-card shadow-card">
+        <div className="p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-100">
               <User className="h-5 w-5 text-slate-600" />
             </div>
-            <h3 className="text-xl font-bold tracking-tight">{t('profile_info_section')}</h3>
+            <h2 className="text-xl font-bold tracking-tight">Edit Profile</h2>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  placeholder={t('register_name')}
-                  className="h-11"
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
-                )}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="text-sm font-medium">{t('profile_name')}</Label>
+                    <Input
+                      id="name"
+                      {...register('name')}
+                      placeholder={t('register_name')}
+                      className="h-11"
+                    />
+                    {errors.name && (
+                      <p className="text-sm text-destructive">{errors.name.message}</p>
+                    )}
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="email" className="text-sm font-medium">{t('profile_email')}</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      {...register('email')}
+                      disabled
+                      className="h-11 bg-muted/50 text-muted-foreground"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      {t('profile_email_readonly')}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
+                  <Select
+                    value={selectedCurrency}
+                    onValueChange={(value) => setValue('currency', value)}
+                  >
+                    <SelectTrigger className="h-11 max-w-xs">
+                      <SelectValue placeholder={t('profile_currency_select')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {currencies.map((currency) => (
+                        <SelectItem key={currency.code} value={currency.code} className="py-3">
+                          {t(currency.nameKey as any)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {errors.currency && (
+                    <p className="text-sm text-destructive">{errors.currency.message}</p>
+                  )}
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">{t('profile_email')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  disabled
-                  className="h-11 bg-muted/50 text-muted-foreground"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t('profile_email_readonly')}
-                </p>
+              <div className="lg:col-span-1">
+                <div className="p-6 rounded-xl bg-muted/20 border border-border/50">
+                  <h4 className="font-semibold text-sm text-muted-foreground mb-3">Quick Stats</h4>
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Member since</span>
+                      <span className="font-medium">{new Date(session.user.createdAt).getFullYear()}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Account type</span>
+                      <span className="font-medium text-emerald-700">Active</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Profile ID</span>
+                      <span className="font-mono text-xs text-muted-foreground">
+                        {session.user.id.slice(-8)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -230,66 +295,6 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Preferences Card */}
-      <div className="rounded-xl border border-border bg-card shadow-card">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-100">
-              <Globe className="h-5 w-5 text-emerald-700" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight">{t('profile_preferences_section')}</h2>
-          </div>
-
-          <div className="max-w-xs">
-            <div className="space-y-2">
-              <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
-              <Select
-                value={selectedCurrency}
-                onValueChange={(value) => setValue('currency', value)}
-              >
-                <SelectTrigger className="h-11">
-                  <SelectValue placeholder={t('profile_currency_select')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencies.map((currency) => (
-                    <SelectItem key={currency.code} value={currency.code} className="py-3">
-                      {t(currency.nameKey as any)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.currency && (
-                <p className="text-sm text-destructive">{errors.currency.message}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Account Details Card */}
-      <div className="rounded-xl border border-border bg-card shadow-card">
-        <div className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-100">
-              <Info className="h-5 w-5 text-blue-700" />
-            </div>
-            <h2 className="text-xl font-bold tracking-tight">Détails du compte</h2>
-          </div>
-
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-muted-foreground">{t('profile_user_id')}</span>
-                <div className="p-3 rounded-lg bg-muted/20 font-mono text-xs break-all">{session.user.id}</div>
-              </div>
-              <div className="space-y-2">
-                <span className="text-sm font-medium text-muted-foreground">{t('profile_created_at')}</span>
-                <div className="p-3 rounded-lg bg-muted/20 text-sm">{new Date(session.user.createdAt).toLocaleDateString('fr-FR')}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
       {/* Danger Zone - Discrete Collapsible */}
       <div className="rounded-xl border border-border/50 bg-card">
