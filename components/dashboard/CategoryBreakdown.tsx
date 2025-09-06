@@ -7,6 +7,19 @@ import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useI18n } from '@/locales/client';
 
+// Helper function to get translated category name
+const getCategoryName = (categoryName: string, isCustom: boolean, t: ReturnType<typeof useI18n>): string => {
+  // For default categories, try to get translation, fallback to original name
+  if (!isCustom) {
+    // @ts-ignore - TypeScript doesn't know about dynamic keys but it's safe here
+    const translated = t(categoryName as any);
+    // If translation exists and is different from the key, use it
+    return translated !== categoryName ? translated : categoryName;
+  }
+  // For custom categories, use the name as is
+  return categoryName;
+};
+
 interface CategorySummary {
   categoryId: string;
   categoryName: string;
@@ -14,6 +27,7 @@ interface CategorySummary {
   type: 'income' | 'expense';
   total: number;
   transactionCount: number;
+  isCustom?: boolean;
 }
 
 interface CategoryBreakdownProps {
@@ -63,14 +77,6 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
 
   return (
     <div className="mt-8">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold tracking-tight">{t('dashboard_category_breakdown')}</h2>
-        <div className="flex items-center gap-2 px-3 py-1 bg-muted/50 rounded-full">
-          <span className="text-sm font-medium text-muted-foreground">
-            {getMonthName(month)} {year}
-          </span>
-        </div>
-      </div>
       <div className="rounded-xl border border-border bg-card shadow-card">
         <div className="p-6">
           {expenseCategories.length > 0 ? (
@@ -98,7 +104,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                               style={{ backgroundColor: category.color }}
                             />
                           </div>
-                          <span className="font-semibold text-sm">{category.categoryName}</span>
+                          <span className="font-semibold text-sm">{getCategoryName(category.categoryName, category.isCustom || false, t)}</span>
                         </div>
                       </div>
                       <div className="text-right">

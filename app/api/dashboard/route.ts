@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
     // Calculate balance and category breakdown
     let income = 0;
     let expenses = 0;
-    const categoryTotals: Record<string, { categoryId: string; categoryName: string; color: string; type: string; total: number; transactionCount: number }> = {};
+    const categoryTotals: Record<string, { categoryId: string; categoryName: string; color: string; type: string; total: number; transactionCount: number; isCustom: boolean }> = {};
 
     userTransactions.forEach(transaction => {
       const amount = Number(transaction.amount);
@@ -77,6 +77,7 @@ export async function GET(request: NextRequest) {
 
       // Update category totals
       if (!categoryTotals[transaction.categoryId]) {
+        const isCustom = !defaultCategories[transaction.categoryId];
         categoryTotals[transaction.categoryId] = {
           categoryId: transaction.categoryId,
           categoryName: category.name,
@@ -84,6 +85,7 @@ export async function GET(request: NextRequest) {
           type: category.type,
           total: 0,
           transactionCount: 0,
+          isCustom,
         };
       }
       categoryTotals[transaction.categoryId].total += amount;

@@ -137,6 +137,7 @@ export default {
   "Utilities": "Factures", 
   "Entertainment": "Loisirs",
   "Healthcare": "Santé",
+  "Holidays": "Vacances",
   "Shopping": "Shopping",
   "Education": "Éducation",
   "Insurance": "Assurance",
@@ -228,6 +229,8 @@ export default {
   "category_form_color_label": "Couleur",
 
   // Dashboard
+  "dashboard_title": "Dashboard",
+  "dashboard_subtitle": "Vue d'ensemble de vos finances personnelles",
   "dashboard_category_breakdown": "Répartition par catégorie",
   "dashboard_no_transactions_category": "Aucune transaction pour cette catégorie",
   "dashboard_no_expenses_month": "Aucune dépense pour ce mois",

@@ -137,6 +137,7 @@ export default {
   "Utilities": "Utilities", 
   "Entertainment": "Entertainment",
   "Healthcare": "Healthcare",
+  "Holidays": "Holidays", 
   "Shopping": "Shopping",
   "Education": "Education",
   "Insurance": "Insurance",
@@ -228,6 +229,8 @@ export default {
   "category_form_color_label": "Color",
 
   // Dashboard
+  "dashboard_title": "Dashboard",
+  "dashboard_subtitle": "Overview of your personal finances",
   "dashboard_category_breakdown": "Category Breakdown",
   "dashboard_no_transactions_category": "No transactions for this category",
   "dashboard_no_expenses_month": "No expenses for this month",

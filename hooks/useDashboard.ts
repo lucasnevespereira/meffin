@@ -15,6 +15,7 @@ interface CategorySummary {
   type: 'income' | 'expense';
   total: number;
   transactionCount: number;
+  isCustom?: boolean;
 }
 
 interface DashboardData {

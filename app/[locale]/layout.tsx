@@ -14,7 +14,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Meffin - Budget Tracking App",
-  description: "Modern budget tracking application built with Next.js",
+  description: "Modern budget tracking application",
 };
 
 export default async function LocaleLayout({
@@ -27,7 +27,7 @@ export default async function LocaleLayout({
   const { locale } = await params;
 
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body className={`${inter.variable} antialiased font-sans`}>
         <ThemeProvider
           attribute="class"

@@ -12,7 +12,7 @@ const updateProfileSchema = z.object({
 
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: request.headers });
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function PUT(request: NextRequest) {
       .update(users)
       .set({
         name: validatedData.name,
-        // Note: We can add currency to users table later or create a user_preferences table
+        currency: validatedData.currency,
         updatedAt: new Date(),
       })
       .where(eq(users.id, session.user.id))
@@ -39,6 +39,7 @@ export async function PUT(request: NextRequest) {
         id: users.id,
         name: users.name,
         email: users.email,
+        currency: users.currency,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       });
@@ -74,7 +75,7 @@ export async function PUT(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth();
+    const session = await auth.api.getSession({ headers: request.headers });
     
     if (!session?.user?.id) {
       return NextResponse.json(
@@ -89,6 +90,7 @@ export async function GET(request: NextRequest) {
         id: users.id,
         name: users.name,
         email: users.email,
+        currency: users.currency,
         createdAt: users.createdAt,
         updatedAt: users.updatedAt,
       })

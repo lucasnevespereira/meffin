@@ -5,9 +5,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useI18n } from '@/locales/client';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
+  const t = useI18n();
 
   if (error) {
     return (
@@ -29,12 +31,8 @@ export default function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-balance">Dashboard</h1>
-          <p className="text-muted-foreground mt-2">Vue d'ensemble de vos finances personnelles</p>
-        </div>
-        <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-full">
-          <div className="w-2 h-2 bg-emerald-500 dark:bg-emerald-400 rounded-full animate-pulse" />
-          <span className="text-xs font-medium text-muted-foreground">En temps réel</span>
+          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('dashboard_title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('dashboard_subtitle')}</p>
         </div>
       </div>
 

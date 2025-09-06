@@ -1,14 +1,12 @@
 # Variables
 PORT ?= 3000
 
-.PHONY: dev dev-clean help
+.PHONY: dev dev-clean db-push db-migrate help
 
 # Main development command
 dev:
 	@echo "🚀 Starting development..."
 	@npm install --silent
-	@npx drizzle-kit generate
-	@npx drizzle-kit migrate
 	@echo "✅ Ready! Starting server on port $(PORT)"
 	@npm run dev
 
@@ -18,11 +16,23 @@ dev-clean:
 	@npx kill-port $(PORT) 2>/dev/null || true
 	@$(MAKE) --no-print-directory dev
 
+# Database commands
+db-push:
+	@echo "📊 Pushing schema changes to database..."
+	@npx drizzle-kit push
+
+db-migrate:
+	@echo "📊 Generating and running migrations..."
+	@npx drizzle-kit generate
+	@npx drizzle-kit migrate
+
 # Show available commands
 help:
 	@echo "Available commands:"
-	@echo "  make dev       - Install deps, run migrations, start dev server"
-	@echo "  make dev-clean - Kill port $(PORT) first, then start dev"
-	@echo "  make help      - Show this help"
+	@echo "  make dev        - Install deps, start dev server (no migrations)"
+	@echo "  make dev-clean  - Kill port $(PORT) first, then start dev"
+	@echo "  make db-push    - Push schema changes directly to database"
+	@echo "  make db-migrate - Generate and run migrations"
+	@echo "  make help       - Show this help"
 
 .DEFAULT_GOAL := dev

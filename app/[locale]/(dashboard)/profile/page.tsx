@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -31,7 +31,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useSession, signOut } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
-import { useUpdateProfile } from '@/hooks/useProfile';
+import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 
 
@@ -65,6 +65,7 @@ const generateAvatarUrl = (seed: string): string => {
 export default function ProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
+  const { data: profileData, isLoading: profileLoading } = useProfile();
   const t = useI18n();
   const updateProfileMutation = useUpdateProfile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -78,15 +79,29 @@ export default function ProfilePage() {
     handleSubmit,
     setValue,
     watch,
+    reset,
     formState: { errors },
   } = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
-    defaultValues: {
-      name: session?.user?.name || '',
-      email: session?.user?.email || '',
-      currency: 'EUR', // TODO: Get from user preferences
-    },
   });
+
+  // Update form when profile data loads
+  React.useEffect(() => {
+    if (profileData?.user) {
+      reset({
+        name: profileData.user.name || '',
+        email: profileData.user.email || '',
+        currency: profileData.user.currency || 'EUR',
+      });
+    } else if (session?.user && !profileLoading) {
+      // Fallback to session data if profile data isn't available
+      reset({
+        name: session.user.name || '',
+        email: session.user.email || '',
+        currency: 'EUR',
+      });
+    }
+  }, [profileData, session, profileLoading, reset]);
 
   const selectedCurrency = watch('currency');
 
@@ -151,6 +166,33 @@ export default function ProfilePage() {
     );
   }
 
+  if (profileLoading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
+          <p className="text-muted-foreground mt-2">{t('profile_subtitle')}</p>
+        </div>
+        <div className="rounded-xl border border-border bg-card shadow-card animate-pulse">
+          <div className="p-6 space-y-4">
+            <div className="flex items-center gap-4 pb-6 border-b border-border">
+              <div className="w-16 h-16 bg-muted/60 rounded-xl" />
+              <div className="space-y-2">
+                <div className="h-6 w-32 bg-muted/60 rounded" />
+                <div className="h-4 w-48 bg-muted/60 rounded" />
+              </div>
+            </div>
+            <div className="space-y-3">
+              <div className="h-10 bg-muted/60 rounded" />
+              <div className="h-10 bg-muted/60 rounded" />
+              <div className="h-10 bg-muted/60 rounded w-40" />
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -178,14 +220,14 @@ export default function ProfilePage() {
             
             {/* User Info and Status */}
             <div className="flex-1">
-              <h2 className="text-xl font-bold tracking-tight">{session.user.name || 'User'}</h2>
-              <p className="text-muted-foreground text-sm">{session.user.email}</p>
+              <h2 className="text-xl font-bold tracking-tight">{profileData?.user?.name || session.user.name || 'User'}</h2>
+              <p className="text-muted-foreground text-sm">{profileData?.user?.email || session.user.email}</p>
               <div className="flex items-center gap-3 mt-2">
-                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium status-success">
                   ✓ {t('profile_status_active')}
                 </div>
-                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200">
-                  {t('profile_member_since')} {new Date(session.user.createdAt).getFullYear()}
+                <div className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700">
+                  {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
                 </div>
               </div>
             </div>
@@ -264,16 +306,16 @@ export default function ProfilePage() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t('profile_member_since_label')}</span>
-                      <span className="font-medium">{new Date(session.user.createdAt).getFullYear()}</span>
+                      <span className="font-medium">{new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t('profile_account_type')}</span>
-                      <span className="font-medium text-emerald-700">{t('profile_status_active')}</span>
+                      <span className="font-medium text-emerald-700 dark:text-emerald-400">{t('profile_status_active')}</span>
                     </div>
                     <div className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{t('profile_profile_id')}</span>
                       <span className="font-mono text-xs text-muted-foreground">
-                        {session.user.id.slice(-8)}
+                        {(profileData?.user?.id || session.user.id).slice(-8)}
                       </span>
                     </div>
                   </div>

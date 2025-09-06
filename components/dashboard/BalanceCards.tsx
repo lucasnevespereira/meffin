@@ -63,7 +63,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
-              {t('dashboard_income_month')}
+              Ce mois
             </div>
           </div>
         </div>
@@ -85,7 +85,7 @@ export function BalanceCards({ balance, income, expenses }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400">
-              {t('dashboard_expenses_month')}
+              Ce mois
             </div>
           </div>
         </div>
