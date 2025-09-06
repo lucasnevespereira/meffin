@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1757132644241,
-      "tag": "0000_purple_archangel",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1757180397356,
-      "tag": "0001_stormy_warhawk",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1757190698532,
-      "tag": "0002_common_taskmaster",
+      "when": 1757193661086,
+      "tag": "0000_initial_schema",
       "breakpoints": true
     }
   ]

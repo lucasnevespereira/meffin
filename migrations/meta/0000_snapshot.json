@@ -1,5 +1,5 @@
 {
-  "id": "d4d85189-fad9-4b7b-98bc-4221f5dc6b78",
+  "id": "e1945353-8cc9-4fc7-9878-7ec21ab91391",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -151,13 +151,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "is_custom": {
-          "name": "is_custom",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
         }
       },
       "indexes": {},
@@ -384,6 +377,13 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "varchar(3)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'EUR'"
         },
         "created_at": {
           "name": "created_at",

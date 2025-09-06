@@ -21,8 +21,7 @@ CREATE TABLE "categories" (
 	"name" varchar(100) NOT NULL,
 	"type" "transaction_type" NOT NULL,
 	"color" varchar(7) NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL,
-	"is_custom" boolean DEFAULT false NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -55,6 +54,7 @@ CREATE TABLE "users" (
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
+	"currency" varchar(3) DEFAULT 'EUR' NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
