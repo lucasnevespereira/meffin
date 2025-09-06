@@ -26,6 +26,8 @@ import {
 import { signOut, useSession } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
 
+const APP_VERSION = '0.1.0';
+
 export function AppSidebar() {
   const router = useRouter();
   const pathname = usePathname();
@@ -62,42 +64,42 @@ export function AppSidebar() {
   };
 
   return (
-    <Sidebar variant="inset" className="border-r-0">
-      <SidebarHeader className="border-b border-sidebar-border/50">
-        <div className="flex items-center gap-3 px-4 py-6">
-          <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl shadow-sm border border-border/60">
+    <Sidebar variant="inset" className="border-r border-border/40">
+      <SidebarHeader className="border-b border-border/40">
+        <div className="flex items-center gap-3 px-4 py-4">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg">
             <Image
               src="/logo.png"
               alt="Meffin Logo"
-              width={24}
-              height={24}
-              className="w-6 h-6"
+              width={20}
+              height={20}
+              className="w-5 h-5"
             />
           </div>
           <div className="flex flex-col">
-            <span className="text-xl font-bold tracking-tight text-sidebar-foreground">{t('app_name')}</span>
-            <span className="text-xs text-sidebar-foreground/60 font-medium">{t('app_tagline')}</span>
+            <span className="text-lg font-medium font-display">{t('app_name')}</span>
+            <span className="text-xs text-muted-foreground">{t('app_tagline')}</span>
           </div>
         </div>
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup className="px-3 py-4">
+        <SidebarGroup className="px-3 py-3">
           <SidebarGroupContent>
-            <SidebarMenu className="space-y-2">
+            <SidebarMenu className="space-y-1">
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton 
                     asChild 
-                    className={`hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground rounded-xl transition-all duration-200 py-3 ${
+                    className={`hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2 ${
                       isActive(item.url) 
-                        ? 'bg-sidebar-accent/80 text-sidebar-accent-foreground font-medium shadow-sm' 
-                        : 'text-sidebar-foreground/70 hover:text-sidebar-foreground'
+                        ? 'bg-accent text-accent-foreground font-medium' 
+                        : 'text-muted-foreground'
                     }`}
                   >
                     <Link href={item.url} className="flex items-center gap-3 px-3">
-                      <item.icon className="h-5 w-5" />
-                      <span className="font-medium">{item.title}</span>
+                      <item.icon className="h-4 w-4" />
+                      <span className="text-sm">{item.title}</span>
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -107,18 +109,18 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="border-t border-sidebar-border/50">
-        <div className="px-3 py-4">
-          <SidebarMenu className="space-y-2">
+      <SidebarFooter className="border-t border-border/40">
+        <div className="px-3 py-3">
+          <SidebarMenu className="space-y-1">
             {session && (
               <>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild className="hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground rounded-xl transition-all duration-200 py-3">
+                  <SidebarMenuButton asChild className="hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors py-2">
                     <Link href={`/${locale}/profile`} className="flex items-center gap-3 px-3">
-                      <User className="h-5 w-5" />
-                      <div className="flex flex-col items-start">
-                        <span className="font-medium text-sidebar-foreground">{t('nav_profile')}</span>
-                        <span className="text-xs text-sidebar-foreground/60">{session.user.email}</span>
+                      <User className="h-4 w-4" />
+                      <div className="flex flex-col items-start min-w-0">
+                        <span className="text-sm font-medium truncate">{t('nav_profile')}</span>
+                        <span className="text-xs text-muted-foreground truncate">{session.user.email}</span>
                       </div>
                     </Link>
                   </SidebarMenuButton>
@@ -126,11 +128,11 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     onClick={handleSignOut}
-                    className="text-sidebar-foreground/70 hover:text-destructive hover:bg-destructive/10 w-full rounded-xl transition-all duration-200 py-3"
+                    className="text-muted-foreground hover:text-destructive hover:bg-destructive/10 w-full rounded-lg transition-colors py-2"
                   >
                     <div className="flex items-center gap-3 px-3">
-                      <LogOut className="h-5 w-5" />
-                      <span className="font-medium">{t('nav_signOut')}</span>
+                      <LogOut className="h-4 w-4" />
+                      <span className="text-sm">{t('nav_signOut')}</span>
                     </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

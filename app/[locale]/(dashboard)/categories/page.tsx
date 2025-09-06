@@ -94,9 +94,9 @@ export default function CategoriesPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-red-600">Erreur lors du chargement des catégories</p>
+            <p className="text-red-600">{t('categories_loading_error')}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Veuillez vous connecter pour accéder aux catégories
+              {t('categories_login_required')}
             </p>
           </CardContent>
         </Card>
@@ -112,128 +112,112 @@ export default function CategoriesPage() {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Tag className="h-8 w-8" />
-          <h1 className="text-3xl font-bold">Catégories</h1>
+        <div>
+          <h1 className="text-2xl font-medium font-display">{t('categories_title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('categories_subtitle')}</p>
         </div>
 
-        <Button onClick={() => setIsFormOpen(true)} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" />
-          Ajouter une catégorie
+        <Button onClick={() => setIsFormOpen(true)} className="h-9 px-4 text-sm">
+          <Plus className="h-4 w-4 mr-2" />
+          {t('categories_add_button')}
         </Button>
       </div>
 
       {/* Loading State */}
       {isLoading && (
         <div className="space-y-6">
-          {[1, 2].map(i => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="h-6 bg-gray-200 rounded animate-pulse" />
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {[1, 2, 3].map(j => (
-                    <div key={j} className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-6 h-6 bg-gray-200 rounded animate-pulse" />
-                        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-                      </div>
-                      <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
-                    </div>
-                  ))}
+          <div className="h-5 bg-muted rounded w-48 mb-6" />
+          <div className="space-y-2">
+            {[1, 2, 3].map(i => (
+              <div key={i} className="p-4 rounded-lg border border-border/40 bg-card/20 animate-pulse">
+                <div className="flex items-center gap-3">
+                  <div className="w-4 h-4 bg-muted rounded-full" />
+                  <div className="h-4 w-20 bg-muted rounded" />
+                  <div className="h-4 w-16 bg-muted rounded" />
                 </div>
-              </CardContent>
-            </Card>
-          ))}
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       {/* Default Categories */}
       {!isLoading && defaultCats.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Catégories par défaut</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {defaultCats.map((category) => (
+        <div>
+          <h2 className="text-lg font-medium mb-4">{t('categories_default_title')}</h2>
+          <div className="space-y-2">
+            {defaultCats.map((category) => (
+              <div
+                key={category.id}
+                className="flex items-center gap-3 p-3 rounded-lg border border-border/40 bg-card/20"
+              >
                 <div
-                  key={category.id}
-                  className="flex items-center justify-between p-3 border rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-6 h-6 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span className="font-medium">{category.name}</span>
-                    <Badge variant={category.type === 'income' ? 'default' : 'secondary'}>
-                      {category.type === 'income' ? 'revenu' : 'dépense'}
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                  className="w-4 h-4 rounded-full"
+                  style={{ backgroundColor: category.color }}
+                />
+                <span className="font-medium text-sm">{category.name}</span>
+                <Badge variant={category.type === 'income' ? 'default' : 'secondary'} className="text-xs">
+                  {category.type === 'income' ? t('categories_income') : t('categories_expense')}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
       )}
 
       {/* Custom Categories */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Mes catégories</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {customCats.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Tag className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>Aucune catégorie personnalisée</p>
-              <p className="text-sm mt-1">
-                Créez vos propres catégories pour mieux organiser vos transactions
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-3">
-              {customCats.map((category) => (
-                <div
-                  key={category.id}
-                  className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="w-6 h-6 rounded-full"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span className="font-medium">{category.name}</span>
-                    <Badge variant={category.type === 'income' ? 'default' : 'secondary'}>
-                      {category.type === 'income' ? 'revenu' : 'dépense'}
-                    </Badge>
-                  </div>
-
-                  <div className="flex items-center gap-1">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEditCategory(category)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteClick(category)}
-                      disabled={deleteMutation.isPending}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
+      <div>
+        <h2 className="text-lg font-medium mb-4">{t('categories_custom_title')}</h2>
+        {customCats.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground rounded-lg border border-border/40 bg-card/20">
+            <Tag className="h-8 w-8 mx-auto mb-3 opacity-50" />
+            <p className="text-sm">{t('categories_no_custom')}</p>
+            <p className="text-xs mt-1 opacity-75">
+              {t('categories_create_custom')}
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {customCats.map((category) => (
+              <div
+                key={category.id}
+                className="flex items-center justify-between p-3 rounded-lg border border-border/40 bg-card/20 hover:bg-card/40 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className="w-4 h-4 rounded-full"
+                    style={{ backgroundColor: category.color }}
+                  />
+                  <span className="font-medium text-sm">{category.name}</span>
+                  <Badge variant={category.type === 'income' ? 'default' : 'secondary'} className="text-xs">
+                    {category.type === 'income' ? t('categories_income') : t('categories_expense')}
+                  </Badge>
                 </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+
+                <div className="flex items-center gap-1">
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleEditCategory(category)}
+                    className="h-7 w-7 p-0"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleDeleteClick(category)}
+                    disabled={deleteMutation.isPending}
+                    className="h-7 w-7 p-0"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Category Form Modals */}
       <CategoryForm
@@ -263,21 +247,19 @@ export default function CategoriesPage() {
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer la catégorie</AlertDialogTitle>
+            <AlertDialogTitle>{t('categories_delete_title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer la catégorie "{categoryToDelete?.name}" ?
-              Cette action ne peut pas être annulée et la catégorie ne doit pas être utilisée
-              dans des transactions existantes.
+              {t('categories_delete_confirmation', { name: categoryToDelete?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('common_cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={deleteMutation.isPending}
               className="bg-red-600 hover:bg-red-700"
             >
-              {deleteMutation.isPending ? 'Suppression...' : 'Supprimer'}
+              {deleteMutation.isPending ? t('categories_deleting') : t('categories_delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

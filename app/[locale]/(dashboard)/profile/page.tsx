@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User, Globe, Trash2, Save, AlertTriangle } from 'lucide-react';
+import { User, Globe, Trash2, Save, AlertTriangle, Info } from 'lucide-react';
+
+const APP_VERSION = '0.1.0';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -128,21 +130,19 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="space-y-8">
-      <div className="space-y-1">
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('profile_title')}</h1>
-        <p className="text-muted-foreground">{t('profile_subtitle')}</p>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-medium font-display">{t('profile_title')}</h1>
+        <p className="text-sm text-muted-foreground mt-1">{t('profile_subtitle')}</p>
       </div>
 
       {/* Profile Information */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <User className="h-5 w-5 text-muted-foreground" />
-            {t('profile_info_section')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <User className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-lg font-medium">{t('profile_info_section')}</h2>
+        </div>
+        <div className="space-y-6 p-6 rounded-lg border border-border/40 bg-card/20">
           {success && (
             <Alert className="border-green-200 bg-green-50/50">
               <AlertDescription className="text-green-700">{success}</AlertDescription>
@@ -197,24 +197,22 @@ export default function ProfilePage() {
             <Button 
               type="submit" 
               disabled={isLoading} 
-              className="flex items-center gap-2 bg-primary hover:bg-primary/90 transition-colors"
+              className="flex items-center gap-2 h-9 px-4 text-sm"
             >
               <Save className="h-4 w-4" />
               {isLoading ? t('profile_saving') : t('profile_save')}
             </Button>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Preferences */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="flex items-center gap-2 text-lg">
-            <Globe className="h-5 w-5 text-muted-foreground" />
-            {t('profile_preferences_section')}
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Globe className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-lg font-medium">{t('profile_preferences_section')}</h2>
+        </div>
+        <div className="space-y-6 p-6 rounded-lg border border-border/40 bg-card/20">
           <div className="max-w-md">
             <div className="space-y-2">
               <Label htmlFor="currency" className="text-sm font-medium">{t('profile_currency')}</Label>
@@ -238,31 +236,56 @@ export default function ProfilePage() {
               )}
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {/* Danger Zone */}
-      <Card className="border-red-200/50 bg-red-50/20">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-red-600 flex items-center gap-2 text-lg">
-            <Trash2 className="h-5 w-5" />
-            {t('profile_danger_section')}
-          </CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {t('profile_delete_description')}
-          </p>
-        </CardHeader>
-        <CardContent>
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <Trash2 className="h-4 w-4 text-red-500" />
+          <h2 className="text-lg font-medium text-red-600">{t('profile_danger_section')}</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          {t('profile_delete_description')}
+        </p>
+        <div className="p-6 rounded-lg border border-red-200/50 bg-red-50/20">
           <Button
             variant="destructive"
             onClick={() => setShowDeleteDialog(true)}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700"
+            className="flex items-center gap-2 h-9 px-4 text-sm bg-red-600 hover:bg-red-700"
           >
             <Trash2 className="h-4 w-4" />
             {t('profile_delete_button')}
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
+
+      {/* About */}
+      <div>
+        <div className="flex items-center gap-2 mb-4">
+          <Info className="h-4 w-4 text-muted-foreground" />
+          <h2 className="text-lg font-medium">About Meffin</h2>
+        </div>
+        <div className="p-6 rounded-lg border border-border/40 bg-card/20">
+          <div className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Version</span>
+              <span className="font-mono text-xs">v{APP_VERSION}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Built with</span>
+              <span>Next.js + TypeScript</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">License</span>
+              <span>Open Source</span>
+            </div>
+            <div className="pt-2 text-xs text-muted-foreground border-t border-border/40">
+              Lightweight budget tracking app designed for simplicity and performance.
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

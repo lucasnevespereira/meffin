@@ -110,27 +110,27 @@ export default function TransactionsPage() {
   const categories = categoriesData?.categories || [];
 
   return (
-    <div className="space-y-8">
-      {/* Page Title and Month Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{t('transactions_title')}</h1>
-          <p className="text-muted-foreground">{t('transactions_subtitle')}</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-medium font-display">{t('transactions_title')}</h1>
+          <p className="text-sm text-muted-foreground mt-1">{t('transactions_subtitle')}</p>
         </div>
 
-        <div className="flex items-center gap-3 bg-card rounded-xl p-1 border border-border shadow-sm">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('prev')}
-            className="hover:bg-accent rounded-lg"
+            className="h-8 w-8 p-0"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
 
-          <div className="flex items-center gap-2 px-4 py-2 bg-accent/50 rounded-lg border-0">
+          <div className="flex items-center gap-2 px-3 py-1 text-sm">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-semibold text-foreground">
+            <span className="font-medium">
               {getMonthName(selectedMonth)} {selectedYear}
             </span>
           </div>
@@ -139,7 +139,7 @@ export default function TransactionsPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('next')}
-            className="hover:bg-accent rounded-lg"
+            className="h-8 w-8 p-0"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -150,10 +150,10 @@ export default function TransactionsPage() {
       <div className="flex justify-start">
         <Button
           onClick={() => setIsFormOpen(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200 rounded-xl px-6 py-3"
+          className="h-9 px-4 text-sm"
           disabled={isLoadingCategories || categories.length === 0}
         >
-          <Plus className="h-5 w-5 mr-2" />
+          <Plus className="h-4 w-4 mr-2" />
           {t('transactions_add_button')}
         </Button>
       </div>

@@ -156,6 +156,23 @@ export default {
   "profile_currency_select": "Select a currency",
   "profile_language_select": "Select a language",
 
+  // Categories Page
+  "categories_title": "Categories",
+  "categories_subtitle": "Manage your categories",
+  "categories_add_button": "Add category",
+  "categories_default_title": "Default categories",
+  "categories_custom_title": "My categories",
+  "categories_no_custom": "No custom categories",
+  "categories_create_custom": "Create your own categories to better organize your transactions",
+  "categories_income": "income",
+  "categories_expense": "expense",
+  "categories_loading_error": "Error loading categories",
+  "categories_login_required": "Please sign in to access categories",
+  "categories_delete_title": "Delete category",
+  "categories_delete_confirmation": "Are you sure you want to delete the category \"{name}\"? This action cannot be undone.",
+  "categories_delete": "Delete",
+  "categories_deleting": "Deleting...",
+
   // Currencies
   "currency_eur": "Euro - €",
   "currency_usd": "US Dollar - $", 

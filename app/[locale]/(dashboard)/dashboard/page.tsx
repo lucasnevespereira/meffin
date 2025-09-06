@@ -57,27 +57,27 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8">
-      {/* Page Title and Month Navigation */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">Vue d'ensemble de vos finances</p>
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-medium font-display">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Vue d'ensemble de vos finances</p>
         </div>
         
-        <div className="flex items-center gap-3 bg-card rounded-xl p-1 border border-border shadow-sm">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('prev')}
-            className="hover:bg-accent rounded-lg"
+            className="h-8 w-8 p-0"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          <div className="flex items-center gap-2 px-4 py-2 bg-accent/50 rounded-lg border-0">
+          <div className="flex items-center gap-2 px-3 py-1 text-sm">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="font-semibold text-foreground">
+            <span className="font-medium">
               {getMonthName(selectedMonth)} {selectedYear}
             </span>
           </div>
@@ -86,7 +86,7 @@ export default function DashboardPage() {
             variant="ghost"
             size="sm"
             onClick={() => navigateMonth('next')}
-            className="hover:bg-accent rounded-lg"
+            className="h-8 w-8 p-0"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -97,14 +97,10 @@ export default function DashboardPage() {
       {isLoading ? (
         <div className="grid gap-4 md:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardHeader>
-                <div className="h-4 bg-gray-200 rounded animate-pulse" />
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 bg-gray-200 rounded animate-pulse" />
-              </CardContent>
-            </Card>
+            <div key={i} className="p-6 rounded-lg border border-border/40 bg-card/30 animate-pulse">
+              <div className="h-4 bg-muted rounded mb-4" />
+              <div className="h-6 bg-muted rounded" />
+            </div>
           ))}
         </div>
       ) : data ? (
@@ -117,24 +113,22 @@ export default function DashboardPage() {
 
       {/* Category Breakdown */}
       {isLoading ? (
-        <Card>
-          <CardHeader>
-            <div className="h-6 bg-gray-200 rounded animate-pulse" />
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex items-center justify-between">
+        <div className="mt-8">
+          <div className="h-5 bg-muted rounded w-48 mb-6" />
+          <div className="space-y-2">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="p-4 rounded-lg border border-border/40 bg-card/20 animate-pulse">
+                <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 bg-gray-200 rounded-full animate-pulse" />
-                    <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                    <div className="w-2 h-2 bg-muted rounded-full" />
+                    <div className="h-4 w-20 bg-muted rounded" />
                   </div>
-                  <div className="h-4 w-16 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-4 w-16 bg-muted rounded" />
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+              </div>
+            ))}
+          </div>
+        </div>
       ) : data ? (
         <CategoryBreakdown
           categories={data.categoryBreakdown}

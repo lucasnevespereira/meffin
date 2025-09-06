@@ -60,16 +60,14 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
   const expenseCategories = categories.filter(cat => cat.type === 'expense');
 
   return (
-    <Card className="mt-6">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Répartition par catégorie</span>
-          <Badge variant="outline">
-            {getMonthName(month)} {year}
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
+    <div className="mt-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-medium">Répartition par catégorie</h2>
+        <span className="text-sm text-muted-foreground">
+          {getMonthName(month)} {year}
+        </span>
+      </div>
+      <div className="space-y-2">
         <div className="space-y-3">
           {expenseCategories.length > 0 ? (
             expenseCategories.map((category) => {
@@ -77,58 +75,56 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
               const isExpanded = expandedCategory === category.categoryId;
               
               return (
-                <div key={category.categoryId} className="border rounded-lg">
+                <div key={category.categoryId}>
                   <div 
-                    className="flex items-center justify-between py-3 px-3 cursor-pointer hover:bg-accent/50 transition-colors"
+                    className="flex items-center justify-between py-4 px-4 rounded-lg border border-border/40 bg-card/20 cursor-pointer hover:bg-card/40 transition-colors"
                     onClick={() => toggleCategory(category.categoryId)}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         {isExpanded ? (
                           <ChevronDown className="h-4 w-4 text-muted-foreground" />
                         ) : (
                           <ChevronRight className="h-4 w-4 text-muted-foreground" />
                         )}
                         <div 
-                          className="w-3 h-3 rounded-full"
+                          className="w-2 h-2 rounded-full"
                           style={{ backgroundColor: category.color }}
                         />
+                        <span className="font-medium text-sm">{category.categoryName}</span>
                       </div>
-                      <span className="font-medium">{category.categoryName}</span>
                     </div>
                     <div className="text-right">
-                      <div className="font-semibold">
+                      <div className="font-medium text-sm">
                         {formatEuro(category.total)}
                       </div>
-                      <div className="text-sm text-muted-foreground">
+                      <div className="text-xs text-muted-foreground">
                         {category.transactionCount} transaction{category.transactionCount > 1 ? 's' : ''}
                       </div>
                     </div>
                   </div>
                   
                   {isExpanded && (
-                    <div className="border-t border-border bg-accent/20">
+                    <div className="mt-2 ml-8 space-y-1">
                       {categoryTransactions.length > 0 ? (
-                        <div className="p-3 space-y-2">
-                          {categoryTransactions.map((transaction) => (
-                            <div 
-                              key={transaction.id} 
-                              className="flex items-center justify-between py-2 px-3 bg-background rounded border"
-                            >
-                              <div className="flex flex-col">
-                                <span className="font-medium text-sm">{transaction.description}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {formatDate(transaction.date)}
-                                </span>
-                              </div>
-                              <div className="font-semibold text-sm">
-                                {formatEuro(Number(transaction.amount))}
-                              </div>
+                        categoryTransactions.map((transaction) => (
+                          <div 
+                            key={transaction.id} 
+                            className="flex items-center justify-between py-2 px-3 rounded bg-muted/30"
+                          >
+                            <div className="flex flex-col">
+                              <span className="text-sm">{transaction.description}</span>
+                              <span className="text-xs text-muted-foreground">
+                                {formatDate(transaction.date)}
+                              </span>
                             </div>
-                          ))}
-                        </div>
+                            <div className="text-sm font-medium">
+                              {formatEuro(Number(transaction.amount))}
+                            </div>
+                          </div>
+                        ))
                       ) : (
-                        <div className="p-4 text-center text-sm text-muted-foreground">
+                        <div className="text-center py-4 text-sm text-muted-foreground">
                           Aucune transaction pour cette catégorie
                         </div>
                       )}
@@ -143,7 +139,7 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

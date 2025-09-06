@@ -156,6 +156,23 @@ export default {
   "profile_currency_select": "Sélectionner une devise",
   "profile_language_select": "Sélectionner une langue",
 
+  // Categories Page
+  "categories_title": "Catégories",
+  "categories_subtitle": "Gérez vos catégories",
+  "categories_add_button": "Ajouter une catégorie",
+  "categories_default_title": "Catégories par défaut",
+  "categories_custom_title": "Mes catégories",
+  "categories_no_custom": "Aucune catégorie personnalisée",
+  "categories_create_custom": "Créez vos propres catégories pour mieux organiser vos transactions",
+  "categories_income": "revenu",
+  "categories_expense": "dépense",
+  "categories_loading_error": "Erreur lors du chargement des catégories",
+  "categories_login_required": "Veuillez vous connecter pour accéder aux catégories",
+  "categories_delete_title": "Supprimer la catégorie",
+  "categories_delete_confirmation": "Êtes-vous sûr de vouloir supprimer la catégorie \"{name}\" ? Cette action ne peut pas être annulée.",
+  "categories_delete": "Supprimer",
+  "categories_deleting": "Suppression...",
+
   // Currencies
   "currency_eur": "Euro - €",
   "currency_usd": "US Dollar - $", 
