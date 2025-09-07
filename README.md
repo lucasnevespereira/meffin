@@ -3,32 +3,6 @@
   <h1>Meffin</h1>
   <p><strong>Simple, lightweight monthly budget tracking</strong></p>
   <p>Built for simplicity and self-hosting</p>
-  
-  <p>
-    <a href="https://github.com/lucasnevespereira/meffin/actions">
-      <img alt="GitHub Actions" src="https://img.shields.io/github/actions/workflow/status/lucasnevespereira/meffin/ci.yml?branch=main&style=flat-square&logo=github" />
-    </a>
-    <a href="https://github.com/lucasnevespereira/meffin/releases">
-      <img alt="GitHub release" src="https://img.shields.io/github/v/release/lucasnevespereira/meffin?style=flat-square&logo=github" />
-    </a>
-    <a href="https://github.com/lucasnevespereira/meffin/blob/main/LICENSE">
-      <img alt="License" src="https://img.shields.io/github/license/lucasnevespereira/meffin?style=flat-square" />
-    </a>
-    <a href="https://github.com/lucasnevespereira/meffin/stargazers">
-      <img alt="GitHub stars" src="https://img.shields.io/github/stars/lucasnevespereira/meffin?style=flat-square&logo=github" />
-    </a>
-    <a href="https://github.com/lucasnevespereira/meffin/network/members">
-      <img alt="GitHub forks" src="https://img.shields.io/github/forks/lucasnevespereira/meffin?style=flat-square&logo=github" />
-    </a>
-  </p>
-  
-  <p>
-    <a href="#-quick-start">Quick Start</a> •
-    <a href="#-features">Features</a> •
-    <a href="#-demo">Demo</a> •
-    <a href="#-self-hosting">Self-hosting</a> •
-    <a href="#-contributing">Contributing</a>
-  </p>
 </div>
 
 ---
@@ -36,7 +10,7 @@
 ## ✨ Features
 
 - 💰 Track income and expenses
-- 🔄 Recurring transactions with flexible end dates  
+- 🔄 Recurring transactions with flexible end dates
 - 📊 Custom categories with colors
 - 📱 Mobile-friendly PWA
 - 🌍 Multi-language support (EN, FR)
@@ -47,8 +21,17 @@
 
 ```bash
 git clone https://github.com/lucasnevespereira/meffin.git
+```
+
+```bash
 cd meffin
+```
+
+```bash
 cp .env.example .env.local
+```
+
+```bash
 # Edit DATABASE_URL in .env.local (optional - uses Docker by default)
 make dev
 ```
@@ -59,7 +42,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ```bash
 make dev      # Start development (auto-setup)
-make migrate  # Generate migration after schema changes  
+make migrate  # Generate migration after schema changes
 make build    # Build for production
 make clean    # Clean up and stop services
 ```
@@ -76,15 +59,23 @@ Works with Neon, Supabase, Railway, or self-hosted PostgreSQL.
 
 ## 🤝 Contributing
 
-Contributions welcome! Fork, make changes, and submit a PR.
+Contributions welcome! Fork the repo and submit a PR.
 
+1. **Fork & clone**
 ```bash
 git checkout -b feature/your-feature
-# Make changes
-git commit -m "feat: your feature"  
-# Submit PR
+```
+
+2. **Make changes & commit**
+```bash
+git commit -m "feat: your feature"
+```
+
+3. **Push & create PR**
+```bash
+git push origin feature/your-feature
 ```
 
 ## 📄 License
 
-[MIT](LICENSE)
+This project is under [MIT LICENSE](LICENSE)
