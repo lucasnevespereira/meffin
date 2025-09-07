@@ -24,9 +24,9 @@ export default function TransactionsPage() {
   const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
 
-  const createMutation = useCreateTransaction(t);
-  const updateMutation = useUpdateTransaction(t);
-  const deleteMutation = useDeleteTransaction(t);
+  const createMutation = useCreateTransaction();
+  const updateMutation = useUpdateTransaction();
+  const deleteMutation = useDeleteTransaction();
 
   const handleCreateTransaction = (data: TransactionFormData) => {
     createMutation.mutate(data, {

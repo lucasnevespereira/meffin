@@ -22,7 +22,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TransactionFormData, Category } from '@/types';
+import { TransactionFormData, Category, RepeatType, TimeLimitedRepeatType, isTimeLimitedRepeat } from '@/types';
 import { useSession } from '@/lib/auth-client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 
@@ -35,6 +35,16 @@ interface TransactionFormProps {
   mode?: 'create' | 'edit';
   isSubmitting?: boolean;
 }
+
+// Form-specific type for the actual form fields (excluding computed fields)
+type TransactionFormInput = {
+  description: string;
+  amount: number;
+  categoryId: string;
+  dayOfMonth: number;
+  repeatType: RepeatType;
+  customEndDate?: Date;
+};
 
 export function TransactionForm({
   isOpen,
@@ -53,9 +63,10 @@ export function TransactionForm({
     amount: z.number().positive(t('validation_amountPositive') || 'Amount must be positive'),
     categoryId: z.string().min(1, t('validation_categoryRequired') || 'Category is required'),
     dayOfMonth: z.number().min(1).max(31),
-    repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'until', 'once']).default('forever'),
+    repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'until', 'once']),
     customEndDate: z.date().optional(),
-  });
+  }) satisfies z.ZodType<TransactionFormInput>;
+
   const {
     register,
     handleSubmit,
@@ -63,7 +74,7 @@ export function TransactionForm({
     setValue,
     watch,
     formState: { errors },
-  } = useForm<TransactionFormData>({
+  } = useForm<TransactionFormInput>({
     resolver: zodResolver(transactionSchema),
     defaultValues: initialData ? {
       description: initialData.description || '',
@@ -110,15 +121,16 @@ export function TransactionForm({
       return `${t('transaction_monthly_on') || 'Monthly on day'} ${dayOfMonth}`;
     }
 
-    const months = {
-      '3months': 3,
-      '4months': 4,
-      '6months': 6,
-      '12months': 12
-    };
-
-    if (months[repeatType]) {
-      return `${t('transaction_monthly_for') || 'Monthly for'} ${months[repeatType]} ${t('months') || 'months'} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
+    if (isTimeLimitedRepeat(repeatType)) {
+      const monthsMap: Record<TimeLimitedRepeatType, number> = {
+        '3months': 3,
+        '4months': 4,
+        '6months': 6,
+        '12months': 12
+      };
+      
+      const months = monthsMap[repeatType];
+      return `${t('transaction_monthly_for') || 'Monthly for'} ${months} ${t('months') || 'months'} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
     }
 
     if (repeatType === 'until' && customEndDate) {
@@ -128,7 +140,7 @@ export function TransactionForm({
     return '';
   };
 
-  const onFormSubmit = (data: TransactionFormData) => {
+  const onFormSubmit = (data: TransactionFormInput) => {
     if (!session?.user?.id) {
       console.error('No valid session user found');
       return;
@@ -139,23 +151,24 @@ export function TransactionForm({
     const targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
 
     // Calculate end date based on repeat type
-    let endDate = null;
+    let endDate: Date | null = null;
     if (data.repeatType !== 'forever' && data.repeatType !== 'once') {
-      const months = {
-        '3months': 3,
-        '4months': 4,
-        '6months': 6,
-        '12months': 12
-      };
-
-      if (months[data.repeatType]) {
-        endDate = new Date(now.getFullYear(), now.getMonth() + months[data.repeatType], data.dayOfMonth);
+      if (isTimeLimitedRepeat(data.repeatType)) {
+        const monthsMap: Record<TimeLimitedRepeatType, number> = {
+          '3months': 3,
+          '4months': 4,
+          '6months': 6,
+          '12months': 12
+        };
+        
+        const months = monthsMap[data.repeatType];
+        endDate = new Date(now.getFullYear(), now.getMonth() + months, data.dayOfMonth);
       } else if (data.repeatType === 'until' && data.customEndDate) {
         endDate = data.customEndDate;
       }
     }
 
-    const formattedData = {
+    const formattedData: TransactionFormData = {
       ...data,
       date: targetDate,
       isFixed: data.repeatType !== 'once',
@@ -302,7 +315,7 @@ export function TransactionForm({
                 </Label>
                 <Select
                   value={repeatType}
-                  onValueChange={(value) => setValue('repeatType', value)}
+                  onValueChange={(value: RepeatType) => setValue('repeatType', value)}
                 >
                   <SelectTrigger className="h-10">
                     <SelectValue />

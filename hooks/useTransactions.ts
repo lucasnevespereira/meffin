@@ -3,9 +3,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { TransactionWithCategory, TransactionFormData } from '@/types';
+import { useI18n } from '@/locales/client';
 
 // Helper function to extract user-friendly error messages
-function getErrorMessage(error: Error, t?: (key: string) => string): string {
+function getErrorMessage(error: Error, t: ReturnType<typeof useI18n>): string {
   // Handle structured error responses from our API
   if (error.message) {
     try {
@@ -20,7 +21,7 @@ function getErrorMessage(error: Error, t?: (key: string) => string): string {
             return fieldName ? `${fieldName}: ${err.message}` : err.message;
           })
           .join(', ');
-        return messages || t?.('validation_error') || 'Validation failed';
+        return messages || t('validation_error') || 'Validation failed';
       }
       
       if (typeof errorData === 'object' && errorData.error) {
@@ -37,7 +38,7 @@ function getErrorMessage(error: Error, t?: (key: string) => string): string {
   }
   
   // Ultimate fallback
-  return t?.('transaction_update_error') || 'An unexpected error occurred';
+  return t('transaction_update_error') || 'An unexpected error occurred';
 }
 
 async function fetchTransactions(month?: number, year?: number): Promise<{ transactions: TransactionWithCategory[] }> {
@@ -122,15 +123,16 @@ export function useTransactions(month?: number, year?: number) {
   });
 }
 
-export function useCreateTransaction(t?: (key: string) => string) {
+export function useCreateTransaction() {
   const queryClient = useQueryClient();
+  const t = useI18n();
 
   return useMutation({
     mutationFn: createTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success(t?.('transaction_created_success') || 'Transaction created successfully!');
+      toast.success(t('transaction_created_success'));
     },
     onError: (error: Error) => {
       console.error('Create transaction error:', error);
@@ -140,8 +142,9 @@ export function useCreateTransaction(t?: (key: string) => string) {
   });
 }
 
-export function useUpdateTransaction(t?: (key: string) => string) {
+export function useUpdateTransaction() {
   const queryClient = useQueryClient();
+  const t = useI18n();
 
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: TransactionFormData }) =>
@@ -149,7 +152,7 @@ export function useUpdateTransaction(t?: (key: string) => string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success(t?.('transaction_updated_success') || 'Transaction updated successfully!');
+      toast.success(t('transaction_updated_success'));
     },
     onError: (error: Error) => {
       console.error('Update transaction error:', error);
@@ -159,15 +162,16 @@ export function useUpdateTransaction(t?: (key: string) => string) {
   });
 }
 
-export function useDeleteTransaction(t?: (key: string) => string) {
+export function useDeleteTransaction() {
   const queryClient = useQueryClient();
+  const t = useI18n();
 
   return useMutation({
     mutationFn: deleteTransaction,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      toast.success(t?.('transaction_deleted_success') || 'Transaction deleted successfully!');
+      toast.success(t('transaction_deleted_success'));
     },
     onError: (error: Error) => {
       console.error('Delete transaction error:', error);

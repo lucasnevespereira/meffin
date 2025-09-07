@@ -5,7 +5,6 @@ import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Edit, Trash2, Calendar, Repeat, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,7 +47,6 @@ export function TransactionList({
     if (!transaction.isFixed) return null;
     
     const now = new Date();
-    const transactionDate = new Date(transaction.date);
     const endDate = transaction.endDate ? new Date(transaction.endDate) : null;
     
     // Calculate remaining months for limited recurring transactions

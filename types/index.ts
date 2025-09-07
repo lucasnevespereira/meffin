@@ -31,13 +31,22 @@ export type CategoryWithTransactions = Category & {
   transactions: Transaction[];
 };
 
+// Repeat type definitions
+export type RepeatType = 'forever' | '3months' | '4months' | '6months' | '12months' | 'until' | 'once';
+export type TimeLimitedRepeatType = '3months' | '4months' | '6months' | '12months';
+
+// Type guards
+export const isTimeLimitedRepeat = (repeatType: RepeatType): repeatType is TimeLimitedRepeatType => {
+  return ['3months', '4months', '6months', '12months'].includes(repeatType);
+};
+
 // Form types
 export type TransactionFormData = {
   description: string;
   amount: number;
   categoryId: string;
   dayOfMonth: number;
-  repeatType: 'forever' | '3months' | '4months' | '6months' | '12months' | 'until' | 'once';
+  repeatType: RepeatType;
   customEndDate?: Date;
   // Legacy fields for submission compatibility
   date?: Date;
@@ -45,9 +54,11 @@ export type TransactionFormData = {
   isFixed?: boolean;
 };
 
+export type CategoryType = 'income' | 'expense';
+
 export type CategoryFormData = {
   name: string;
-  type: string;
+  type: CategoryType;
   color: string;
 };
 

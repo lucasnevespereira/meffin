@@ -260,6 +260,7 @@ export default {
   "transaction_recurring_ended": "Terminé",
   "transaction_recurring_last_month": "Dernier mois",
   "transaction_recurring_left": "restants",
+  "validation_error": "Erreur de validation",
 
   // Dashboard
   "dashboard_title": "Dashboard",

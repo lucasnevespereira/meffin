@@ -33,7 +33,7 @@ const createCategorySchema = (t: ReturnType<typeof useI18n>) => z.object({
   name: z.string().min(1, t('validation_nameRequired')).max(100, t('validation_nameMinLength')),
   type: z.enum(['income', 'expense']),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
-});
+}) satisfies z.ZodType<CategoryFormData>;
 
 interface CategoryFormProps {
   isOpen: boolean;
