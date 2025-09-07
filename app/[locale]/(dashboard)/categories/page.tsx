@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { CategoryForm } from '@/components/forms/CategoryForm';
 import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
-import { Category, CategoryFormData } from '@/types';
+import { Category, CategoryFormData, CategoryType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 
@@ -257,7 +257,7 @@ export default function CategoriesPage() {
           onSubmit={handleUpdateCategory}
           initialData={{
             name: editingCategory.name,
-            type: editingCategory.type,
+            type: editingCategory.type as CategoryType,
             color: editingCategory.color,
           }}
           mode="edit"

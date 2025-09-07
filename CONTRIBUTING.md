@@ -20,42 +20,42 @@ Welcome! We're excited you want to contribute to Meffin. This guide will get you
    DATABASE_URL="postgresql://username:password@localhost:5432/meffin_dev"
    ```
 
-3. **One command setup**
-   ```bash
-   make setup
-   ```
-
-4. **Start developing**
+3. **Start developing**
    ```bash
    make dev
    ```
+   
+   (This automatically sets up everything you need!)
 
 That's it! The app should be running at http://localhost:3000
 
-## What `make setup` does
+## What `make dev` does
 
-- Installs all dependencies
-- Applies database migrations to set up the schema
-- Verifies everything is working
+- Starts Docker PostgreSQL automatically
+- Installs all dependencies (if needed)
+- Sets up database schema using Drizzle
+- Starts the development server
+
+**No manual setup needed!** Everything is automated with one command.
 
 ## Available Commands
 
 ```bash
-make setup      # Complete setup for new contributors
-make dev        # Start development server
-make db-setup   # Set up database schema only
-make db-reset   # Reset database (if needed)
+make dev        # Start development server (auto-setup included)
+make migrate    # Generate migration after schema changes (maintainers only)
 make build      # Build for production
-make clean      # Clean node_modules and build artifacts
+make clean      # Clean up and stop all services
+make down       # Stop services only
 ```
 
-## Database Requirements
+## Database Setup
 
-You need a PostgreSQL database. You can use:
+**For Contributors:** Nothing to do! `make dev` handles everything with Docker.
 
-- **Local PostgreSQL**: Install locally and create a database
-- **Docker**: `docker run --name postgres -e POSTGRES_PASSWORD=password -d -p 5432:5432 postgres`
-- **Cloud**: Neon, Supabase, Railway, etc.
+**For Maintainers with external DB:** Edit `.env.local`:
+```bash
+DATABASE_URL=postgresql://user:password@host:port/database
+```
 
 ## Tech Stack
 
@@ -93,19 +93,22 @@ meffin/
 └── types/               # TypeScript type definitions
 ```
 
-## Making Database Changes
+## Making Database Changes (Maintainers)
 
 If you need to modify the database schema:
 
 1. Update `lib/schema.ts`
-2. Generate migration: `npx drizzle-kit generate`
-3. Apply migration: `npx drizzle-kit migrate`
+2. Generate migration: `make migrate`
+3. Commit the new migration files
+
+**For Contributors:** You don't need to worry about this - just use `make dev`!
 
 ## Troubleshooting
 
-**Migration errors?**
+**Database issues?**
 ```bash
-make db-reset  # Resets database to current schema
+make clean    # Stops services and removes containers
+make setup    # Fresh setup
 ```
 
 **Port already in use?**

@@ -9,7 +9,7 @@ export type NewUser = InferInsertModel<typeof users>;
 export type Category = {
   id: string;
   name: string; // For default categories, this is the i18n key; for custom, it's the actual name
-  type: 'income' | 'expense';
+  type: string;
   color: string;
   isCustom: boolean;
   userId?: string | null;
@@ -31,18 +31,34 @@ export type CategoryWithTransactions = Category & {
   transactions: Transaction[];
 };
 
+// Repeat type definitions
+export type RepeatType = 'forever' | '3months' | '4months' | '6months' | '12months' | 'until' | 'once';
+export type TimeLimitedRepeatType = '3months' | '4months' | '6months' | '12months';
+
+// Type guards
+export const isTimeLimitedRepeat = (repeatType: RepeatType): repeatType is TimeLimitedRepeatType => {
+  return ['3months', '4months', '6months', '12months'].includes(repeatType);
+};
+
 // Form types
 export type TransactionFormData = {
   description: string;
   amount: number;
   categoryId: string;
-  date: Date;
+  dayOfMonth: number;
+  repeatType: RepeatType;
+  customEndDate?: Date;
+  // Legacy fields for submission compatibility
+  date?: Date;
+  endDate?: Date | null;
   isFixed?: boolean;
 };
 
+export type CategoryType = 'income' | 'expense';
+
 export type CategoryFormData = {
   name: string;
-  type: 'income' | 'expense';
+  type: CategoryType;
   color: string;
 };
 

@@ -1,8 +1,8 @@
 export default {
   // App
   "app_name": "Meffin",
-  "app_tagline": "Manage your budget simply", 
-  "app_description": "Track your income and expenses, organize by categories and keep control of your finances.",
+  "app_tagline": "Simple, lightweight monthly budget tracking",
+  "app_description": "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
 
   // Auth
   "login_title": "Sign In",
@@ -18,8 +18,8 @@ export default {
 
   "register_title": "Create Account",
   "register_subtitle": "Join Meffin to manage your budget",
-  "register_name": "Full Name",
-  "register_email": "Email", 
+  "register_name": "Name",
+  "register_email": "Email",
   "register_password": "Password",
   "register_confirmPassword": "Confirm Password",
   "register_submit": "Create Account",
@@ -43,7 +43,7 @@ export default {
 
   // Navigation
   "nav_dashboard": "Dashboard",
-  "nav_transactions": "Transactions", 
+  "nav_transactions": "Transactions",
   "nav_categories": "Categories",
   "nav_profile": "My Profile",
   "nav_signOut": "Sign Out",
@@ -83,7 +83,7 @@ export default {
 
   // Months
   "month_january": "January",
-  "month_february": "February", 
+  "month_february": "February",
   "month_march": "March",
   "month_april": "April",
   "month_may": "May",
@@ -113,7 +113,7 @@ export default {
   "category_freelance": "Freelance",
   "category_investment": "Investment",
   "category_business": "Business",
-  
+
   // Default Categories - Expense
   "category_groceries": "Groceries",
   "category_transportation": "Transportation",
@@ -128,16 +128,16 @@ export default {
 
   // Direct mappings for seeded English category names (keeping English names)
   "Salary": "Salary",
-  "Freelance": "Freelance", 
+  "Freelance": "Freelance",
   "Investment": "Investment",
   "Business": "Business",
   "Groceries": "Groceries",
   "Transportation": "Transportation",
   "Housing": "Housing",
-  "Utilities": "Utilities", 
+  "Utilities": "Utilities",
   "Entertainment": "Entertainment",
   "Healthcare": "Healthcare",
-  "Holidays": "Holidays", 
+  "Holidays": "Holidays",
   "Shopping": "Shopping",
   "Education": "Education",
   "Insurance": "Insurance",
@@ -152,9 +152,9 @@ export default {
   "profile_account_type": "Account type",
   "profile_profile_id": "Profile ID",
   "profile_info_section": "Profile Information",
-  "profile_preferences_section": "Preferences", 
+  "profile_preferences_section": "Preferences",
   "profile_danger_section": "Danger Zone",
-  "profile_name": "Full Name",
+  "profile_name": "Name",
   "profile_email": "Email",
   "profile_email_readonly": "Email cannot be modified",
   "profile_currency": "Currency",
@@ -172,7 +172,7 @@ export default {
   "profile_delete_dialog_title": "Permanently delete your account",
   "profile_delete_dialog_description": "This action cannot be undone. This will permanently delete your account and all your data, including:",
   "profile_delete_data_transactions": "All your transactions",
-  "profile_delete_data_categories": "Your custom categories", 
+  "profile_delete_data_categories": "Your custom categories",
   "profile_delete_data_history": "Your financial history",
   "profile_delete_data_preferences": "Your preferences",
   "profile_delete_confirm": "Yes, delete my account",
@@ -204,7 +204,7 @@ export default {
 
   // Currencies
   "currency_eur": "Euro - €",
-  "currency_usd": "US Dollar - $", 
+  "currency_usd": "US Dollar - $",
   "currency_gbp": "British Pound - £",
   "currency_cad": "Canadian Dollar - C$",
   "currency_chf": "Swiss Franc - CHF",
@@ -227,6 +227,40 @@ export default {
   "category_form_type_label": "Type",
   "category_form_type_placeholder": "Select type",
   "category_form_color_label": "Color",
+
+  // Transaction Recurring Options
+  "transaction_day_of_month": "Day of month",
+  "transaction_select_day": "Select day (1-31)",
+  "transaction_repeats": "Repeats",
+  "transaction_monthly_forever": "Monthly (forever)",
+  "transaction_for_3_months": "For 3 months",
+  "transaction_for_4_months": "For 4 months",
+  "transaction_for_6_months": "For 6 months",
+  "transaction_for_12_months": "For 1 year",
+  "transaction_until_date": "Until specific date",
+  "transaction_one_time_only": "One time only",
+  "transaction_end_date": "End date",
+  "transaction_one_time": "One-time transaction",
+  "transaction_monthly_on": "Monthly on day",
+  "transaction_monthly_for": "Monthly for",
+  "transaction_monthly_until": "Monthly until",
+  "transaction_on_day": "on day",
+  "day": "Day",
+  "months": "months",
+  "transaction_created_success": "Transaction created successfully!",
+  "transaction_updated_success": "Transaction updated successfully!",
+  "transaction_deleted_success": "Transaction deleted successfully!",
+  "transaction_create_error": "Failed to create transaction",
+  "transaction_update_error": "Failed to update transaction",
+  "transaction_delete_error": "Failed to delete transaction",
+  "transaction_delete_title": "Delete Transaction",
+  "transaction_delete_confirmation": "Are you sure you want to delete this transaction? This action cannot be undone.",
+  "transaction_deleting": "Deleting...",
+  "transaction_recurring_monthly": "Monthly",
+  "transaction_recurring_ended": "Ended",
+  "transaction_recurring_last_month": "Last month",
+  "transaction_recurring_left": "left",
+  "validation_error": "Validation failed",
 
   // Dashboard
   "dashboard_title": "Dashboard",

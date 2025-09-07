@@ -4,13 +4,15 @@ import { transactions, categories } from '@/lib/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
   amount: z.number().positive('Amount must be positive'),
-  categoryId: z.uuid('Invalid category ID'),
-  date: z.date('Invalid date'),
+  categoryId: z.string().min(1, 'Category ID is required'),
+  date: z.string().pipe(z.coerce.date()),
   isFixed: z.boolean().default(false),
+  endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 
 export async function PUT(
@@ -41,17 +43,25 @@ export async function PUT(
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    // Verify category belongs to user
-    const userCategory = await db.select()
-      .from(categories)
-      .where(and(
-        eq(categories.id, validatedData.categoryId),
-        eq(categories.userId, session.user.id)
-      ))
-      .limit(1);
+    // Validate category exists
+    const isDefaultCategory = validatedData.categoryId.startsWith('default_');
 
-    if (userCategory.length === 0) {
-      return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    if (!isDefaultCategory) {
+      // Check if custom category exists and belongs to user
+      const customCategory = await db.select()
+        .from(categories)
+        .where(eq(categories.id, validatedData.categoryId))
+        .limit(1);
+
+      if (customCategory.length === 0 || customCategory[0].userId !== session.user.id) {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+      }
+    } else {
+      // Check if default category exists
+      const defaultCategory = DEFAULT_CATEGORIES.find(cat => cat.id === validatedData.categoryId);
+      if (!defaultCategory) {
+        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+      }
     }
 
     const [updatedTransaction] = await db.update(transactions)
@@ -59,8 +69,9 @@ export async function PUT(
         description: validatedData.description,
         amount: validatedData.amount.toString(),
         categoryId: validatedData.categoryId,
-        date: new Date(validatedData.date),
+        date: validatedData.date,
         isFixed: validatedData.isFixed,
+        endDate: validatedData.endDate,
       })
       .where(and(
         eq(transactions.id, id),

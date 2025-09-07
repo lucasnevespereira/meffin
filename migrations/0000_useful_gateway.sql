@@ -1,4 +1,3 @@
-CREATE TYPE "public"."transaction_type" AS ENUM('income', 'expense');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -19,9 +18,10 @@ CREATE TABLE "categories" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"name" varchar(100) NOT NULL,
-	"type" "transaction_type" NOT NULL,
+	"type" varchar(20) NOT NULL,
 	"color" varchar(7) NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "type_check" CHECK ("categories"."type" IN ('income', 'expense'))
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -44,6 +44,7 @@ CREATE TABLE "transactions" (
 	"amount" numeric(10, 2) NOT NULL,
 	"date" timestamp NOT NULL,
 	"is_fixed" boolean DEFAULT false NOT NULL,
+	"end_date" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );

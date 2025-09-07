@@ -1,4 +1,3 @@
-// Service Worker for Meffin PWA
 const CACHE_NAME = 'meffin-v1';
 const urlsToCache = [
   '/',
@@ -9,7 +8,6 @@ const urlsToCache = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
-  // Add your CSS and JS files here when they're generated
 ];
 
 // Install event - cache resources
@@ -40,10 +38,10 @@ self.addEventListener('fetch', (event) => {
         if (response) {
           return response;
         }
-        
+
         // Clone the request because it's a stream
         const fetchRequest = event.request.clone();
-        
+
         return fetch(fetchRequest).then((response) => {
           // Check if we received a valid response
           if (!response || response.status !== 200 || response.type !== 'basic') {
@@ -133,7 +131,7 @@ self.addEventListener('notificationclick', (event) => {
           return client.focus();
         }
       }
-      
+
       // Otherwise open new window
       if (clients.openWindow) {
         return clients.openWindow('/dashboard');

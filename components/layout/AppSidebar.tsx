@@ -26,9 +26,20 @@ import { useI18n } from '@/locales/client';
 
 const APP_VERSION = '0.1.0';
 
-// Generate a consistent avatar URL based on user's name or email using initials
-const generateAvatarUrl = (seed: string): string => {
+// Generate a fallback avatar URL based on user's name or email using initials
+const generateFallbackAvatarUrl = (seed: string): string => {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
+};
+
+// Get the best available avatar URL (Google profile image or fallback to initials)
+const getAvatarUrl = (user: { name?: string | null; email?: string | null; image?: string | null }): string => {
+  // Use Google profile image if available
+  if (user.image) {
+    return user.image;
+  }
+
+  // Fallback to initials avatar
+  return generateFallbackAvatarUrl(user.name || user.email || 'user');
 };
 
 export function AppSidebar() {
@@ -102,8 +113,8 @@ export function AppSidebar() {
                         : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-subtle'
                     }`}
                   >
-                    <Link 
-                      href={item.url} 
+                    <Link
+                      href={item.url}
                       className="flex items-center gap-3 px-4 py-3 min-h-[48px]"
                       onClick={() => {
                         if (isMobile) {
@@ -134,25 +145,30 @@ export function AppSidebar() {
                     asChild
                     className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group"
                   >
-                    <Link 
-                      href={`/${locale}/profile`} 
-                      className="flex items-center gap-3 px-4 py-3 min-h-[52px]"
+                    <Link
+                      href={`/${locale}/profile`}
+                      className="flex gap-2.5 py-3 min-h-[48px]"
                       onClick={() => {
                         if (isMobile) {
                           setOpenMobile(false);
                         }
                       }}
                     >
-                      <div className="w-8 h-8 rounded-lg overflow-hidden ring-2 ring-border group-hover:ring-sidebar-accent transition-colors">
+                      <div className="w-8 h-8 rounded-lg overflow-hidden ring-2 ring-border group-hover:ring-sidebar-accent transition-colors shrink-0 -ml-0.5">
                         <Image
-                          src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
+                          src={getAvatarUrl(session.user)}
                           alt={session.user.name || 'User'}
                           width={32}
                           height={32}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            // Fallback to initials avatar if Google image fails to load
+                            const target = e.target as HTMLImageElement;
+                            target.src = generateFallbackAvatarUrl(session.user.name || session.user.email || 'user');
+                          }}
                         />
                       </div>
-                      <div className="flex flex-col items-start min-w-0">
+                      <div className="flex flex-col items-start min-w-0 flex-1">
                         <span className="text-sm font-medium truncate">{session.user.name || t('nav_profile')}</span>
                         <span className="text-xs text-muted-foreground">{t('nav_profile')}</span>
                       </div>

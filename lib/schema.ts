@@ -1,8 +1,6 @@
-import { pgTable, varchar, timestamp, decimal, boolean, pgEnum, text } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, decimal, boolean, text, check } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-
-// Enums
-export const transactionTypeEnum = pgEnum('transaction_type', ['income', 'expense']);
+import { sql } from 'drizzle-orm';
 
 // Users table
 export const users = pgTable("users", {
@@ -71,10 +69,12 @@ export const categories = pgTable('categories', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
-  type: transactionTypeEnum('type').notNull(),
+  type: varchar('type', { length: 20 }).notNull(),
   color: varchar('color', { length: 7 }).notNull(), // Hex color code
   createdAt: timestamp('created_at').defaultNow().notNull(),
-});
+}, (table) => ({
+  typeCheck: check('type_check', sql`${table.type} IN ('income', 'expense')`)
+}));
 
 // Transactions table
 export const transactions = pgTable('transactions', {
@@ -85,6 +85,7 @@ export const transactions = pgTable('transactions', {
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
   date: timestamp('date').notNull(),
   isFixed: boolean('is_fixed').default(false).notNull(),
+  endDate: timestamp('end_date'), // For recurring transactions with end date
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });

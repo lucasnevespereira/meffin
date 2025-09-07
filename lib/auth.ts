@@ -23,6 +23,27 @@ export const auth = betterAuth({
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     },
   } : {},
+  account: {
+    accountLinking: {
+      updateUserInfoOnLink: true,
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // Better-Auth should automatically handle profile image from Google OAuth
+          return { data: user };
+        },
+      },
+      update: {
+        before: async (user) => {
+          // Allow updates to user profile including image
+          return { data: user };
+        },
+      },
+    },
+  },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     cookieCache: {

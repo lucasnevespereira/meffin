@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Edit, Trash2, Calendar } from 'lucide-react';
+import { Edit, Trash2, Calendar, Repeat, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +41,30 @@ export function TransactionList({
   const t = useI18n();
 
   const formatCurrency = useFormatCurrency();
+
+  // Function to get recurring info display
+  const getRecurringInfo = (transaction: TransactionWithCategory) => {
+    if (!transaction.isFixed) return null;
+    
+    const now = new Date();
+    const endDate = transaction.endDate ? new Date(transaction.endDate) : null;
+    
+    // Calculate remaining months for limited recurring transactions
+    if (endDate) {
+      const diffMonths = (endDate.getFullYear() - now.getFullYear()) * 12 + (endDate.getMonth() - now.getMonth());
+      if (diffMonths <= 0) {
+        return { type: 'ended', text: t('transaction_recurring_ended') || 'Ended', icon: Clock, color: 'text-muted-foreground' };
+      } else if (diffMonths <= 12) {
+        const remainingText = diffMonths === 1 
+          ? t('transaction_recurring_last_month') || '1 month left'
+          : `${diffMonths} ${t('months') || 'months'} ${t('transaction_recurring_left') || 'left'}`;
+        return { type: 'limited', text: remainingText, icon: Clock, color: 'text-orange-600 dark:text-orange-400' };
+      }
+    }
+    
+    // Forever recurring
+    return { type: 'forever', text: t('transaction_recurring_monthly') || 'Monthly', icon: Repeat, color: 'text-blue-600 dark:text-blue-400' };
+  };
 
   const filteredTransactions = transactions.filter(
     transaction => transaction.category.type === type
@@ -109,19 +132,26 @@ export function TransactionList({
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold text-sm md:text-base truncate">{transaction.description}</div>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1 text-xs text-muted-foreground">
-                      <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
-                      <div className="flex items-center gap-2">
-                        {transaction.isFixed && (
-                          <Badge variant="outline" className="text-xs py-0.5 px-1.5 shrink-0">
-                            {t('transaction_fixed_badge')}
-                          </Badge>
-                        )}
+                    <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
+                      <div className="flex items-center gap-3">
+                        <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
                         <div className="flex items-center gap-1 shrink-0">
                           <Calendar className="h-3 w-3" />
                           <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
                         </div>
                       </div>
+                      {(() => {
+                        const recurringInfo = getRecurringInfo(transaction);
+                        if (!recurringInfo) return null;
+                        
+                        const Icon = recurringInfo.icon;
+                        return (
+                          <div className={`flex items-center gap-1 ${recurringInfo.color}`}>
+                            <Icon className="h-3 w-3" />
+                            <span className="font-medium">{recurringInfo.text}</span>
+                          </div>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -162,19 +192,19 @@ export function TransactionList({
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Supprimer la transaction</AlertDialogTitle>
+            <AlertDialogTitle>{t('transaction_delete_title') || 'Delete Transaction'}</AlertDialogTitle>
             <AlertDialogDescription>
-              Êtes-vous sûr de vouloir supprimer cette transaction ? Cette action ne peut pas être annulée.
+              {t('transaction_delete_confirmation') || 'Are you sure you want to delete this transaction? This action cannot be undone.'}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
               className="bg-destructive hover:bg-destructive/90"
             >
-              {isDeleting ? 'Suppression...' : 'Supprimer'}
+              {isDeleting ? (t('transaction_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

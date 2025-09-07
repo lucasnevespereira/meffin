@@ -53,6 +53,26 @@ export default function TransactionsPage() {
     setEditingTransaction(transaction);
   };
 
+  // Helper function to determine repeat type from transaction data
+  const getRepeatTypeFromTransaction = (transaction: TransactionWithCategory) => {
+    if (!transaction.isFixed) return 'once';
+    
+    if (!transaction.endDate) return 'forever';
+    
+    const startDate = new Date(transaction.date);
+    const endDate = new Date(transaction.endDate);
+    const diffMonths = (endDate.getFullYear() - startDate.getFullYear()) * 12 + (endDate.getMonth() - startDate.getMonth());
+    
+    // Check common repeat patterns
+    if (diffMonths === 3) return '3months';
+    if (diffMonths === 4) return '4months';
+    if (diffMonths === 6) return '6months';
+    if (diffMonths === 12) return '12months';
+    
+    // Default to 'until' for custom end dates
+    return 'until';
+  };
+
   const handleDeleteTransaction = (id: string) => {
     deleteMutation.mutate(id);
   };
@@ -167,6 +187,10 @@ export default function TransactionsPage() {
             categoryId: editingTransaction.categoryId,
             date: new Date(editingTransaction.date),
             isFixed: editingTransaction.isFixed,
+            dayOfMonth: new Date(editingTransaction.date).getDate(),
+            repeatType: getRepeatTypeFromTransaction(editingTransaction),
+            customEndDate: editingTransaction.endDate ? new Date(editingTransaction.endDate) : undefined,
+            endDate: editingTransaction.endDate ? new Date(editingTransaction.endDate) : null,
           }}
           mode="edit"
           isSubmitting={updateMutation.isPending}

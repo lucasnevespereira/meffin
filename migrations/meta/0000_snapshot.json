@@ -1,5 +1,5 @@
 {
-  "id": "e1945353-8cc9-4fc7-9878-7ec21ab91391",
+  "id": "a3ec0932-db4f-4c69-9c45-33ac08240735",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -134,8 +134,7 @@
         },
         "type": {
           "name": "type",
-          "type": "transaction_type",
-          "typeSchema": "public",
+          "type": "varchar(20)",
           "primaryKey": false,
           "notNull": true
         },
@@ -172,7 +171,12 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
-      "checkConstraints": {},
+      "checkConstraints": {
+        "type_check": {
+          "name": "type_check",
+          "value": "\"categories\".\"type\" IN ('income', 'expense')"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.session": {
@@ -305,6 +309,12 @@
           "primaryKey": false,
           "notNull": true,
           "default": false
+        },
+        "end_date": {
+          "name": "end_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -468,16 +478,7 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {
-    "public.transaction_type": {
-      "name": "transaction_type",
-      "schema": "public",
-      "values": [
-        "income",
-        "expense"
-      ]
-    }
-  },
+  "enums": {},
   "schemas": {},
   "sequences": {},
   "roles": {},
