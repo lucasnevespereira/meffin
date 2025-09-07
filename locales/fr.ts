@@ -1,8 +1,8 @@
 export default {
   // App
   "app_name": "Meffin",
-  "app_tagline": "Gérez votre budget simplement",
-  "app_description": "Suivez vos revenus et dépenses, organisez par catégories et gardez le contrôle de vos finances.",
+  "app_tagline": "Suivi de budget mensuel simple et léger",
+  "app_description": "Suivi de budget mensuel simple et léger. Conçu pour la simplicité et l'auto-hébergement.",
 
   // Auth
   "login_title": "Connexion",
@@ -68,7 +68,7 @@ export default {
   "transaction_add": "Ajouter une transaction",
   "transaction_edit": "Modifier la transaction",
   "transaction_description": "Description",
-  "transaction_amount": "Montant (€)",
+  "transaction_amount": "Montant",
   "transaction_category": "Catégorie",
   "transaction_date": "Date",
   "transaction_fixed": "Transaction fixe (récurrente chaque mois)",

@@ -209,7 +209,7 @@ export function TransactionForm({
                 className="h-10"
               />
               {errors.description && (
-                <p className="text-sm text-red-600">{errors.description.message}</p>
+                <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
             </div>
 
@@ -228,7 +228,7 @@ export function TransactionForm({
                   className="h-10"
                 />
                 {errors.amount && (
-                  <p className="text-sm text-red-600">{errors.amount.message}</p>
+                  <p className="text-sm text-destructive">{errors.amount.message}</p>
                 )}
               </div>
 
@@ -248,7 +248,7 @@ export function TransactionForm({
                       <SelectItem
                         key={category.id}
                         value={category.id}
-                        className="min-h-[48px] py-3 px-3 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
+                        className="min-h-[48px] py-3 px-3 focus:bg-accent data-[highlighted]:bg-accent dark:focus:bg-accent dark:data-[highlighted]:bg-accent"
                       >
                         <div className="flex items-center gap-3 w-full">
                           <div
@@ -272,7 +272,7 @@ export function TransactionForm({
                   </SelectContent>
                 </Select>
                 {errors.categoryId && (
-                  <p className="text-sm text-red-600">{errors.categoryId.message}</p>
+                  <p className="text-sm text-destructive">{errors.categoryId.message}</p>
                 )}
               </div>
             </div>
@@ -280,7 +280,7 @@ export function TransactionForm({
 
           {/* Recurring Schedule */}
           <div className="space-y-4 border-t pt-4">
-            <h3 className="text-sm font-medium text-gray-900">
+            <h3 className="text-sm font-medium text-foreground">
               📅 Recurring Schedule
             </h3>
 
@@ -305,7 +305,7 @@ export function TransactionForm({
                   </SelectContent>
                 </Select>
                 {errors.dayOfMonth && (
-                  <p className="text-sm text-red-600">{errors.dayOfMonth.message}</p>
+                  <p className="text-sm text-destructive">{errors.dayOfMonth.message}</p>
                 )}
               </div>
 
@@ -380,13 +380,13 @@ export function TransactionForm({
                   {...register('customEndDate', { valueAsDate: true })}
                 />
                 {errors.customEndDate && (
-                  <p className="text-sm text-red-600">{errors.customEndDate.message}</p>
+                  <p className="text-sm text-destructive">{errors.customEndDate.message}</p>
                 )}
               </div>
             )}
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-              <p className="text-sm text-blue-800 font-medium">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 dark:bg-blue-950/20 dark:border-blue-900/30">
+              <p className="text-sm text-blue-800 font-medium dark:text-blue-200">
                 {getRecurringText()}
               </p>
             </div>

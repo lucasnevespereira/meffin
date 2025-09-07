@@ -49,9 +49,20 @@ type ProfileFormData = {
   currency: string;
 };
 
-// Generate a consistent avatar URL based on user's name or email using initials
-const generateAvatarUrl = (seed: string): string => {
+// Generate a fallback avatar URL based on user's name or email using initials
+const generateFallbackAvatarUrl = (seed: string): string => {
   return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
+};
+
+// Get the best available avatar URL (Google profile image or fallback to initials)
+const getAvatarUrl = (user: { name?: string | null; email?: string | null; image?: string | null }): string => {
+  // Use Google profile image if available
+  if (user.image) {
+    return user.image;
+  }
+  
+  // Fallback to initials avatar
+  return generateFallbackAvatarUrl(user.name || user.email || 'user');
 };
 
 export default function ProfilePage() {
@@ -199,11 +210,16 @@ export default function ProfilePage() {
           <div className="flex items-start md:items-center gap-3 md:gap-4 pb-5 md:pb-6 border-b border-border">
             <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl overflow-hidden ring-2 ring-border shadow-sm shrink-0">
               <Image
-                src={generateAvatarUrl(session.user.name || session.user.email || 'user')}
+                src={getAvatarUrl(session.user)}
                 alt={session.user.name || 'User Avatar'}
                 width={64}
                 height={64}
                 className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to initials avatar if Google image fails to load
+                  const target = e.target as HTMLImageElement;
+                  target.src = generateFallbackAvatarUrl(session.user.name || session.user.email || 'user');
+                }}
               />
             </div>
             <div className="flex-1 min-w-0">

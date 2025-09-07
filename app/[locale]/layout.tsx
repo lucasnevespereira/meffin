@@ -13,8 +13,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Meffin - Budget Manager",
-  description: "Track your income and expenses, organize by categories and keep control of your finances",
+  title: "Meffin - Simple Monthly Budget Tracking",
+  description: "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "Meffin",
-    title: "Meffin - Budget Manager",
-    description: "Track your income and expenses, organize by categories and keep control of your finances",
+    title: "Meffin - Simple Monthly Budget Tracking",
+    description: "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
     images: [
       {
         url: "/icons/icon-512x512.png",
@@ -46,8 +46,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Meffin - Budget Manager", 
-    description: "Track your income and expenses, organize by categories and keep control of your finances",
+    title: "Meffin - Simple Monthly Budget Tracking", 
+    description: "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
     images: ["/icons/icon-512x512.png"],
   },
   icons: {
@@ -88,9 +88,9 @@ export default async function LocaleLayout({
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
-        <meta name="msapplication-TileColor" content="#10b981" />
+        <meta name="msapplication-TileColor" content="#0f172a" />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#10b981" />
+        <meta name="theme-color" content="#0f172a" />
 
         <link rel="apple-touch-icon" href="/icons/icon-152x152.png" />
         <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png" />
@@ -99,19 +99,19 @@ export default async function LocaleLayout({
         <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-128x128.png" />
         <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-72x72.png" />
         <link rel="manifest" href="/manifest.json" />
-        <link rel="mask-icon" href="/icons/icon-512x512.png" color="#10b981" />
+        <link rel="mask-icon" href="/icons/icon-512x512.png" color="#0f172a" />
         <link rel="shortcut icon" href="/favicon.ico" />
         
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:url" content="https://meffin.app" />
-        <meta name="twitter:title" content="Meffin - Budget Manager" />
-        <meta name="twitter:description" content="Track your income and expenses, organize by categories and keep control of your finances" />
+        <meta name="twitter:title" content="Meffin - Simple Monthly Budget Tracking" />
+        <meta name="twitter:description" content="Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting." />
         <meta name="twitter:image" content="https://meffin.app/icons/icon-192x192.png" />
         <meta name="twitter:creator" content="@meffin" />
         
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Meffin - Budget Manager" />
-        <meta property="og:description" content="Track your income and expenses, organize by categories and keep control of your finances" />
+        <meta property="og:title" content="Meffin - Simple Monthly Budget Tracking" />
+        <meta property="og:description" content="Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting." />
         <meta property="og:site_name" content="Meffin" />
         <meta property="og:url" content="https://meffin.app" />
         <meta property="og:image" content="https://meffin.app/icons/icon-512x512.png" />
