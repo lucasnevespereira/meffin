@@ -54,6 +54,8 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
   trustedOrigins: [
     process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    'https://meffin.app',
+    'https://www.meffin.app',
   ],
 });
 
