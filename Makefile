@@ -3,13 +3,8 @@
 help:
 	@echo "🌟 Meffin Development Commands"
 	@echo ""
-	@echo "Contributors (local development):"
 	@echo "  dev        - Start development server (auto-setup included)"
-	@echo ""
-	@echo "Maintainers (schema changes):"
 	@echo "  migrate    - Generate migration files after schema changes"
-	@echo ""
-	@echo "Other:"
 	@echo "  setup      - Manual setup (database, schema, and dependencies)"
 	@echo "  db         - Start PostgreSQL database only"
 	@echo "  recurring  - Generate recurring transactions (for testing/self-hosting)"
@@ -28,7 +23,7 @@ setup: db
 	@npm install --silent
 	@echo "🔄 Setting up database schema (development)..."
 	@npx drizzle-kit push
-	@echo "✅ Setup complete! Run 'make dev' to start developing."
+	@echo "✅ Setup complete!"
 
 # Development server (always runs setup to ensure everything works)
 dev: setup

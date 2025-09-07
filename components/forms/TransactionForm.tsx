@@ -3,6 +3,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useEffect } from 'react';
 import { useI18n } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -64,7 +65,14 @@ export function TransactionForm({
     formState: { errors },
   } = useForm<TransactionFormData>({
     resolver: zodResolver(transactionSchema),
-    defaultValues: initialData || {
+    defaultValues: initialData ? {
+      description: initialData.description || '',
+      amount: initialData.amount || 0,
+      categoryId: initialData.categoryId || '',
+      dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
+      repeatType: initialData.repeatType || 'forever',
+      customEndDate: initialData.customEndDate || new Date(),
+    } : {
       description: '',
       amount: 0,
       categoryId: '',
@@ -79,30 +87,44 @@ export function TransactionForm({
   const repeatType = watch('repeatType');
   const customEndDate = watch('customEndDate');
 
+  // Reset form when initialData changes (switching between create/edit)
+  useEffect(() => {
+    if (initialData && mode === 'edit') {
+      reset({
+        description: initialData.description || '',
+        amount: initialData.amount || 0,
+        categoryId: initialData.categoryId || '',
+        dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
+        repeatType: initialData.repeatType || 'forever',
+        customEndDate: initialData.customEndDate || new Date(),
+      });
+    }
+  }, [initialData, mode, reset]);
+
   const getRecurringText = () => {
     if (repeatType === 'once') {
       return t('transaction_one_time') || 'One-time transaction';
     }
-    
+
     if (repeatType === 'forever') {
       return `${t('transaction_monthly_on') || 'Monthly on day'} ${dayOfMonth}`;
     }
-    
+
     const months = {
       '3months': 3,
-      '4months': 4, 
+      '4months': 4,
       '6months': 6,
       '12months': 12
     };
-    
+
     if (months[repeatType]) {
       return `${t('transaction_monthly_for') || 'Monthly for'} ${months[repeatType]} ${t('months') || 'months'} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
     }
-    
+
     if (repeatType === 'until' && customEndDate) {
       return `${t('transaction_monthly_until') || 'Monthly until'} ${customEndDate.toLocaleDateString()} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
     }
-    
+
     return '';
   };
 
@@ -115,7 +137,7 @@ export function TransactionForm({
     // Convert dayOfMonth to actual date in current month
     const now = new Date();
     const targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
-    
+
     // Calculate end date based on repeat type
     let endDate = null;
     if (data.repeatType !== 'forever' && data.repeatType !== 'once') {
@@ -125,21 +147,21 @@ export function TransactionForm({
         '6months': 6,
         '12months': 12
       };
-      
+
       if (months[data.repeatType]) {
         endDate = new Date(now.getFullYear(), now.getMonth() + months[data.repeatType], data.dayOfMonth);
       } else if (data.repeatType === 'until' && data.customEndDate) {
         endDate = data.customEndDate;
       }
     }
-    
+
     const formattedData = {
       ...data,
       date: targetDate,
       isFixed: data.repeatType !== 'once',
       endDate: endDate
     };
-    
+
     onSubmit(formattedData);
     if (mode === 'create') {
       reset();
@@ -153,7 +175,7 @@ export function TransactionForm({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold">
             {mode === 'create' ? t('transaction_add') : t('transaction_edit')}
@@ -208,20 +230,28 @@ export function TransactionForm({
                   <SelectTrigger className="h-10">
                     <SelectValue placeholder={t('transaction_select_category')} />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="max-h-[60vh]">
                     {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        <div className="flex items-center gap-2">
+                      <SelectItem
+                        key={category.id}
+                        value={category.id}
+                        className="min-h-[48px] py-3 px-3 focus:bg-gray-100 data-[highlighted]:bg-gray-100"
+                      >
+                        <div className="flex items-center gap-3 w-full">
                           <div
-                            className="w-3 h-3 rounded-full flex-shrink-0"
+                            className="w-4 h-4 rounded-full flex-shrink-0"
                             style={{ backgroundColor: category.color }}
                           />
-                          <span className="truncate">{getCategoryDisplayName(category, t)}</span>
-                          <Badge 
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium block truncate">
+                              {getCategoryDisplayName(category, t)}
+                            </span>
+                          </div>
+                          <Badge
                             variant={category.type === 'income' ? 'default' : 'secondary'}
-                            className="text-xs px-1 py-0"
+                            className="text-xs px-2 py-1 ml-auto flex-shrink-0"
                           >
-                            {category.type === 'income' ? '↑' : '↓'}
+                            {category.type === 'income' ? '↑ Income' : '↓ Expense'}
                           </Badge>
                         </div>
                       </SelectItem>
@@ -240,7 +270,7 @@ export function TransactionForm({
             <h3 className="text-sm font-medium text-gray-900">
               📅 Recurring Schedule
             </h3>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="dayOfMonth" className="text-sm font-medium">
@@ -256,7 +286,7 @@ export function TransactionForm({
                   <SelectContent className="max-h-60">
                     {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                       <SelectItem key={day} value={day.toString()}>
-                        Day {day}
+                        {t('day') || 'Day'} {day}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -351,16 +381,16 @@ export function TransactionForm({
 
 
           <div className="flex flex-col sm:flex-row gap-2 sm:justify-end pt-4 border-t">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={handleClose}
               className="w-full sm:w-auto order-2 sm:order-1"
             >
               {t('transaction_cancel')}
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting}
               className="w-full sm:w-auto order-1 sm:order-2"
             >
