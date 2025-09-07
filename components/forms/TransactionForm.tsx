@@ -52,7 +52,10 @@ export function TransactionForm({
     amount: z.number().positive(t('validation_amountPositive') || 'Amount must be positive'),
     categoryId: z.string().min(1, t('validation_categoryRequired') || 'Category is required'),
     date: z.date(),
+    dayOfMonth: z.number().min(1).max(31).optional(),
     isFixed: z.boolean().default(false),
+    hasEndDate: z.boolean().default(false),
+    endDate: z.date().optional(),
   });
   const {
     register,
@@ -68,17 +71,52 @@ export function TransactionForm({
       amount: 0,
       categoryId: '',
       date: new Date(),
+      dayOfMonth: new Date().getDate(),
       isFixed: false,
+      hasEndDate: false,
+      endDate: new Date(),
     },
   });
 
   const selectedCategoryId = watch('categoryId');
+  const isFixed = watch('isFixed');
+  const hasEndDate = watch('hasEndDate');
+  const endDate = watch('endDate');
+  const dayOfMonth = watch('dayOfMonth');
+
+  const getRecurringDurationText = () => {
+    if (!isFixed) return '';
+
+    if (!hasEndDate) {
+      return t('transaction_recurring_indefinite') || 'Repeats monthly indefinitely';
+    }
+
+    if (!endDate || !dayOfMonth) return '';
+
+    const now = new Date();
+    const end = new Date(endDate);
+    const monthsDiff = (end.getFullYear() - now.getFullYear()) * 12 + (end.getMonth() - now.getMonth());
+
+    if (monthsDiff <= 0) {
+      return t('transaction_recurring_ended') || 'This recurring transaction has ended';
+    }
+
+    return `${t('transaction_recurring_for') || 'Repeats monthly for'} ${monthsDiff} ${monthsDiff === 1 ? 'month' : 'months'} (${t('transaction_until') || 'until'} ${end.toLocaleDateString()})`;
+  };
 
   const onFormSubmit = (data: TransactionFormData) => {
     if (!session?.user?.id) {
       console.error('No valid session user found');
       return;
     }
+
+    // For recurring transactions, convert dayOfMonth to actual date in current month
+    if (data.isFixed && data.dayOfMonth) {
+      const now = new Date();
+      const targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
+      data.date = targetDate;
+    }
+
     onSubmit(data);
     if (mode === 'create') {
       reset();
@@ -158,28 +196,90 @@ export function TransactionForm({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="date">{t('transaction_date')}</Label>
-            <Input
-              id="date"
-              type="date"
-              {...register('date', { valueAsDate: true })}
-            />
-            {errors.date && (
-              <p className="text-sm text-red-600">{errors.date.message}</p>
-            )}
-          </div>
+          {isFixed ? (
+            <div className="space-y-2">
+              <Label htmlFor="dayOfMonth">{t('transaction_day_of_month') || 'Day of month'}</Label>
+              <Select
+                value={watch('dayOfMonth')?.toString() || ''}
+                onValueChange={(value) => setValue('dayOfMonth', parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('transaction_select_day') || 'Select day'} />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                    <SelectItem key={day} value={day.toString()}>
+                      {day}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-gray-600">
+                {getRecurringDurationText()}
+              </p>
+              {errors.dayOfMonth && (
+                <p className="text-sm text-red-600">{errors.dayOfMonth.message}</p>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <Label htmlFor="date">{t('transaction_date')}</Label>
+              <Input
+                id="date"
+                type="date"
+                {...register('date', { valueAsDate: true })}
+              />
+              {errors.date && (
+                <p className="text-sm text-red-600">{errors.date.message}</p>
+              )}
+            </div>
+          )}
 
-          <div className="flex items-center space-x-2">
-            <input
-              id="isFixed"
-              type="checkbox"
-              {...register('isFixed')}
-              className="rounded"
-            />
-            <Label htmlFor="isFixed" className="text-sm">
-              {t('transaction_fixed')}
-            </Label>
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <input
+                id="isFixed"
+                type="checkbox"
+                {...register('isFixed')}
+                className="rounded"
+              />
+              <Label htmlFor="isFixed" className="text-sm">
+                {t('transaction_fixed')}
+              </Label>
+            </div>
+
+            {isFixed && (
+              <div className="ml-6 space-y-3">
+                <div className="flex items-center space-x-2">
+                  <input
+                    id="hasEndDate"
+                    type="checkbox"
+                    {...register('hasEndDate')}
+                    className="rounded"
+                  />
+                  <Label htmlFor="hasEndDate" className="text-sm">
+                    {t('transaction_has_end_date') || 'This transaction has an end date'}
+                  </Label>
+                </div>
+
+                {hasEndDate && (
+                  <div className="space-y-2">
+                    <Label htmlFor="endDate" className="text-sm">
+                      {t('transaction_end_date') || 'End date'}
+                    </Label>
+                    <Input
+                      id="endDate"
+                      type="date"
+                      {...register('endDate', { valueAsDate: true })}
+                      className="w-full"
+                    />
+                    {errors.endDate && (
+                      <p className="text-sm text-red-600">{errors.endDate.message}</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           <div className="flex justify-end space-x-2 pt-4">

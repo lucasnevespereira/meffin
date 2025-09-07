@@ -1,85 +1,64 @@
-# Variables
-NODE_ENV ?= development
-PORT ?= 3000
+.PHONY: dev setup db migrate recurring build clean down help
 
-.PHONY: help dev setup db-setup db-reset build clean install
-
-# Default target
-.DEFAULT_GOAL := help
-
-# Show available commands
 help:
-	@echo "🛠️  Meffin Development Commands"
+	@echo "🌟 Meffin Development Commands"
 	@echo ""
-	@echo "Quick Start:"
-	@echo "  make setup      - Complete setup for new contributors (install + db setup)"
-	@echo "  make dev        - Start development server"
+	@echo "Contributors (local development):"
+	@echo "  dev        - Start development server (auto-setup included)"
 	@echo ""
-	@echo "Database:"
-	@echo "  make db-setup   - Set up database schema (run migrations)"
-	@echo "  make db-reset   - Reset database and apply fresh schema"
+	@echo "Maintainers (schema changes):"
+	@echo "  migrate    - Generate migration files after schema changes"
 	@echo ""
 	@echo "Other:"
-	@echo "  make install    - Install dependencies only"
-	@echo "  make build      - Build for production"
-	@echo "  make clean      - Clean node_modules and build artifacts"
-	@echo "  make help       - Show this help"
-
-# Complete setup for new contributors
-setup: install db-setup
-	@echo ""
-	@echo "🎉 Setup complete! Run 'make dev' to start developing."
+	@echo "  setup      - Manual setup (database, schema, and dependencies)"
+	@echo "  db         - Start PostgreSQL database only"
+	@echo "  recurring  - Generate recurring transactions (for testing/self-hosting)"
+	@echo "  build      - Build for production (with migrations)"
+	@echo "  clean      - Clean build artifacts and stop services"
+	@echo "  down       - Stop all services"
 	@echo ""
 
-# Install dependencies
-install:
+db:
+	@echo "🐘 Starting PostgreSQL database..."
+	@docker-compose up -d postgres
+
+# One-time setup for contributors
+setup: db
 	@echo "📦 Installing dependencies..."
 	@npm install --silent
+	@echo "🔄 Setting up database schema (development)..."
+	@npx drizzle-kit push
+	@echo "✅ Setup complete! Run 'make dev' to start developing."
 
-# Set up database (apply migrations)
-db-setup:
-	@echo "📊 Setting up database..."
-	@if [ ! -f ".env.local" ]; then \
-		echo "❌ .env.local file not found!"; \
-		echo "   Please copy .env.example to .env.local and add your DATABASE_URL"; \
-		exit 1; \
-	fi
-	@npx drizzle-kit migrate
-	@echo "✅ Database setup complete!"
-
-# Reset database (push current schema)
-db-reset:
-	@echo "🔄 Resetting database..."
-	@npx drizzle-kit push --force
-	@echo "✅ Database reset complete!"
-
-# Start development server
-dev:
-	@echo "🚀 Starting development server..."
-	@if [ ! -d "node_modules" ]; then \
-		echo "📦 Installing dependencies first..."; \
-		npm install --silent; \
-	fi
+# Development server (always runs setup to ensure everything works)
+dev: setup
+	@echo "🚀 Starting Next.js development server..."
 	@npm run dev
 
-# Build for production
-build: install
-	@echo "🏗️  Building for production..."
-	@npm run build
+# For maintainers: generate migration files after schema changes
+migrate:
+	@echo "🔄 Generating migration from schema changes..."
+	@npx drizzle-kit generate
+	@echo "🔄 Applying migration to local database..."
+	@npx drizzle-kit migrate
+	@echo "✅ Migration files created and applied!"
+	@echo "📝 Don't forget to commit the new migration files!"
 
-# Clean everything
+recurring:
+	@echo "🔄 Generating recurring transactions..."
+	@curl -X POST http://localhost:3000/api/cron/recurring-transactions \
+		-H "Content-Type: application/json" \
+		|| echo "⚠️  Make sure the app is running (make dev)"
+
+build:
+	@echo "🏗️  Building for production..."
+	@npx drizzle-kit migrate && npm run build
+
 clean:
 	@echo "🧹 Cleaning up..."
-	@rm -rf node_modules
-	@rm -rf .next
-	@rm -rf dist
-	@echo "✅ Clean complete!"
+	@rm -rf .next node_modules
+	@docker-compose down -v
 
-# Check if environment is set up
-check-env:
-	@if [ ! -f ".env.local" ]; then \
-		echo "❌ .env.local file not found!"; \
-		echo "   Please copy .env.example to .env.local and configure your environment variables"; \
-		exit 1; \
-	fi
-	@echo "✅ Environment file found"
+down:
+	@echo "🛑 Stopping all services..."
+	@docker-compose down

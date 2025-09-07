@@ -9,7 +9,7 @@ export type NewUser = InferInsertModel<typeof users>;
 export type Category = {
   id: string;
   name: string; // For default categories, this is the i18n key; for custom, it's the actual name
-  type: 'income' | 'expense';
+  type: string;
   color: string;
   isCustom: boolean;
   userId?: string | null;
@@ -37,12 +37,14 @@ export type TransactionFormData = {
   amount: number;
   categoryId: string;
   date: Date;
+  endDate?: Date | null;
+  dayOfMonth?: number;
   isFixed?: boolean;
 };
 
 export type CategoryFormData = {
   name: string;
-  type: 'income' | 'expense';
+  type: string;
   color: string;
 };
 
