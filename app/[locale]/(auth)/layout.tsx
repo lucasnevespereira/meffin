@@ -1,6 +1,9 @@
 import Image from 'next/image';
 import { getI18n } from '@/locales/server';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
+import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
+import { Github } from 'lucide-react';
+import Link from 'next/link';
 
 export default async function AuthLayout({
   children,
@@ -15,8 +18,9 @@ export default async function AuthLayout({
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-background relative">
-      {/* Locale Switcher - Top Right */}
-      <div className="absolute top-4 right-4 lg:top-6 lg:right-6 z-50">
+      {/* Top Right Controls */}
+      <div className="absolute top-4 right-4 lg:top-6 lg:right-6 z-50 flex items-center gap-2">
+        <ThemeSwitcher />
         <LocaleSwitcher variant="outline" showText />
       </div>
 
@@ -38,6 +42,17 @@ export default async function AuthLayout({
             <p className="text-muted-foreground max-w-sm mx-auto leading-relaxed text-sm">
               {t('app_description')}
             </p>
+          </div>
+          <div className="mt-8">
+            <Link
+              href="https://github.com/lucasnevespereira/meffin"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
+            >
+              <Github className="h-4 w-4" />
+              <span>Open Source on GitHub</span>
+            </Link>
           </div>
         </div>
       </div>

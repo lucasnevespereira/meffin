@@ -20,16 +20,16 @@ import { Separator } from "@/components/ui/separator";
 export function DashboardHeader() {
   const pathname = usePathname();
   const t = useI18n();
-  
+
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
     const locale = segments[0];
     const route = segments[1] || 'dashboard';
-    
+
     const breadcrumbs = [
       { name: t('app_name'), href: `/${locale}` },
     ];
-    
+
     switch (route) {
       case 'dashboard':
         breadcrumbs.push({ name: t('nav_dashboard'), href: `/${locale}/dashboard` });
@@ -47,25 +47,25 @@ export function DashboardHeader() {
         breadcrumbs.push({ name: route, href: pathname });
         break;
     }
-    
+
     return breadcrumbs;
   };
-  
+
   const breadcrumbs = getBreadcrumbs();
-  
+
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75 border-b border-border/40">
       <div className="flex items-center gap-3 px-6">
         <SidebarTrigger className="-ml-1 hover:bg-accent/50 rounded-lg transition-colors duration-200" />
         <Separator orientation="vertical" className="mr-2 h-4 bg-border/60" />
-        
+
         {/* Mobile: Just show "Meffin" */}
         <div className="block md:hidden">
           <span className="text-foreground font-bold text-lg">
             {t('app_name')}
           </span>
         </div>
-        
+
         {/* Desktop: Show full breadcrumbs */}
         <div className="hidden md:block">
           <Breadcrumb>
@@ -74,8 +74,8 @@ export function DashboardHeader() {
                 <React.Fragment key={breadcrumb.href}>
                   <BreadcrumbItem>
                     {index < breadcrumbs.length - 1 ? (
-                      <BreadcrumbLink 
-                        href={breadcrumb.href} 
+                      <BreadcrumbLink
+                        href={breadcrumb.href}
                         className="text-muted-foreground hover:text-foreground font-medium transition-colors duration-200"
                       >
                         {breadcrumb.name}
@@ -95,7 +95,7 @@ export function DashboardHeader() {
           </Breadcrumb>
         </div>
       </div>
-      
+
       <div className="flex items-center gap-3 px-6">
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/30 rounded-lg border border-border/50">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
@@ -104,8 +104,8 @@ export function DashboardHeader() {
           </span>
         </div>
         <Separator orientation="vertical" className="h-6" />
-        <LocaleSwitcher />
         <ThemeSwitcher />
+        <LocaleSwitcher showText />
       </div>
     </header>
   );
