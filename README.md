@@ -5,7 +5,6 @@
   <p>Built for simplicity and self-hosting</p>
 </div>
 
----
 
 ## ✨ Features
 
