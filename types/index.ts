@@ -36,9 +36,12 @@ export type TransactionFormData = {
   description: string;
   amount: number;
   categoryId: string;
-  date: Date;
+  dayOfMonth: number;
+  repeatType: 'forever' | '3months' | '4months' | '6months' | '12months' | 'until' | 'once';
+  customEndDate?: Date;
+  // Legacy fields for submission compatibility
+  date?: Date;
   endDate?: Date | null;
-  dayOfMonth?: number;
   isFixed?: boolean;
 };
 

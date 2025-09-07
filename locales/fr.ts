@@ -18,7 +18,7 @@ export default {
 
   "register_title": "Créer un compte",
   "register_subtitle": "Rejoignez Meffin pour gérer votre budget",
-  "register_name": "Nom complet",
+  "register_name": "Nom",
   "register_email": "Email",
   "register_password": "Mot de passe",
   "register_confirmPassword": "Confirmer le mot de passe",
@@ -128,13 +128,13 @@ export default {
 
   // Direct mappings for seeded English category names
   "Salary": "Salaire",
-  "Freelance": "Freelance", 
+  "Freelance": "Freelance",
   "Investment": "Investissement",
   "Business": "Entreprise",
   "Groceries": "Courses",
   "Transportation": "Transport",
   "Housing": "Logement",
-  "Utilities": "Factures", 
+  "Utilities": "Factures",
   "Entertainment": "Loisirs",
   "Healthcare": "Santé",
   "Holidays": "Vacances",
@@ -227,6 +227,25 @@ export default {
   "category_form_type_label": "Type",
   "category_form_type_placeholder": "Sélectionner un type",
   "category_form_color_label": "Couleur",
+
+  // Transaction Recurring Options
+  "transaction_day_of_month": "Jour du mois",
+  "transaction_select_day": "Sélectionner un jour (1-31)",
+  "transaction_repeats": "Se répète",
+  "transaction_monthly_forever": "Mensuel (permanent)",
+  "transaction_for_3_months": "Pendant 3 mois",
+  "transaction_for_4_months": "Pendant 4 mois",
+  "transaction_for_6_months": "Pendant 6 mois",
+  "transaction_for_12_months": "Pendant 1 an",
+  "transaction_until_date": "Jusqu'à une date spécifique",
+  "transaction_one_time_only": "Une seule fois",
+  "transaction_end_date": "Date de fin",
+  "transaction_one_time": "Transaction unique",
+  "transaction_monthly_on": "Mensuel le jour",
+  "transaction_monthly_for": "Mensuel pendant",
+  "transaction_monthly_until": "Mensuel jusqu'au",
+  "transaction_on_day": "le jour",
+  "months": "mois",
 
   // Dashboard
   "dashboard_title": "Dashboard",
