@@ -11,6 +11,7 @@
 - 💰 Track income and expenses
 - 🔄 Recurring transactions with flexible end dates
 - 📊 Custom categories with colors
+- 👥 Partner invites for budget collaboration
 - 📱 Mobile-friendly PWA
 - 🌍 Multi-language support (EN, FR)
 - 🎨 Dark/Light theme
