@@ -56,13 +56,13 @@ jobs:
           # Update lib/version.ts
           echo "// This file is automatically updated by GitHub Actions on release" > lib/version.ts
           echo "export const APP_VERSION = '${{ steps.version.outputs.VERSION }}';" >> lib/version.ts
-          
+
           # Update package.json version
           npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
 
       - name: Commit version update
         run: |
-          git config --local user.email "lucasnevespereira@gmail.com"
+          git config --local user.email "pereiraneveslucas@gmail.com"
           git config --local user.name "Lucas Neves Pereira"
           git add lib/version.ts package.json
           git commit -m "chore: update version to ${{ steps.version.outputs.VERSION }} [skip ci]" || exit 0
