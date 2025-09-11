@@ -13,8 +13,7 @@
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
-    "release": "node scripts/release.js",
-    "version": "node scripts/get-version.js"
+    "release": "bash scripts/release.sh"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -51,17 +50,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/git": "^10.0.1",
     "@tailwindcss/postcss": "^4",
     "@types/next-pwa": "^5.6.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "conventional-changelog-conventionalcommits": "^9.1.0",
     "eslint": "^9.35.0",
     "eslint-config-next": "15.5.2",
-    "semantic-release": "^24.2.8",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5"

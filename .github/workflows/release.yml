@@ -16,6 +16,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,10 +37,6 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Update package.json version
-        run: |
-          npm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
-
       - name: Create GitHub Release
         uses: actions/create-release@v1
         env:
@@ -49,3 +46,16 @@ jobs:
           release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
+
+      - name: Update version.ts
+        run: |
+          echo "// This file is automatically updated by GitHub Actions on release" > lib/version.ts
+          echo "export const APP_VERSION = '${{ steps.version.outputs.VERSION }}';" >> lib/version.ts
+
+      - name: Commit version update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add lib/version.ts
+          git commit -m "chore: update version to ${{ steps.version.outputs.VERSION }} [skip ci]" || exit 0
+          git push origin HEAD:main
