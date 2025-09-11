@@ -114,8 +114,6 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   categories: many(categories),
   transactions: many(transactions),
-  createdCategories: many(categories, { relationName: 'categoryCreator' }),
-  createdTransactions: many(transactions, { relationName: 'transactionCreator' }),
   sentInvitations: many(partnerInvitations, { relationName: 'invitationSender' }),
   receivedInvitations: many(partnerInvitations, { relationName: 'invitationReceiver' }),
 }));
@@ -125,11 +123,6 @@ export const categoriesRelations = relations(categories, ({ one, many }) => ({
     fields: [categories.userId],
     references: [users.id],
   }),
-  createdBy: one(users, {
-    fields: [categories.createdBy],
-    references: [users.id],
-    relationName: 'categoryCreator',
-  }),
   transactions: many(transactions),
 }));
 
@@ -137,11 +130,6 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   user: one(users, {
     fields: [transactions.userId],
     references: [users.id],
-  }),
-  createdBy: one(users, {
-    fields: [transactions.createdBy],
-    references: [users.id],
-    relationName: 'transactionCreator',
   }),
   category: one(categories, {
     fields: [transactions.categoryId],
