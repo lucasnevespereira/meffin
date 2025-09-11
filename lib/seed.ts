@@ -34,6 +34,7 @@ export async function seedDefaultCategories(userId: string) {
       type: cat.type,
       color: cat.color,
       isDefault: true,
+      createdBy: userId,
     }));
 
     await db.insert(categories).values(categoriesToInsert);

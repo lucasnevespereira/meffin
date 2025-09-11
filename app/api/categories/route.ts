@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { categories } from '@/lib/schema';
+import { categories, users } from '@/lib/schema';
 import { auth } from '@/lib/auth';
-import { eq } from 'drizzle-orm';
+import { eq, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
@@ -21,10 +21,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's custom categories from database
+    // Get user and partner info
+    const user = await db.select({
+      id: users.id,
+      partnerId: users.partnerId,
+    })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+
+    if (!user.length) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Get custom categories from user and partner
+    const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
+    
     const customCategories = await db.select()
       .from(categories)
-      .where(eq(categories.userId, session.user.id))
+      .where(or(...userIds.map(id => eq(categories.userId, id))))
       .orderBy(categories.name);
 
     // Convert database categories to unified format
@@ -73,6 +88,7 @@ export async function POST(request: NextRequest) {
     const [newCategory] = await db.insert(categories).values({
       id: crypto.randomUUID(),
       userId: session.user.id,
+      createdBy: session.user.id,
       name: validatedData.name,
       type: validatedData.type,
       color: validatedData.color,

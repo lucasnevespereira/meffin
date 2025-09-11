@@ -10,6 +10,7 @@ export const users = pgTable("users", {
   emailVerified: boolean("email_verified").default(false).notNull(),
   image: text("image"),
   currency: varchar("currency", { length: 3 }).default("EUR").notNull(),
+  partnerId: text("partner_id"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -68,6 +69,7 @@ export const verification = pgTable("verification", {
 export const categories = pgTable('categories', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   type: varchar('type', { length: 20 }).notNull(),
   color: varchar('color', { length: 7 }).notNull(), // Hex color code
@@ -80,6 +82,7 @@ export const categories = pgTable('categories', {
 export const transactions = pgTable('transactions', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   categoryId: text('category_id').notNull(), // Can be default ID or custom category ID
   description: varchar('description', { length: 255 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
@@ -90,16 +93,42 @@ export const transactions = pgTable('transactions', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 });
 
+// Partner invitations table
+export const partnerInvitations = pgTable('partner_invitations', {
+  id: text('id').primaryKey(),
+  fromUserId: text('from_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  toUserId: text('to_user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  status: varchar('status', { length: 20 }).default('pending').notNull(),
+  token: text('token').notNull().unique(),
+  expiresAt: timestamp('expires_at').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  statusCheck: check('status_check', sql`${table.status} IN ('pending', 'accepted', 'declined', 'expired')`),
+}));
+
 // Relations
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ one, many }) => ({
+  partner: one(users, {
+    fields: [users.partnerId],
+    references: [users.id],
+  }),
   categories: many(categories),
   transactions: many(transactions),
+  createdCategories: many(categories, { relationName: 'categoryCreator' }),
+  createdTransactions: many(transactions, { relationName: 'transactionCreator' }),
+  sentInvitations: many(partnerInvitations, { relationName: 'invitationSender' }),
+  receivedInvitations: many(partnerInvitations, { relationName: 'invitationReceiver' }),
 }));
 
 export const categoriesRelations = relations(categories, ({ one, many }) => ({
   user: one(users, {
     fields: [categories.userId],
     references: [users.id],
+  }),
+  createdBy: one(users, {
+    fields: [categories.createdBy],
+    references: [users.id],
+    relationName: 'categoryCreator',
   }),
   transactions: many(transactions),
 }));
@@ -109,8 +138,26 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
     fields: [transactions.userId],
     references: [users.id],
   }),
+  createdBy: one(users, {
+    fields: [transactions.createdBy],
+    references: [users.id],
+    relationName: 'transactionCreator',
+  }),
   category: one(categories, {
     fields: [transactions.categoryId],
     references: [categories.id],
+  }),
+}));
+
+export const partnerInvitationsRelations = relations(partnerInvitations, ({ one }) => ({
+  fromUser: one(users, {
+    fields: [partnerInvitations.fromUserId],
+    references: [users.id],
+    relationName: 'invitationSender',
+  }),
+  toUser: one(users, {
+    fields: [partnerInvitations.toUserId],
+    references: [users.id],
+    relationName: 'invitationReceiver',
   }),
 }));

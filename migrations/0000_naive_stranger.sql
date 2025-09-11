@@ -17,11 +17,24 @@ CREATE TABLE "account" (
 CREATE TABLE "categories" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
+	"created_by" text NOT NULL,
 	"name" varchar(100) NOT NULL,
 	"type" varchar(20) NOT NULL,
 	"color" varchar(7) NOT NULL,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "type_check" CHECK ("categories"."type" IN ('income', 'expense'))
+);
+--> statement-breakpoint
+CREATE TABLE "partner_invitations" (
+	"id" text PRIMARY KEY NOT NULL,
+	"from_user_id" text NOT NULL,
+	"to_user_id" text NOT NULL,
+	"status" varchar(20) DEFAULT 'pending' NOT NULL,
+	"token" text NOT NULL,
+	"expires_at" timestamp NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	CONSTRAINT "partner_invitations_token_unique" UNIQUE("token"),
+	CONSTRAINT "status_check" CHECK ("partner_invitations"."status" IN ('pending', 'accepted', 'declined', 'expired'))
 );
 --> statement-breakpoint
 CREATE TABLE "session" (
@@ -39,6 +52,7 @@ CREATE TABLE "session" (
 CREATE TABLE "transactions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
+	"created_by" text NOT NULL,
 	"category_id" text NOT NULL,
 	"description" varchar(255) NOT NULL,
 	"amount" numeric(10, 2) NOT NULL,
@@ -56,6 +70,7 @@ CREATE TABLE "users" (
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
 	"currency" varchar(3) DEFAULT 'EUR' NOT NULL,
+	"partner_id" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	CONSTRAINT "users_email_unique" UNIQUE("email")
@@ -72,5 +87,9 @@ CREATE TABLE "verification" (
 --> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "categories" ADD CONSTRAINT "categories_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "categories" ADD CONSTRAINT "categories_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "partner_invitations" ADD CONSTRAINT "partner_invitations_from_user_id_users_id_fk" FOREIGN KEY ("from_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "partner_invitations" ADD CONSTRAINT "partner_invitations_to_user_id_users_id_fk" FOREIGN KEY ("to_user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "transactions" ADD CONSTRAINT "transactions_created_by_users_id_fk" FOREIGN KEY ("created_by") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;

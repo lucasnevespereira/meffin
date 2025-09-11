@@ -32,6 +32,10 @@ import {
 import { useSession, signOut } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { usePartnerInfo, usePartnerInvitations, useSentPartnerInvitations, useRefreshPartnerInfo } from '@/hooks/usePartner';
+import PartnerManagement from '@/components/partner-management';
+import PartnerInvitationCard from '@/components/partner-invitation-card';
+import SentInvitationCard from '@/components/sent-invitation-card';
 import { toast } from 'sonner';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency-utils';
 
@@ -69,6 +73,10 @@ export default function ProfilePage() {
   const router = useRouter();
   const { data: session } = useSession();
   const { data: profileData, isLoading: profileLoading } = useProfile();
+  const { data: partnerInfo } = usePartnerInfo();
+  const { data: invitations } = usePartnerInvitations();
+  const { data: sentInvitations } = useSentPartnerInvitations();
+  const refreshPartnerInfo = useRefreshPartnerInfo();
   const t = useI18n();
   const updateProfileMutation = useUpdateProfile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -301,6 +309,38 @@ export default function ProfilePage() {
         </div>
       </div>
 
+      {/* Received Partner Invitations */}
+      {invitations?.invitations && invitations.invitations.length > 0 && (
+        <div className="space-y-3">
+          {invitations.invitations.map((invitation) => (
+            <PartnerInvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              onUpdate={refreshPartnerInfo}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Sent Partner Invitations */}
+      {sentInvitations?.invitations && sentInvitations.invitations.length > 0 && (
+        <div className="space-y-3">
+          {sentInvitations.invitations.map((invitation) => (
+            <SentInvitationCard
+              key={invitation.id}
+              invitation={invitation}
+              onUpdate={refreshPartnerInfo}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* Partner Management */}
+      <PartnerManagement 
+        partnerInfo={partnerInfo}
+        sentInvitations={sentInvitations?.invitations}
+        onPartnerUpdate={refreshPartnerInfo}
+      />
 
       {/* Danger Zone - Minimal */}
       <div className="pt-4 md:pt-8 border-t border-border/30">
