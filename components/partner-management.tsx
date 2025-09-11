@@ -398,7 +398,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
 
             {searchQuery && searchQuery.length >= 2 && !isSearching && searchResults.length === 0 && (
               <div className="text-center py-4 text-sm text-muted-foreground">
-                {t('partner_no_results').replace('{query}', searchQuery)}
+                {t('partner_no_results', { query: searchQuery })}
               </div>
             )}
 
@@ -466,7 +466,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
               <p>
-                {t('partner_remove_dialog_description').replace('{name}', `${partnerInfo?.partner?.name}`)}
+                {t('partner_remove_dialog_description', { name: partnerInfo?.partner?.name || '' })}
               </p>
               <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3">
                 <p className="text-sm text-amber-800 dark:text-amber-300">

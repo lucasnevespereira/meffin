@@ -160,11 +160,11 @@ export default function SentInvitationCard({ invitation, onUpdate }: SentInvitat
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-6 p-3 rounded-lg bg-muted/30">
             <div className="flex items-center gap-1.5">
               <Clock className="h-3 w-3" />
-              <span>{t('partner_sent_time').replace('{time}', formatTimeAgo(invitation.createdAt))}</span>
+              <span>{t('partner_sent_time', { time: formatTimeAgo(invitation.createdAt) })}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span>•</span>
-              <span>{t('partner_expires_in').replace('{time}', formatExpiresIn(invitation.expiresAt))}</span>
+              <span>{t('partner_expires_in', { time: formatExpiresIn(invitation.expiresAt) })}</span>
             </div>
           </div>
           
