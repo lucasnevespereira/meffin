@@ -4,15 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run db:push && next build --turbopack",
+    "build": "npm run db:migrate && next build --turbopack",
     "build:safe": "npm run db:push || echo 'Schema sync failed - continuing with build' && next build --turbopack",
     "build:local": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
     "type-check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
-    "db:migrate:safe": "drizzle-kit migrate || echo 'Migration failed or already applied - continuing with build'",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:migrate:reset": "tsx scripts/reset-migrations.ts",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
     "db:check": "drizzle-kit check",
@@ -61,6 +61,7 @@
     "eslint": "^9.35.0",
     "eslint-config-next": "15.5.2",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "tw-animate-css": "^1.3.8",
     "typescript": "^5"
   }
