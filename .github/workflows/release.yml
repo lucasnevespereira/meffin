@@ -35,7 +35,7 @@ jobs:
           DATABASE_URL: "postgresql://user:password@localhost:5432/mockdb"
           BETTER_AUTH_SECRET: "mock-secret-for-build"
           BETTER_AUTH_URL: "http://localhost:3000"
-        run: npm run build
+        run: npm run build:local
 
       - name: Extract version from tag
         id: version
@@ -58,8 +58,8 @@ jobs:
 
       - name: Commit version update
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config --local user.email "lucasnevespereira@gmail.com"
+          git config --local user.name "Lucas Neves Pereira"
           git add lib/version.ts
           git commit -m "chore: update version to ${{ steps.version.outputs.VERSION }} [skip ci]" || exit 0
           git push origin HEAD:main
