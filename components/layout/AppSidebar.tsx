@@ -24,7 +24,7 @@ import {
 import { signOut, useSession } from '@/lib/auth-client';
 import { useI18n } from '@/locales/client';
 
-const APP_VERSION = '0.1.0';
+import { APP_VERSION } from '@/lib/version';
 
 // Generate a fallback avatar URL based on user's name or email using initials
 const generateFallbackAvatarUrl = (seed: string): string => {
