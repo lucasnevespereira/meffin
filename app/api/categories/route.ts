@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { categories, users } from '@/lib/schema';
+import { categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, or } from 'drizzle-orm';
 import { z } from 'zod';
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
 
     // Get custom categories from user and partner
     const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
-    
+
     const customCategories = await db.select()
       .from(categories)
       .where(or(...userIds.map(id => eq(categories.userId, id))))

@@ -1,5 +1,5 @@
 import { db } from './db';
-import { categories } from './schema';
+import { categories } from './db/schema';
 import { eq } from 'drizzle-orm';
 
 export async function seedDefaultCategories(userId: string) {

@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { partnerInvitations, users } from '@/lib/schema';
+import { partnerInvitations, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
 
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
-    
+
     if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
     // Update expired invitations in batch
     if (expiredIds.length > 0) {
-      await Promise.all(expiredIds.map(id => 
+      await Promise.all(expiredIds.map(id =>
         db
           .update(partnerInvitations)
           .set({ status: 'expired' })

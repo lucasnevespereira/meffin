@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { users, categories, transactions } from '@/lib/schema';
+import type { users, categories, transactions } from '@/lib/db/schema';
 
 // Database model types
 export type User = InferSelectModel<typeof users>;

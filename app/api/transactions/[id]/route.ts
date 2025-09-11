@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories, users } from '@/lib/schema';
+import { transactions, categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and, inArray } from 'drizzle-orm';
 import { z } from 'zod';
@@ -46,7 +46,7 @@ export async function PUT(
 
     // Check if transaction exists and is accessible to user or their partner
     const userIds = user.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
-    
+
     const existingTransaction = await db.select({
       id: transactions.id,
       userId: transactions.userId,
@@ -65,8 +65,8 @@ export async function PUT(
 
     // Check if user is the creator of this transaction (creator-only editing)
     if (existingTransaction[0].createdBy !== session.user.id) {
-      return NextResponse.json({ 
-        error: 'You can only edit transactions that you created' 
+      return NextResponse.json({
+        error: 'You can only edit transactions that you created'
       }, { status: 403 });
     }
 
@@ -146,7 +146,7 @@ export async function DELETE(
 
     // Check if transaction exists and is accessible to user or their partner
     const userIds = user.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
-    
+
     const existingTransaction = await db.select({
       id: transactions.id,
       userId: transactions.userId,
@@ -165,8 +165,8 @@ export async function DELETE(
 
     // Check if user is the creator of this transaction (creator-only deletion)
     if (existingTransaction[0].createdBy !== session.user.id) {
-      return NextResponse.json({ 
-        error: 'You can only delete transactions that you created' 
+      return NextResponse.json({
+        error: 'You can only delete transactions that you created'
       }, { status: 403 });
     }
 

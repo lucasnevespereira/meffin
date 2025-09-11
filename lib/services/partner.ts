@@ -1,5 +1,5 @@
 import { db } from '../db';
-import { users, partnerInvitations } from '../schema';
+import { users, partnerInvitations } from '@/lib/db/schema';
 import { eq, and, or, not, ilike } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import crypto from 'crypto';

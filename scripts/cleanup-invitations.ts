@@ -1,5 +1,5 @@
 import { db } from '@/lib/db';
-import { partnerInvitations } from '@/lib/schema';
+import { partnerInvitations } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 
 async function cleanupDuplicateInvitations() {

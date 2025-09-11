@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions } from '@/lib/schema';
+import { transactions } from '@/lib/db/schema';
 import { eq, and, lte, or, isNull, gte } from 'drizzle-orm';
 
 export async function POST(request: NextRequest) {

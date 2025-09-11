@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories, users } from '@/lib/schema';
+import { transactions, categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, desc, or } from 'drizzle-orm';
 import { z } from 'zod';
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
 
     // Get transactions from user and partner
     const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
-    
+
     const userTransactions = await db.select({
       transaction: transactions,
       creator: {
