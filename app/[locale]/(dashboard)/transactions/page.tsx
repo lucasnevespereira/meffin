@@ -13,16 +13,20 @@ import {
   useDeleteTransaction
 } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
+import { usePartnerInfo } from '@/hooks/usePartner';
 import { TransactionFormData, TransactionWithCategory } from '@/types';
 import { useI18n } from '@/locales/client';
+import { useSession } from '@/lib/auth-client';
 
 export default function TransactionsPage() {
   const t = useI18n();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
 
+  const { data: session } = useSession();
   const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
+  const { data: partnerInfo } = usePartnerInfo();
 
   const createMutation = useCreateTransaction();
   const updateMutation = useUpdateTransaction();
@@ -153,6 +157,8 @@ export default function TransactionsPage() {
             onEdit={handleEditTransaction}
             onDelete={handleDeleteTransaction}
             isDeleting={deleteMutation.isPending}
+            hasPartner={!!partnerInfo?.partner}
+            currentUserId={session?.user?.id}
           />
 
           <TransactionList
@@ -161,6 +167,8 @@ export default function TransactionsPage() {
             onEdit={handleEditTransaction}
             onDelete={handleDeleteTransaction}
             isDeleting={deleteMutation.isPending}
+            hasPartner={!!partnerInfo?.partner}
+            currentUserId={session?.user?.id}
           />
         </div>
       )}

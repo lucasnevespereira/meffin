@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories } from '@/lib/schema';
+import { transactions, categories, users } from '@/lib/schema';
 import { auth } from '@/lib/auth';
-import { eq, and, gte, lte } from 'drizzle-orm';
+import { eq, and, gte, lte, or } from 'drizzle-orm';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
 
@@ -21,19 +21,34 @@ export async function GET(request: NextRequest) {
     const startDate = new Date(parseInt(year), parseInt(month), 1);
     const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59);
 
-    // Get all user transactions for the month
+    // Get user and partner ID
+    const user = await db.select({
+      id: users.id,
+      partnerId: users.partnerId,
+    })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+
+    if (!user.length) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Get transactions from user and partner
+    const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
+
     const userTransactions = await db.select()
       .from(transactions)
       .where(and(
-        eq(transactions.userId, session.user.id),
+        or(...userIds.map(id => eq(transactions.userId, id))),
         gte(transactions.date, startDate),
         lte(transactions.date, endDate)
       ));
 
-    // Get custom categories
+    // Get custom categories from user and partner
     const customCategories = await db.select()
       .from(categories)
-      .where(eq(categories.userId, session.user.id));
+      .where(or(...userIds.map(id => eq(categories.userId, id))));
 
     // Create category lookup with default categories
     const categoryLookup: Record<string, Category> = {};

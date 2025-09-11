@@ -36,7 +36,7 @@ export function BalanceCards({ balance }: BalanceCardsProps) {
             <div className={`inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium ${
               balance.balance >= 0 ? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400' : 'bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400'
             }`}>
-              {balance.balance >= 0 ? 'Positif' : 'Négatif'}
+              {balance.balance >= 0 ? t('positive') : t('negative')}
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@ export function BalanceCards({ balance }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400">
-              Ce mois
+              {t('this_month')}
             </div>
           </div>
         </div>
@@ -82,7 +82,7 @@ export function BalanceCards({ balance }: BalanceCardsProps) {
           </div>
           <div className="mt-2">
             <div className="inline-flex items-center px-2 py-0.5 md:px-2.5 md:py-1 rounded-full text-xs font-medium bg-red-50 text-red-700 dark:bg-red-950/50 dark:text-red-400">
-              Ce mois
+              {t('this_month')}
             </div>
           </div>
         </div>

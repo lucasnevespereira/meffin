@@ -25,6 +25,10 @@ export type NewTransaction = InferInsertModel<typeof transactions>;
 // Extended types with relations
 export type TransactionWithCategory = Transaction & {
   category: Category;
+  createdBy?: {
+    id: string;
+    name: string;
+  };
 };
 
 export type CategoryWithTransactions = Category & {

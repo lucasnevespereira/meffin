@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories } from '@/lib/schema';
+import { transactions, categories, users } from '@/lib/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
@@ -24,16 +24,38 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get transactions
-    const userTransactions = await db.select()
+    // Get user and partner info
+    const user = await db.select({
+      id: users.id,
+      partnerId: users.partnerId,
+    })
+    .from(users)
+    .where(eq(users.id, session.user.id))
+    .limit(1);
+
+    if (!user.length) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    // Get transactions from user and partner
+    const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
+    
+    const userTransactions = await db.select({
+      transaction: transactions,
+      creator: {
+        id: users.id,
+        name: users.name,
+      }
+    })
       .from(transactions)
-      .where(eq(transactions.userId, session.user.id))
+      .leftJoin(users, eq(transactions.createdBy, users.id))
+      .where(or(...userIds.map(id => eq(transactions.userId, id))))
       .orderBy(desc(transactions.date));
 
-    // Get custom categories
+    // Get custom categories from user and partner
     const customCategories = await db.select()
       .from(categories)
-      .where(eq(categories.userId, session.user.id));
+      .where(or(...userIds.map(id => eq(categories.userId, id))));
 
     // Create category lookup with default categories
     const categoryLookup: Record<string, Category> = {};
@@ -65,9 +87,10 @@ export async function GET(request: NextRequest) {
     });
 
     // Map transactions with category info
-    const transactionsWithCategories = userTransactions.map(transaction => ({
+    const transactionsWithCategories = userTransactions.map(({ transaction, creator }) => ({
       ...transaction,
       categoryId: transaction.categoryId,
+      createdBy: creator,
       category: categoryLookup[transaction.categoryId] || {
         id: transaction.categoryId,
         name: 'Unknown',
@@ -121,6 +144,7 @@ export async function POST(request: NextRequest) {
     const [newTransaction] = await db.insert(transactions).values({
       id: crypto.randomUUID(),
       userId: session.user.id,
+      createdBy: session.user.id,
       categoryId: validatedData.categoryId,
       description: validatedData.description,
       amount: validatedData.amount.toString(),

@@ -21,7 +21,7 @@ db:
 setup: db
 	@echo "📦 Installing dependencies..."
 	@npm install --silent
-	@echo "🔄 Setting up database schema (development)..."
+	@echo "🔄 Setting up database schema..."
 	@npx drizzle-kit push
 	@echo "✅ Setup complete!"
 
@@ -30,14 +30,6 @@ dev: setup
 	@echo "🚀 Starting Next.js development server..."
 	@npm run dev
 
-# For maintainers: generate migration files after schema changes
-migrate:
-	@echo "🔄 Generating migration from schema changes..."
-	@npx drizzle-kit generate
-	@echo "🔄 Applying migration to local database..."
-	@npx drizzle-kit migrate
-	@echo "✅ Migration files created and applied!"
-	@echo "📝 Don't forget to commit the new migration files!"
 
 recurring:
 	@echo "🔄 Generating recurring transactions..."

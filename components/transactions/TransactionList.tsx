@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Edit, Trash2, Calendar, Repeat, Clock } from 'lucide-react';
+import { Edit, Trash2, Calendar, Repeat, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -27,6 +27,8 @@ interface TransactionListProps {
   onEdit: (transaction: TransactionWithCategory) => void;
   onDelete: (id: string) => void;
   isDeleting?: boolean;
+  hasPartner?: boolean;
+  currentUserId?: string;
 }
 
 export function TransactionList({
@@ -35,6 +37,8 @@ export function TransactionList({
   onEdit,
   onDelete,
   isDeleting = false,
+  hasPartner = false,
+  currentUserId,
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -83,8 +87,12 @@ export function TransactionList({
     }
   };
 
-  const sectionTitle = type === 'income' ? t('transactions_my_income') : t('transactions_my_expenses');
-  const emptyMessage = type === 'income' ? t('transactions_no_income') : t('transactions_no_expenses');
+  const sectionTitle = type === 'income' 
+    ? (hasPartner ? t('transactions_our_income') : t('transactions_my_income'))
+    : (hasPartner ? t('transactions_our_expenses') : t('transactions_my_expenses'));
+  const emptyMessage = type === 'income' 
+    ? (hasPartner ? t('transactions_no_shared_income') : t('transactions_no_income'))
+    : (hasPartner ? t('transactions_no_shared_expenses') : t('transactions_no_expenses'));
 
   if (filteredTransactions.length === 0) {
     return (
@@ -140,6 +148,12 @@ export function TransactionList({
                           <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
                         </div>
                       </div>
+                      {transaction.createdBy && hasPartner && (
+                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                          <User className="h-3 w-3" />
+                          <span className="font-medium">Created by {transaction.createdBy.name}</span>
+                        </div>
+                      )}
                       {(() => {
                         const recurringInfo = getRecurringInfo(transaction);
                         if (!recurringInfo) return null;
@@ -163,25 +177,28 @@ export function TransactionList({
                     {type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
                   </div>
 
-                  <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onEdit(transaction)}
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
-                    >
-                      <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteClick(transaction.id)}
-                      disabled={isDeleting}
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                    </Button>
-                  </div>
+                  {/* Only show edit/delete buttons for transactions created by current user */}
+                  {(!currentUserId || !transaction.createdBy || transaction.createdBy.id === currentUserId) && (
+                    <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => onEdit(transaction)}
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                      >
+                        <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteClick(transaction.id)}
+                        disabled={isDeleting}
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}

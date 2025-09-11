@@ -81,6 +81,7 @@ export async function POST(request: NextRequest) {
           date: transactionDate,
           isFixed: true,
           endDate: recurring.endDate,
+          createdBy: recurring.userId,
           createdAt: now,
           updatedAt: now,
         });
