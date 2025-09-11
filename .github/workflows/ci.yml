@@ -56,18 +56,18 @@ jobs:
         run: npm ci
 
       - name: Build project
-        run: npm run build:local
+        run: npm run build
         env:
           # Auth configuration
           BETTER_AUTH_URL: http://localhost:3000
           BETTER_AUTH_SECRET: test_secret_key_32_chars_minimum_length_required_for_ci
-          
+
           # Database (not needed for build, but required by schema)
           DATABASE_URL: postgresql://user:password@localhost:5432/test_db
-          
+
           # Google OAuth (not needed for build)
           GOOGLE_CLIENT_ID: test_client_id
           GOOGLE_CLIENT_SECRET: test_client_secret
-          
+
           # App URL
           NEXT_PUBLIC_APP_URL: http://localhost:3000
