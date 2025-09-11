@@ -72,6 +72,19 @@ fi
 
 # Create and push tag
 echo -e "${BLUE}🏷️  Creating and pushing git tag...${NC}"
+
+# Check if tag already exists locally
+if git tag -l | grep -q "^v$NEW_VERSION$"; then
+    echo -e "${YELLOW}⚠️  Tag v$NEW_VERSION already exists locally. Deleting it...${NC}"
+    git tag -d "v$NEW_VERSION"
+fi
+
+# Check if tag exists on remote
+if git ls-remote --tags origin | grep -q "refs/tags/v$NEW_VERSION$"; then
+    echo -e "${YELLOW}⚠️  Tag v$NEW_VERSION already exists on remote. Deleting it...${NC}"
+    git push --delete origin "v$NEW_VERSION"
+fi
+
 git tag -a "v$NEW_VERSION" -m "Release v$NEW_VERSION"
 git push origin "v$NEW_VERSION"
 
