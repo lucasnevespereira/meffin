@@ -20,7 +20,7 @@ db:
 # One-time setup for contributors
 setup: db
 	@echo "📦 Installing dependencies..."
-	@npm install --silent
+	@npm install
 	@echo "🔄 Setting up database schema..."
 	@npx drizzle-kit push
 	@echo "✅ Setup complete!"

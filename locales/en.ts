@@ -264,6 +264,10 @@ export default {
   "transaction_recurring_ended": "Ended",
   "transaction_recurring_last_month": "Last month",
   "transaction_recurring_left": "left",
+  "transaction_private": "Private transaction",
+  "transaction_private_description": "Only you can see the details of this transaction. Your partner will see \"Private transaction\".",
+  "transaction_private_placeholder": "Private transaction",
+  "transaction_private_category": "Private category",
   "validation_error": "Validation failed",
 
   // Dashboard

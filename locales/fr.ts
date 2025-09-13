@@ -322,6 +322,11 @@ export default {
   "partner_removing": "Suppression...",
   "partner_confirm": "Confirmer",
 
+  "transaction_private": "Transaction privée",
+  "transaction_private_description": "Vous seul pouvez voir les détails de cette transaction. Votre partenaire verra \"Transaction privée\".",
+  "transaction_private_placeholder": "Transaction privée",
+  "transaction_private_category": "Catégorie privée",
+
   // Transaction Permissions
   "transaction_edit_permission_denied": "Vous ne pouvez modifier que les transactions que vous avez créées",
   "transaction_delete_permission_denied": "Vous ne pouvez supprimer que les transactions que vous avez créées"

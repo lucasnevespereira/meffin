@@ -19,9 +19,10 @@ interface CategoryBreakdownProps {
   categories: CategorySummary[];
   month: number;
   year: number;
+  currentUserId?: string;
 }
 
-export function CategoryBreakdown({ categories, month, year }: CategoryBreakdownProps) {
+export function CategoryBreakdown({ categories, month, year, currentUserId }: CategoryBreakdownProps) {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const { data: transactionsData } = useTransactions(month, year);
   const t = useI18n();
@@ -99,7 +100,13 @@ export function CategoryBreakdown({ categories, month, year }: CategoryBreakdown
                               className="flex items-center justify-between py-2 md:py-3 px-3 md:px-4 rounded-lg bg-card border border-border/50 hover:shadow-subtle transition-shadow touch-manipulation"
                             >
                               <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 flex-1">
-                                <span className="text-sm font-medium truncate">{transaction.description}</span>
+                                {transaction.isPrivate && transaction.createdBy && transaction.createdBy.id !== currentUserId ? (
+                                  <span className="text-sm font-medium truncate text-muted-foreground italic">
+                                    🔒 {t('transaction_private_placeholder') || 'Private transaction'}
+                                  </span>
+                                ) : (
+                                  <span className="text-sm font-medium truncate">{transaction.description}</span>
+                                )}
                                 <span className="text-xs text-muted-foreground">
                                   {formatDate(transaction.date)}
                                 </span>

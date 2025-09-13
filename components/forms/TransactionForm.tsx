@@ -8,6 +8,7 @@ import { useI18n } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -44,6 +45,7 @@ type TransactionFormInput = {
   dayOfMonth: number;
   repeatType: RepeatType;
   customEndDate?: Date;
+  isPrivate?: boolean;
 };
 
 export function TransactionForm({
@@ -65,6 +67,7 @@ export function TransactionForm({
     dayOfMonth: z.number().min(1).max(31),
     repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'until', 'once']),
     customEndDate: z.date().optional(),
+    isPrivate: z.boolean().optional(),
   }) satisfies z.ZodType<TransactionFormInput>;
 
   const {
@@ -83,6 +86,7 @@ export function TransactionForm({
       dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
       repeatType: initialData.repeatType || 'forever',
       customEndDate: initialData.customEndDate || new Date(),
+      isPrivate: initialData.isPrivate || false,
     } : {
       description: '',
       amount: 0,
@@ -90,6 +94,7 @@ export function TransactionForm({
       dayOfMonth: new Date().getDate(),
       repeatType: 'forever',
       customEndDate: new Date(),
+      isPrivate: false,
     },
   });
 
@@ -97,6 +102,7 @@ export function TransactionForm({
   const dayOfMonth = watch('dayOfMonth');
   const repeatType = watch('repeatType');
   const customEndDate = watch('customEndDate');
+  const isPrivate = watch('isPrivate');
 
   // Reset form when initialData changes (switching between create/edit)
   useEffect(() => {
@@ -108,6 +114,7 @@ export function TransactionForm({
         dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
         repeatType: initialData.repeatType || 'forever',
         customEndDate: initialData.customEndDate || new Date(),
+        isPrivate: initialData.isPrivate || false,
       });
     }
   }, [initialData, mode, reset]);
@@ -172,7 +179,8 @@ export function TransactionForm({
       ...data,
       date: targetDate,
       isFixed: data.repeatType !== 'once',
-      endDate: endDate
+      endDate: endDate,
+      isPrivate: data.isPrivate || false
     };
 
     onSubmit(formattedData);
@@ -274,6 +282,28 @@ export function TransactionForm({
                 {errors.categoryId && (
                   <p className="text-sm text-destructive">{errors.categoryId.message}</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* Privacy Setting */}
+          <div className="space-y-3 border-t pt-4">
+            <div className="flex items-center space-x-3">
+              <Checkbox
+                id="isPrivate"
+                checked={isPrivate || false}
+                onCheckedChange={(checked) => setValue('isPrivate', checked as boolean)}
+              />
+              <div className="grid gap-1.5 leading-none">
+                <Label
+                  htmlFor="isPrivate"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  🔒 {t('transaction_private') || 'Private transaction'}
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  {t('transaction_private_description') || 'Only you can see the details of this transaction. Your partner will see "Private transaction".'}
+                </p>
               </div>
             </div>
           </div>

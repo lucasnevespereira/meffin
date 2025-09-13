@@ -86,11 +86,12 @@ export const transactions = pgTable('transactions', {
   categoryId: text('category_id').notNull(), // Can be default ID or custom category ID
   description: varchar('description', { length: 255 }).notNull(),
   amount: decimal('amount', { precision: 10, scale: 2 }).notNull(),
-  date: timestamp('date').notNull(),
+  date: timestamp('date', { mode: 'string' }).notNull(),
   isFixed: boolean('is_fixed').default(false).notNull(),
-  endDate: timestamp('end_date'), // For recurring transactions with end date
-  createdAt: timestamp('created_at').defaultNow().notNull(),
-  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  isPrivate: boolean('is_private').default(false),
+  endDate: timestamp('end_date', { mode: 'string' }), // For recurring transactions with end date
+  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
 });
 
 // Partner invitations table

@@ -6,9 +6,11 @@ import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { useDashboard } from '@/hooks/useDashboard';
 import { useI18n } from '@/locales/client';
+import { useSession } from '@/lib/auth-client';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
+  const { data: session } = useSession();
   const t = useI18n();
 
   if (error) {
@@ -81,6 +83,7 @@ export default function DashboardPage() {
           categories={data.categoryBreakdown}
           month={data.month}
           year={data.year}
+          currentUserId={session?.user?.id}
         />
       ) : null}
     </div>

@@ -52,6 +52,7 @@ export type TransactionFormData = {
   dayOfMonth: number;
   repeatType: RepeatType;
   customEndDate?: Date;
+  isPrivate?: boolean;
   // Legacy fields for submission compatibility
   date?: Date;
   endDate?: Date | null;

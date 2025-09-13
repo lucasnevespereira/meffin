@@ -13,6 +13,7 @@ const createTransactionSchema = z.object({
   categoryId: z.string().min(1, 'Category ID is required'),
   date: z.string().pipe(z.coerce.date()),
   isFixed: z.boolean().default(false),
+  isPrivate: z.boolean().default(false),
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 
@@ -148,9 +149,10 @@ export async function POST(request: NextRequest) {
       categoryId: validatedData.categoryId,
       description: validatedData.description,
       amount: validatedData.amount.toString(),
-      date: validatedData.date,
+      date: validatedData.date.toISOString(),
       isFixed: validatedData.isFixed,
-      endDate: validatedData.endDate,
+      isPrivate: validatedData.isPrivate || false,
+      endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
     }).returning();
 
     return NextResponse.json({ transaction: newTransaction });

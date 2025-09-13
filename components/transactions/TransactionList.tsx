@@ -139,34 +139,59 @@ export function TransactionList({
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="font-semibold text-sm md:text-base truncate">{transaction.description}</div>
-                    <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-3">
-                        <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
-                        <div className="flex items-center gap-1 shrink-0">
-                          <Calendar className="h-3 w-3" />
-                          <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
+                    {transaction.isPrivate && transaction.createdBy && transaction.createdBy.id !== currentUserId ? (
+                      <>
+                        <div className="font-semibold text-sm md:text-base truncate text-muted-foreground italic">
+                          🔒 {t('transaction_private_placeholder') || 'Private transaction'}
                         </div>
-                      </div>
-                      {transaction.createdBy && hasPartner && (
-                        <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                          <User className="h-3 w-3" />
-                          <span className="font-medium">Created by {transaction.createdBy.name}</span>
-                        </div>
-                      )}
-                      {(() => {
-                        const recurringInfo = getRecurringInfo(transaction);
-                        if (!recurringInfo) return null;
-                        
-                        const Icon = recurringInfo.icon;
-                        return (
-                          <div className={`flex items-center gap-1 ${recurringInfo.color}`}>
-                            <Icon className="h-3 w-3" />
-                            <span className="font-medium">{recurringInfo.text}</span>
+                        <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-3">
+                            <span className="truncate italic">{t('transaction_private_category') || 'Private category'}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Calendar className="h-3 w-3" />
+                              <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
+                            </div>
                           </div>
-                        );
-                      })()}
-                    </div>
+                          {transaction.createdBy && hasPartner && (
+                            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                              <User className="h-3 w-3" />
+                              <span className="font-medium">Created by {transaction.createdBy.name}</span>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="font-semibold text-sm md:text-base truncate">{transaction.description}</div>
+                        <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
+                          <div className="flex items-center gap-3">
+                            <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
+                            <div className="flex items-center gap-1 shrink-0">
+                              <Calendar className="h-3 w-3" />
+                              <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
+                            </div>
+                          </div>
+                          {transaction.createdBy && hasPartner && (
+                            <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                              <User className="h-3 w-3" />
+                              <span className="font-medium">Created by {transaction.createdBy.name}</span>
+                            </div>
+                          )}
+                          {(() => {
+                            const recurringInfo = getRecurringInfo(transaction);
+                            if (!recurringInfo) return null;
+                            
+                            const Icon = recurringInfo.icon;
+                            return (
+                              <div className={`flex items-center gap-1 ${recurringInfo.color}`}>
+                                <Icon className="h-3 w-3" />
+                                <span className="font-medium">{recurringInfo.text}</span>
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
