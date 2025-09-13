@@ -111,6 +111,17 @@ export default {
   "transactions_our_expenses": "Nos dépenses",
   "transactions_no_shared_income": "Aucun revenu partagé ce mois-ci",
   "transactions_no_shared_expenses": "Aucune dépense partagée ce mois-ci",
+  "transactions_our_annual": "Nos transactions annuelles",
+  "transactions_my_annual": "Mes transactions annuelles",
+  "transactions_no_annual": "Aucune transaction annuelle configurée",
+  "transactions_no_shared_annual": "Aucune transaction annuelle partagée configurée",
+  "transaction_renews_in": "Renouvelle en",
+  "transaction_annual": "annuelle",
+  "transactions_monthly": "Mensuel",
+  "transactions_annual": "Annuel",
+  
+  // Common
+  "loading": "Chargement...",
 
   // Default Categories - Income
   "category_salary": "Salaire",
@@ -264,6 +275,9 @@ export default {
   "transaction_recurring_ended": "Terminé",
   "transaction_recurring_last_month": "Dernier mois",
   "transaction_recurring_left": "restants",
+  "transaction_recurring_annual": "Annuel",
+  "transaction_month_of_year": "Mois de l'année",
+  "transaction_select_month": "Sélectionner un mois",
   "validation_error": "Erreur de validation",
 
   // Dashboard

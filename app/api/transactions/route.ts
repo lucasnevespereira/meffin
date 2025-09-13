@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { transactions, categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc, or } from 'drizzle-orm';
+import { eq, desc, or, and, gte, lte } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
@@ -14,6 +14,7 @@ const createTransactionSchema = z.object({
   date: z.string().pipe(z.coerce.date()),
   isFixed: z.boolean().default(false),
   isPrivate: z.boolean().default(false),
+  repeatType: z.string().default('once'),
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 
@@ -24,6 +25,14 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const url = new URL(request.url);
+    const month = url.searchParams.get('month') || new Date().getMonth().toString();
+    const year = url.searchParams.get('year') || new Date().getFullYear().toString();
+    const isAnnualQuery = url.searchParams.get('annual') === 'true';
+
+    const startDate = new Date(parseInt(year), parseInt(month), 1);
+    const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59);
 
     // Get user and partner info
     const user = await db.select({
@@ -41,17 +50,84 @@ export async function GET(request: NextRequest) {
     // Get transactions from user and partner
     const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
 
-    const userTransactions = await db.select({
-      transaction: transactions,
+    type TransactionWithCreator = {
+      transaction: typeof transactions.$inferSelect;
       creator: {
-        id: users.id,
-        name: users.name,
-      }
-    })
-      .from(transactions)
-      .leftJoin(users, eq(transactions.createdBy, users.id))
-      .where(or(...userIds.map(id => eq(transactions.userId, id))))
-      .orderBy(desc(transactions.date));
+        id: string;
+        name: string;
+      } | null;
+    };
+    
+    let userTransactions: TransactionWithCreator[] = [];
+
+    if (isAnnualQuery) {
+      // For annual query, return ALL annual transactions regardless of month
+      userTransactions = await db.select({
+        transaction: transactions,
+        creator: {
+          id: users.id,
+          name: users.name,
+        }
+      })
+        .from(transactions)
+        .leftJoin(users, eq(transactions.createdBy, users.id))
+        .where(and(
+          or(...userIds.map(id => eq(transactions.userId, id))),
+          eq(transactions.repeatType, 'annual')
+        ))
+        .orderBy(desc(transactions.date));
+    } else {
+      // Get regular transactions for this month (EXCLUDING annual transactions)
+      const monthlyTransactions = await db.select({
+        transaction: transactions,
+        creator: {
+          id: users.id,
+          name: users.name,
+        }
+      })
+        .from(transactions)
+        .leftJoin(users, eq(transactions.createdBy, users.id))
+        .where(and(
+          or(...userIds.map(id => eq(transactions.userId, id))),
+          gte(transactions.date, startDate.toISOString()),
+          lte(transactions.date, endDate.toISOString()),
+          // Exclude annual transactions from monthly query to prevent duplication
+          or(
+            eq(transactions.repeatType, 'once'),
+            eq(transactions.repeatType, 'forever'),
+            eq(transactions.repeatType, '3months'),
+            eq(transactions.repeatType, '4months'),
+            eq(transactions.repeatType, '6months'),
+            eq(transactions.repeatType, '12months'),
+            eq(transactions.repeatType, 'until')
+          )
+        ))
+        .orderBy(desc(transactions.date));
+
+      // Get annual transactions that should appear in this month
+      const annualTransactions = await db.select({
+        transaction: transactions,
+        creator: {
+          id: users.id,
+          name: users.name,
+        }
+      })
+        .from(transactions)
+        .leftJoin(users, eq(transactions.createdBy, users.id))
+        .where(and(
+          or(...userIds.map(id => eq(transactions.userId, id))),
+          eq(transactions.repeatType, 'annual')
+        ));
+
+      // Filter annual transactions to only include ones that renew in current month
+      const currentMonthAnnuals = annualTransactions.filter(({ transaction }) => {
+        const annualDate = new Date(transaction.date);
+        return annualDate.getMonth() === parseInt(month);
+      });
+
+      // Combine monthly and applicable annual transactions
+      userTransactions = [...monthlyTransactions, ...currentMonthAnnuals];
+    }
 
     // Get custom categories from user and partner
     const customCategories = await db.select()
@@ -152,6 +228,7 @@ export async function POST(request: NextRequest) {
       date: validatedData.date.toISOString(),
       isFixed: validatedData.isFixed,
       isPrivate: validatedData.isPrivate || false,
+      repeatType: validatedData.repeatType || 'once',
       endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
     }).returning();
 

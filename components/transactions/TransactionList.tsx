@@ -48,7 +48,20 @@ export function TransactionList({
 
   // Function to get recurring info display
   const getRecurringInfo = (transaction: TransactionWithCategory) => {
-    if (!transaction.isFixed) return null;
+    // Handle annual transactions - show subtle badge for all annual transactions
+    if (transaction.repeatType === 'annual') {
+      return { 
+        type: 'annual', 
+        text: t('transaction_recurring_annual') || 'Annual', 
+        icon: Calendar, 
+        color: 'text-muted-foreground/70' 
+      };
+    }
+
+    // Handle one-time transactions (including generated ones from cron)
+    if (transaction.repeatType === 'once' && !transaction.isFixed) {
+      return null;
+    }
     
     const now = new Date();
     const endDate = transaction.endDate ? new Date(transaction.endDate) : null;
