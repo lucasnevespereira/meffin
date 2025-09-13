@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter, usePathname } from 'next/navigation';
 import { useCurrentLocale, useChangeLocale } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -31,18 +30,15 @@ export function LocaleSwitcher({
 }: LocaleSwitcherProps) {
   const currentLocale = useCurrentLocale();
   const changeLocale = useChangeLocale();
-  const router = useRouter();
-  const pathname = usePathname();
 
   const currentLocaleData = locales.find(locale => locale.code === currentLocale);
 
   const handleLocaleChange = (newLocale: string) => {
-    changeLocale(newLocale as 'en' | 'fr');
+    // Prevent unnecessary changes
+    if (currentLocale === newLocale) return;
 
-    // Update URL to reflect the new locale
-    const currentPath = pathname.split('/').slice(2).join('/'); // Remove current locale from path
-    const newPath = `/${newLocale}${currentPath ? `/${currentPath}` : ''}`;
-    router.push(newPath);
+    // The changeLocale hook should handle both state and routing
+    changeLocale(newLocale as 'en' | 'fr');
   };
 
   return (
@@ -51,12 +47,12 @@ export function LocaleSwitcher({
         <Button
           variant={variant}
           size={size}
-          className={`h-9 px-3 ${className}`}
+          className={`h-10 px-3 touch-manipulation active:scale-95 transition-transform ${className}`}
         >
           <div className="flex items-center gap-2">
-            {/*{currentLocaleData?.flag}*/}
+            <span className="text-sm">{currentLocaleData?.flag}</span>
             {showText && (
-              <span className="hidden sm:inline-block">
+              <span className="hidden sm:inline-block text-sm">
                 {currentLocaleData?.name}
               </span>
             )}
@@ -64,15 +60,25 @@ export function LocaleSwitcher({
           </div>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-32">
+      <DropdownMenuContent
+        align="end"
+        className="w-36 touch-manipulation"
+        side="bottom"
+        sideOffset={8}
+      >
         {locales.map((locale) => (
           <DropdownMenuItem
             key={locale.code}
             onClick={() => handleLocaleChange(locale.code)}
-            className="flex items-center gap-2 cursor-pointer"
+            className={`flex items-center gap-3 cursor-pointer min-h-[44px] px-3 py-2 touch-manipulation active:scale-95 transition-all ${
+              locale.code === currentLocale ? 'bg-accent text-accent-foreground' : ''
+            }`}
           >
-            <span>{locale.flag}</span>
-            <span>{locale.name}</span>
+            <span className="text-base">{locale.flag}</span>
+            <span className="text-sm font-medium">{locale.name}</span>
+            {locale.code === currentLocale && (
+              <span className="ml-auto text-xs text-primary">✓</span>
+            )}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
