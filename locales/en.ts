@@ -111,6 +111,17 @@ export default {
   "transactions_our_expenses": "Our expenses",
   "transactions_no_shared_income": "No shared income for this month",
   "transactions_no_shared_expenses": "No shared expenses for this month",
+  "transactions_our_annual": "Our annual transactions",
+  "transactions_my_annual": "My annual transactions",
+  "transactions_no_annual": "No annual transactions configured",
+  "transactions_no_shared_annual": "No shared annual transactions configured",
+  "transaction_renews_in": "Renews in",
+  "transaction_annual": "annual",
+  "transactions_monthly": "Monthly",
+  "transactions_annual": "Annual",
+  
+  // Common
+  "loading": "Loading...",
 
   // Default Categories - Income
   "category_salary": "Salary",
@@ -264,10 +275,13 @@ export default {
   "transaction_recurring_ended": "Ended",
   "transaction_recurring_last_month": "Last month",
   "transaction_recurring_left": "left",
+  "transaction_recurring_annual": "Annual",
   "transaction_private": "Private transaction",
   "transaction_private_description": "Only you can see the details of this transaction. Your partner will see \"Private transaction\".",
   "transaction_private_placeholder": "Private transaction",
   "transaction_private_category": "Private category",
+  "transaction_month_of_year": "Month of Year",
+  "transaction_select_month": "Select month",
   "validation_error": "Validation failed",
 
   // Dashboard

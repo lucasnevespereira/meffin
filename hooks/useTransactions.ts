@@ -57,6 +57,18 @@ async function fetchTransactions(month?: number, year?: number): Promise<{ trans
   return response.json();
 }
 
+async function fetchAnnualTransactions(): Promise<{ transactions: TransactionWithCategory[] }> {
+  const response = await fetch('/api/transactions?annual=true', {
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch annual transactions');
+  }
+
+  return response.json();
+}
+
 async function createTransaction(data: TransactionFormData): Promise<{transaction: TransactionWithCategory}> {
   const response = await fetch('/api/transactions', {
     method: 'POST',
@@ -119,6 +131,14 @@ export function useTransactions(month?: number, year?: number) {
   return useQuery({
     queryKey: ['transactions', month, year],
     queryFn: () => fetchTransactions(month, year),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+export function useAnnualTransactions() {
+  return useQuery({
+    queryKey: ['transactions', 'annual'],
+    queryFn: fetchAnnualTransactions,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
 }

@@ -23,7 +23,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { TransactionFormData, Category, RepeatType, TimeLimitedRepeatType, isTimeLimitedRepeat } from '@/types';
+import { TransactionFormData, Category, RepeatType } from '@/types';
 import { useSession } from '@/lib/auth-client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 
@@ -43,6 +43,7 @@ type TransactionFormInput = {
   amount: number;
   categoryId: string;
   dayOfMonth: number;
+  monthOfYear?: number; // For annual transactions
   repeatType: RepeatType;
   customEndDate?: Date;
   isPrivate?: boolean;
@@ -65,7 +66,8 @@ export function TransactionForm({
     amount: z.number().positive(t('validation_amountPositive') || 'Amount must be positive'),
     categoryId: z.string().min(1, t('validation_categoryRequired') || 'Category is required'),
     dayOfMonth: z.number().min(1).max(31),
-    repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'until', 'once']),
+    monthOfYear: z.number().min(0).max(11).optional(),
+    repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']),
     customEndDate: z.date().optional(),
     isPrivate: z.boolean().optional(),
   }) satisfies z.ZodType<TransactionFormInput>;
@@ -84,6 +86,7 @@ export function TransactionForm({
       amount: initialData.amount || 0,
       categoryId: initialData.categoryId || '',
       dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
+      monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
       repeatType: initialData.repeatType || 'forever',
       customEndDate: initialData.customEndDate || new Date(),
       isPrivate: initialData.isPrivate || false,
@@ -92,6 +95,7 @@ export function TransactionForm({
       amount: 0,
       categoryId: '',
       dayOfMonth: new Date().getDate(),
+      monthOfYear: new Date().getMonth(),
       repeatType: 'forever',
       customEndDate: new Date(),
       isPrivate: false,
@@ -100,6 +104,7 @@ export function TransactionForm({
 
   const selectedCategoryId = watch('categoryId');
   const dayOfMonth = watch('dayOfMonth');
+  const monthOfYear = watch('monthOfYear');
   const repeatType = watch('repeatType');
   const customEndDate = watch('customEndDate');
   const isPrivate = watch('isPrivate');
@@ -112,6 +117,7 @@ export function TransactionForm({
         amount: initialData.amount || 0,
         categoryId: initialData.categoryId || '',
         dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
+        monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
         repeatType: initialData.repeatType || 'forever',
         customEndDate: initialData.customEndDate || new Date(),
         isPrivate: initialData.isPrivate || false,
@@ -128,14 +134,19 @@ export function TransactionForm({
       return `${t('transaction_monthly_on') || 'Monthly on day'} ${dayOfMonth}`;
     }
 
-    if (isTimeLimitedRepeat(repeatType)) {
-      const monthsMap: Record<TimeLimitedRepeatType, number> = {
+    if (repeatType === 'annual') {
+      const month = monthOfYear !== undefined ? monthOfYear : new Date().getMonth();
+      return `Annual on ${new Date(2000, month, dayOfMonth).toLocaleDateString('en', { month: 'long', day: 'numeric' })}`;
+    }
+
+    if (repeatType === '3months' || repeatType === '4months' || repeatType === '6months' || repeatType === '12months') {
+      const monthsMap: Record<'3months' | '4months' | '6months' | '12months', number> = {
         '3months': 3,
         '4months': 4,
         '6months': 6,
         '12months': 12
       };
-      
+
       const months = monthsMap[repeatType];
       return `${t('transaction_monthly_for') || 'Monthly for'} ${months} ${t('months') || 'months'} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
     }
@@ -153,21 +164,30 @@ export function TransactionForm({
       return;
     }
 
-    // Convert dayOfMonth to actual date in current month
+    // Convert dayOfMonth to actual date (for annual, use specified month; for others, use current month)
     const now = new Date();
-    const targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
+    let targetDate: Date;
+
+    if (data.repeatType === 'annual') {
+      // For annual transactions, use the specified month and day
+      const month = data.monthOfYear !== undefined ? data.monthOfYear : now.getMonth();
+      targetDate = new Date(now.getFullYear(), month, data.dayOfMonth);
+    } else {
+      // For other recurring transactions, use current month
+      targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
+    }
 
     // Calculate end date based on repeat type
     let endDate: Date | null = null;
-    if (data.repeatType !== 'forever' && data.repeatType !== 'once') {
-      if (isTimeLimitedRepeat(data.repeatType)) {
-        const monthsMap: Record<TimeLimitedRepeatType, number> = {
+    if (data.repeatType !== 'forever' && data.repeatType !== 'once' && data.repeatType !== 'annual') {
+      if (data.repeatType === '3months' || data.repeatType === '4months' || data.repeatType === '6months' || data.repeatType === '12months') {
+        const monthsMap: Record<'3months' | '4months' | '6months' | '12months', number> = {
           '3months': 3,
           '4months': 4,
           '6months': 6,
           '12months': 12
         };
-        
+
         const months = monthsMap[data.repeatType];
         endDate = new Date(now.getFullYear(), now.getMonth() + months, data.dayOfMonth);
       } else if (data.repeatType === 'until' && data.customEndDate) {
@@ -179,6 +199,7 @@ export function TransactionForm({
       ...data,
       date: targetDate,
       isFixed: data.repeatType !== 'once',
+      repeatType: data.repeatType,
       endDate: endDate,
       isPrivate: data.isPrivate || false
     };
@@ -387,6 +408,12 @@ export function TransactionForm({
                         <span>{t('transaction_for_12_months')}</span>
                       </div>
                     </SelectItem>
+                    <SelectItem value="annual">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">🗓️</span>
+                        <span>Annual (yearly)</span>
+                      </div>
+                    </SelectItem>
                     <SelectItem value="until">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">🗓️</span>
@@ -397,6 +424,32 @@ export function TransactionForm({
                 </Select>
               </div>
             </div>
+
+            {repeatType === 'annual' && (
+              <div className="space-y-2">
+                <Label htmlFor="monthOfYear" className="text-sm font-medium">
+                  {t('transaction_month_of_year') || 'Month of Year'}
+                </Label>
+                <Select
+                  value={monthOfYear?.toString() || ''}
+                  onValueChange={(value) => setValue('monthOfYear', parseInt(value))}
+                >
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder={t('transaction_select_month') || 'Select month'} />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {Array.from({ length: 12 }, (_, i) => (
+                      <SelectItem key={i} value={i.toString()}>
+                        {new Date(2000, i, 1).toLocaleDateString('en', { month: 'long' })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {errors.monthOfYear && (
+                  <p className="text-sm text-destructive">{errors.monthOfYear.message}</p>
+                )}
+              </div>
+            )}
 
             {repeatType === 'until' && (
               <div className="space-y-2">

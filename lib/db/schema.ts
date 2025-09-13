@@ -89,10 +89,12 @@ export const transactions = pgTable('transactions', {
   date: timestamp('date', { mode: 'string' }).notNull(),
   isFixed: boolean('is_fixed').default(false).notNull(),
   isPrivate: boolean('is_private').default(false),
+  repeatType: varchar('repeat_type', { length: 20 }).default('once'), // Store the original repeat type
   endDate: timestamp('end_date', { mode: 'string' }), // For recurring transactions with end date
   createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
 });
+
 
 // Partner invitations table
 export const partnerInvitations = pgTable('partner_invitations', {
@@ -137,6 +139,7 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
     references: [categories.id],
   }),
 }));
+
 
 export const partnerInvitationsRelations = relations(partnerInvitations, ({ one }) => ({
   fromUser: one(users, {

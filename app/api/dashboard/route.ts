@@ -37,13 +37,41 @@ export async function GET(request: NextRequest) {
     // Get transactions from user and partner
     const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
 
-    const userTransactions = await db.select()
+    // Get regular transactions for this month (EXCLUDING annual transactions)
+    const monthlyTransactions = await db.select()
       .from(transactions)
       .where(and(
         or(...userIds.map(id => eq(transactions.userId, id))),
         gte(transactions.date, startDate.toISOString()),
-        lte(transactions.date, endDate.toISOString())
+        lte(transactions.date, endDate.toISOString()),
+        // Exclude annual transactions from monthly query to prevent duplication
+        or(
+          eq(transactions.repeatType, 'once'),
+          eq(transactions.repeatType, 'forever'), 
+          eq(transactions.repeatType, '3months'),
+          eq(transactions.repeatType, '4months'),
+          eq(transactions.repeatType, '6months'),
+          eq(transactions.repeatType, '12months'),
+          eq(transactions.repeatType, 'until')
+        )
       ));
+
+    // Get annual transactions that should appear in this month
+    const annualTransactions = await db.select()
+      .from(transactions)
+      .where(and(
+        or(...userIds.map(id => eq(transactions.userId, id))),
+        eq(transactions.repeatType, 'annual')
+      ));
+
+    // Filter annual transactions to only include ones that renew in current month
+    const currentMonthAnnuals = annualTransactions.filter(annual => {
+      const annualDate = new Date(annual.date);
+      return annualDate.getMonth() === parseInt(month);
+    });
+
+    // Combine monthly and applicable annual transactions
+    const userTransactions = [...monthlyTransactions, ...currentMonthAnnuals];
 
     // Get custom categories from user and partner
     const customCategories = await db.select()
@@ -85,6 +113,12 @@ export async function GET(request: NextRequest) {
     const categoryTotals: Record<string, { categoryId: string; category: Category; total: number; transactionCount: number }> = {};
 
     userTransactions.forEach(transaction => {
+      // Filter out old generated transactions from previous cron logic
+      if (transaction.description.includes('(Monthly Budget)') || 
+          transaction.description.includes('(Annual Renewal)')) {
+        return;
+      }
+
       const amount = Number(transaction.amount);
       const category = categoryLookup[transaction.categoryId];
 
@@ -96,7 +130,7 @@ export async function GET(request: NextRequest) {
         expenses += amount;
       }
 
-      // Update category totals
+      // Update category totals (only for actual transactions, not generated ones)
       if (!categoryTotals[transaction.categoryId]) {
         categoryTotals[transaction.categoryId] = {
           categoryId: transaction.categoryId,

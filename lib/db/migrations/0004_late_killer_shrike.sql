@@ -1,0 +1,1 @@
+ALTER TABLE "transactions" ADD COLUMN "repeat_type" varchar(20) DEFAULT 'once';

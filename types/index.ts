@@ -31,17 +31,18 @@ export type TransactionWithCategory = Transaction & {
   };
 };
 
+
 export type CategoryWithTransactions = Category & {
   transactions: Transaction[];
 };
 
 // Repeat type definitions
-export type RepeatType = 'forever' | '3months' | '4months' | '6months' | '12months' | 'until' | 'once';
-export type TimeLimitedRepeatType = '3months' | '4months' | '6months' | '12months';
+export type RepeatType = 'forever' | '3months' | '4months' | '6months' | '12months' | 'annual' | 'until' | 'once';
+export type TimeLimitedRepeatType = '3months' | '4months' | '6months' | '12months' | 'annual';
 
 // Type guards
 export const isTimeLimitedRepeat = (repeatType: RepeatType): repeatType is TimeLimitedRepeatType => {
-  return ['3months', '4months', '6months', '12months'].includes(repeatType);
+  return ['3months', '4months', '6months', '12months', 'annual'].includes(repeatType);
 };
 
 // Form types
@@ -66,6 +67,7 @@ export type CategoryFormData = {
   type: CategoryType;
   color: string;
 };
+
 
 // Dashboard types
 export type MonthlyBalance = {
