@@ -13,8 +13,6 @@ export default function DashboardPage() {
   const { data: session } = useSession();
   const t = useI18n();
 
-  // Debug logging removed for production
-
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
