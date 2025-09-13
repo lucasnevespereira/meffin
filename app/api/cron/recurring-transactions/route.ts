@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
           // Either no end date or end date is in the future
           or(
             isNull(transactions.endDate),
-            lte(transactions.endDate, new Date(currentYear, currentMonth + 1, 0)) // End of current month
+            lte(transactions.endDate, new Date(currentYear, currentMonth + 1, 0).toISOString()) // End of current month
           )
         )
       );
@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
             eq(transactions.isFixed, true),
             // Check if transaction exists in current month
             and(
-              gte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth)),
-              lte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth, 23, 59, 59))
+              gte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth).toISOString()),
+              lte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth, 23, 59, 59).toISOString())
             )
           )
         )
@@ -78,12 +78,12 @@ export async function POST(request: NextRequest) {
           categoryId: recurring.categoryId,
           description: recurring.description,
           amount: recurring.amount,
-          date: transactionDate,
+          date: transactionDate.toISOString(),
           isFixed: true,
           endDate: recurring.endDate,
           createdBy: recurring.userId,
-          createdAt: now,
-          updatedAt: now,
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
         });
 
         createdCount++;

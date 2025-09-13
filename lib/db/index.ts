@@ -18,6 +18,4 @@ const connection = postgres(process.env.DATABASE_URL, {
   prepare: !isDev,
 });
 
-console.log(`Database connected: ${process.env.DATABASE_URL}`);
-
 export const db = drizzle(connection, { schema });

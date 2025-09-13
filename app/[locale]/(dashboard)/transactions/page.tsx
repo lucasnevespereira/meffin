@@ -195,7 +195,7 @@ export default function TransactionsPage() {
             categoryId: editingTransaction.categoryId,
             date: new Date(editingTransaction.date),
             isFixed: editingTransaction.isFixed,
-            isPrivate: editingTransaction.isPrivate,
+            isPrivate: editingTransaction.isPrivate || false,
             dayOfMonth: new Date(editingTransaction.date).getDate(),
             repeatType: getRepeatTypeFromTransaction(editingTransaction),
             customEndDate: editingTransaction.endDate ? new Date(editingTransaction.endDate) : undefined,
