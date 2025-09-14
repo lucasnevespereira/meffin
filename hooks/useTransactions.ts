@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { TransactionWithCategory, TransactionFormData } from '@/types';
 import { useI18n } from '@/locales/client';
@@ -132,8 +132,8 @@ export function useTransactions(month?: number, year?: number) {
     queryKey: ['transactions', month, year],
     queryFn: () => fetchTransactions(month, year),
     staleTime: 0, // Reduced stale time for debugging
-    cacheTime: 30 * 1000, // 30 seconds cache time
-  });
+    gcTime: 30 * 1000, // 30 seconds garbage collection time
+  }) as UseQueryResult<{ transactions: TransactionWithCategory[] }>;
 }
 
 export function useAnnualTransactions() {
@@ -141,7 +141,7 @@ export function useAnnualTransactions() {
     queryKey: ['transactions', 'annual'],
     queryFn: fetchAnnualTransactions,
     staleTime: 5 * 60 * 1000, // 5 minutes
-  });
+  }) as UseQueryResult<{ transactions: TransactionWithCategory[] }>;
 }
 
 export function useCreateTransaction() {

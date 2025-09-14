@@ -118,9 +118,9 @@ export default function TransactionsPage() {
     );
   }
 
-  const allTransactions = transactionsData?.transactions || [];
-  const allAnnualTransactions = annualTransactionsData?.transactions || [];
-  const categories = categoriesData?.categories || [];
+  const allTransactions = transactionsData?.transactions ?? [];
+  const allAnnualTransactions = annualTransactionsData?.transactions ?? [];
+  const categories = categoriesData?.categories ?? [];
 
   // Filter transactions based on type
   const monthlyTransactions = allTransactions.filter(transaction =>
