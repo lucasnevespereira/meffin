@@ -82,7 +82,7 @@ export function AnnualTransactionList({
               {hasPartner ? t('transactions_our_annual') : t('transactions_my_annual')}
             </h2>
             <div className="px-2 md:px-3 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800">
-              {transactions.length} {t('transaction_annual') || 'annual'} transaction{transactions.length > 1 ? 's' : ''}
+              {transactions.length} transaction{transactions.length > 1 ? 's' : ''}
             </div>
           </div>
 
@@ -108,16 +108,14 @@ export function AnnualTransactionList({
                         {transaction.description}
                       </div>
                       <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
-                        <div className="flex items-center gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                           <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
                           <div className="flex items-center gap-1 shrink-0">
                             <Calendar className="h-3 w-3" />
-                            <span>{t('transaction_renews_in') || 'Renews in'} {renewalMonth}</span>
+                            <span className="text-blue-600 dark:text-blue-400 font-medium">
+                              {t('transaction_renews_in') || 'Renews in'} {renewalMonth}
+                            </span>
                           </div>
-                        </div>
-                        <div className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                          <Calendar className="h-3 w-3" />
-                          <span className="font-medium">{t('transaction_recurring_annual') || 'Annual'}</span>
                         </div>
                       </div>
                     </div>
@@ -137,7 +135,7 @@ export function AnnualTransactionList({
                           size="sm"
                           variant="ghost"
                           onClick={() => onEdit(transaction)}
-                          className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                          className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary cursor-pointer"
                         >
                           <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
                         </Button>
@@ -146,7 +144,7 @@ export function AnnualTransactionList({
                           variant="ghost"
                           onClick={() => handleDeleteClick(transaction.id)}
                           disabled={isDeleting}
-                          className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                          className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                         >
                           <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
                         </Button>
@@ -169,11 +167,11 @@ export function AnnualTransactionList({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer">{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 cursor-pointer disabled:cursor-not-allowed"
             >
               {isDeleting ? (t('transaction_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
             </AlertDialogAction>

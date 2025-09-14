@@ -158,7 +158,7 @@ export function TransactionList({
                           🔒 {t('transaction_private_placeholder') || 'Private transaction'}
                         </div>
                         <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                             <span className="truncate italic">{t('transaction_private_category') || 'Private category'}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <Calendar className="h-3 w-3" />
@@ -177,7 +177,7 @@ export function TransactionList({
                       <>
                         <div className="font-semibold text-sm md:text-base truncate">{transaction.description}</div>
                         <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
-                          <div className="flex items-center gap-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                             <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
                             <div className="flex items-center gap-1 shrink-0">
                               <Calendar className="h-3 w-3" />
