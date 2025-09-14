@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, ClipboardList, CheckCircle2, Circle, ShoppingCart } from 'lucide-react';
+import { Plus, ClipboardList, Circle, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 import { useFormatCurrency } from '@/lib/currency-utils';
 import { useLists, useCreateList, useUpdateList } from '@/hooks/useLists';
+import { useCategories } from '@/hooks/useCategories';
 import { ListForm, ListFormData } from '@/components/forms/ListForm';
 import { ListWithItems } from '@/types';
 import Link from 'next/link';
@@ -20,6 +21,7 @@ export default function ListsPage() {
   const { data: session } = useSession();
   const formatCurrency = useFormatCurrency();
   const { data: listsData, isLoading, error } = useLists();
+  const { data: categoriesData } = useCategories();
   const createListMutation = useCreateList();
   const updateListMutation = useUpdateList();
 
@@ -31,10 +33,6 @@ export default function ListsPage() {
     setIsListFormOpen(true);
   };
 
-  const handleEditList = (list: ListWithItems) => {
-    setEditingList(list);
-    setIsListFormOpen(true);
-  };
 
   const handleSubmitList = (data: ListFormData) => {
     if (editingList) {
@@ -252,6 +250,7 @@ export default function ListsPage() {
         isOpen={isListFormOpen}
         onClose={handleCloseListForm}
         onSubmit={handleSubmitList}
+        categories={categoriesData?.categories || []}
         initialData={editingList || undefined}
         mode={editingList ? 'edit' : 'create'}
         isSubmitting={createListMutation.isPending || updateListMutation.isPending}

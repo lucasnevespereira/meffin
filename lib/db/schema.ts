@@ -104,6 +104,7 @@ export const lists = pgTable('lists', {
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   color: varchar('color', { length: 7 }).default('#3B82F6').notNull(), // Default blue color
+  categoryId: text('category_id'), // Default category for items in this list
   isShared: boolean('is_shared').default(false).notNull(), // Shared with partner
   createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),

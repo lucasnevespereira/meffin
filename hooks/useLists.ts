@@ -242,7 +242,7 @@ export function useCreateList() {
     mutationFn: createList,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
-      toast.success('List created successfully!');
+      toast.success(t('lists_create_success') || 'List created successfully!');
     },
     onError: (error: Error) => {
       console.error('Create list error:', error);
@@ -261,7 +261,7 @@ export function useUpdateList() {
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.id] });
-      toast.success('List updated successfully!');
+      toast.success(t('lists_update_success') || 'List updated successfully!');
     },
     onError: (error: Error) => {
       console.error('Update list error:', error);
@@ -279,7 +279,7 @@ export function useDeleteList() {
     mutationFn: deleteList,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
-      toast.success('List deleted successfully!');
+      toast.success(t('lists_delete_success') || 'List deleted successfully!');
     },
     onError: (error: Error) => {
       console.error('Delete list error:', error);
@@ -298,7 +298,7 @@ export function useCreateListItem() {
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
-      toast.success('Item added successfully!');
+      toast.success(t('lists_item_add_success') || 'Item added successfully!');
     },
     onError: (error: Error) => {
       console.error('Create item error:', error);
@@ -318,7 +318,7 @@ export function useUpdateListItem() {
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
-      toast.success('Item updated successfully!');
+      toast.success(t('lists_item_update_success') || 'Item updated successfully!');
     },
     onError: (error: Error) => {
       console.error('Update item error:', error);
@@ -338,7 +338,7 @@ export function useDeleteListItem() {
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
-      toast.success('Item deleted successfully!');
+      toast.success(t('lists_item_delete_success') || 'Item deleted successfully!');
     },
     onError: (error: Error) => {
       console.error('Delete item error:', error);

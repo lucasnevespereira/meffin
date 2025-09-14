@@ -1,19 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { lists, listItems, categories, users, transactions } from '@/lib/db/schema';
+import { lists, listItems, users, categories } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc, or, and } from 'drizzle-orm';
+import { eq, and, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
-
 const createItemSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   estimatedPrice: z.number().positive().optional(),
   categoryId: z.string().min(1, 'Category ID is required'),
-});
-
-const checkItemSchema = z.object({
-  actualPrice: z.number().positive().optional(),
 });
 
 export async function POST(

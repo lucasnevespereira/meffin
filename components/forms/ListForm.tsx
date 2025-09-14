@@ -16,12 +16,21 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ListWithItems } from '@/types';
+import { ListWithItems, Category } from '@/types';
+import { getCategoryDisplayName } from '@/lib/category-utils';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface ListFormProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: ListFormData) => void;
+  categories: Category[];
   initialData?: Partial<ListWithItems>;
   mode?: 'create' | 'edit';
   isSubmitting?: boolean;
@@ -32,6 +41,7 @@ export interface ListFormData {
   description?: string;
   color: string;
   isShared: boolean;
+  categoryId: string;
 }
 
 const LIST_COLORS = [
@@ -51,6 +61,7 @@ export function ListForm({
   isOpen,
   onClose,
   onSubmit,
+  categories,
   initialData,
   mode = 'create',
   isSubmitting = false,
@@ -62,6 +73,7 @@ export function ListForm({
     description: z.string().optional(),
     color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
     isShared: z.boolean(),
+    categoryId: z.string().min(1, 'Category is required'),
   });
 
   const {
@@ -78,6 +90,7 @@ export function ListForm({
       description: initialData?.description || '',
       color: initialData?.color || LIST_COLORS[0],
       isShared: initialData?.isShared || false,
+      categoryId: initialData?.categoryId || '',
     },
   });
 
@@ -90,6 +103,7 @@ export function ListForm({
         description: initialData.description || '',
         color: initialData.color || LIST_COLORS[0],
         isShared: initialData.isShared || false,
+        categoryId: initialData.categoryId || '',
       });
     } else if (isOpen && !initialData) {
       reset({
@@ -97,6 +111,7 @@ export function ListForm({
         description: '',
         color: LIST_COLORS[0],
         isShared: false,
+        categoryId: '',
       });
     }
   }, [isOpen, initialData, reset]);
@@ -172,6 +187,42 @@ export function ListForm({
                 />
               ))}
             </div>
+          </div>
+
+          {/* Default Category */}
+          <div className="space-y-2">
+            <Label htmlFor="categoryId">
+              {t('lists_form_category') || 'Category'} *
+            </Label>
+            <Select
+              value={watch('categoryId') || ''}
+              onValueChange={(value) => setValue('categoryId', value)}
+            >
+              <SelectTrigger className={errors.categoryId ? 'border-red-500' : ''}>
+                <SelectValue placeholder={t('lists_form_category_placeholder') || 'Select a category...'} />
+              </SelectTrigger>
+              <SelectContent>
+                {categories && categories
+                  .filter(cat => cat.type === 'expense')
+                  .map((category) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <div className="flex items-center gap-2">
+                        <div
+                          className="w-3 h-3 rounded-full"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        {getCategoryDisplayName(category, t)}
+                      </div>
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+            {errors.categoryId && (
+              <p className="text-sm text-red-500">{errors.categoryId.message}</p>
+            )}
+            <p className="text-xs text-muted-foreground">
+              {t('lists_form_category_description') || 'Items added to this list will use this category by default'}
+            </p>
           </div>
 
           {/* Shared */}

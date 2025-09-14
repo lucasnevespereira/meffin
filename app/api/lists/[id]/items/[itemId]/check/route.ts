@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { lists, listItems, categories, users, transactions } from '@/lib/db/schema';
+import { lists, listItems, users, transactions } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc, or, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 
 const checkItemSchema = z.object({
@@ -83,7 +83,7 @@ export async function POST(
           userId: list.userId, // Use list owner as transaction owner
           createdBy: session.user.id,
           categoryId: item.categoryId,
-          description: `${item.name} (from ${list.title})`,
+          description: item.name,
           amount: amount.toString(),
           date: new Date().toISOString(),
           isFixed: false,

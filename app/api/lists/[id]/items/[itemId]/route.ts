@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { lists, listItems, categories, users, transactions } from '@/lib/db/schema';
+import { lists, listItems, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc, or, and } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
 
 const updateItemSchema = z.object({
@@ -11,9 +11,6 @@ const updateItemSchema = z.object({
   categoryId: z.string().min(1, 'Category ID is required'),
 });
 
-const checkItemSchema = z.object({
-  actualPrice: z.number().positive().optional(),
-});
 
 export async function PUT(
   request: NextRequest,

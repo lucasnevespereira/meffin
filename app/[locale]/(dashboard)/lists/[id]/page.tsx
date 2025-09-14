@@ -1,13 +1,23 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
-import { Plus, Check, Edit, ArrowLeft, ShoppingCart, Circle } from 'lucide-react';
+import { useParams, useRouter } from 'next/navigation';
+import { Plus, Check, Edit, ArrowLeft, Circle, User, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 import { useFormatCurrency } from '@/lib/currency-utils';
@@ -29,6 +39,7 @@ import { ListItemWithCategory } from '@/types';
 export default function ListDetailPage() {
   const t = useI18n();
   const params = useParams();
+  const router = useRouter();
   const listId = params.id as string;
   const locale = params.locale as string;
 
@@ -38,13 +49,16 @@ export default function ListDetailPage() {
   const { data: listData, isLoading, error } = useList(listId);
   const { data: categoriesData } = useCategories();
   const updateListMutation = useUpdateList();
+  const deleteListMutation = useDeleteList();
   const createItemMutation = useCreateListItem();
   const updateItemMutation = useUpdateListItem();
   const toggleItemMutation = useToggleListItem();
+  const deleteItemMutation = useDeleteListItem();
 
   const [isEditingList, setIsEditingList] = useState(false);
   const [isItemFormOpen, setIsItemFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ListItemWithCategory | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const list = listData?.list;
 
@@ -124,10 +138,6 @@ export default function ListDetailPage() {
     setIsItemFormOpen(true);
   };
 
-  const handleEditItem = (item: ListItemWithCategory) => {
-    setEditingItem(item);
-    setIsItemFormOpen(true);
-  };
 
   const handleSubmitItem = (data: ListItemFormData) => {
     if (editingItem) {
@@ -157,32 +167,50 @@ export default function ListDetailPage() {
     setEditingItem(null);
   };
 
+  const handleDeleteItem = (itemId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent triggering the toggle
+    deleteItemMutation.mutate({ listId, itemId });
+  };
+
+  const handleDeleteList = () => {
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDeleteList = () => {
+    deleteListMutation.mutate(listId, {
+      onSuccess: () => {
+        router.push(`/${locale}/lists`);
+      },
+    });
+  };
+
   const progress = list.itemCount > 0 ? (list.checkedCount / list.itemCount) * 100 : 0;
 
   return (
     <div className="space-y-4 md:space-y-6">
       {/* Header */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <Link href={`/${locale}/lists`}>
-          <Button variant="ghost" size="sm" className="cursor-pointer">
+          <Button variant="ghost" size="sm" className="cursor-pointer p-2">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
         <div
-          className="w-4 h-4 rounded-full shrink-0"
+          className="w-3 h-3 rounded-full shrink-0"
           style={{ backgroundColor: list.color }}
         />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight truncate">
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl md:text-2xl font-bold tracking-tight truncate">
               {list.title}
             </h1>
             {list.isShared && (
-              <Badge variant="secondary">👥 Shared</Badge>
+              <Badge variant="secondary" className="text-xs px-2 py-0.5 hidden sm:inline-flex">👥 Shared</Badge>
             )}
           </div>
+          {/* Show description only on larger screens */}
           {list.description && (
-            <p className="text-muted-foreground">{list.description}</p>
+            <p className="text-muted-foreground text-sm hidden md:block truncate">{list.description}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -190,56 +218,53 @@ export default function ListDetailPage() {
             variant="outline"
             size="sm"
             onClick={() => setIsEditingList(true)}
-            className="cursor-pointer"
+            className="cursor-pointer p-2 hidden sm:inline-flex"
           >
             <Edit className="h-4 w-4" />
           </Button>
           <Button
-            onClick={handleAddItem}
-            className="cursor-pointer"
+            variant="outline"
+            size="sm"
+            onClick={handleDeleteList}
+            className="cursor-pointer p-2 hidden sm:inline-flex hover:bg-destructive/10 hover:text-destructive"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('lists_detail_add_item') || 'Add Item'}
+            <Trash2 className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={handleAddItem}
+            disabled={!list.categoryId}
+            className="cursor-pointer text-sm px-3 py-2 disabled:cursor-not-allowed"
+            size="sm"
+          >
+            <Plus className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">{t('lists_detail_add_item') || 'Add Item'}</span>
           </Button>
         </div>
       </div>
 
       {/* Progress Overview */}
       <Card>
-        <CardContent className="p-4 md:p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-                <Circle className="h-4 w-4" />
-                <span className="font-medium">{t('lists_detail_progress') || 'Progress'}</span>
+        <CardContent className="p-4">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                {t('lists_detail_progress') || 'Progress'}
               </div>
-              <div className="text-2xl font-bold">
-                {list.checkedCount}/{list.itemCount}
-              </div>
-              <div className="w-full bg-muted/50 rounded-full h-2 mt-2">
-                <div
-                  className="h-2 rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
-                  style={{ width: `${progress}%` }}
-                />
+              <div className="text-sm font-medium">
+                {list.checkedCount}/{list.itemCount} {t('items') || 'items'}
               </div>
             </div>
-
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-                <Circle className="h-4 w-4" />
-                <span className="font-medium">{t('lists_detail_remaining') || 'Remaining'}</span>
-              </div>
-              <div className="text-2xl font-bold">
-                {list.itemCount - list.checkedCount}
-              </div>
+            <div className="w-full bg-muted/50 rounded-full h-2">
+              <div
+                className="h-2 rounded-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              />
             </div>
-
-            <div className="text-center">
-              <div className="flex items-center justify-center gap-2 text-muted-foreground mb-2">
-                <ShoppingCart className="h-4 w-4" />
-                <span className="font-medium">{t('lists_detail_estimated_total') || 'Estimated Total'}</span>
+            <div className="flex items-center justify-between text-sm">
+              <div className="text-muted-foreground">
+                {list.itemCount - list.checkedCount} {t('lists_detail_remaining') || 'remaining'}
               </div>
-              <div className="text-2xl font-bold">
+              <div className="font-medium">
                 {formatCurrency(list.totalEstimatedPrice)}
               </div>
             </div>
@@ -247,65 +272,105 @@ export default function ListDetailPage() {
         </CardContent>
       </Card>
 
+      {/* No Category Warning */}
+      {!list.categoryId && (
+        <Card>
+          <CardContent className="p-4">
+            <div className="text-center py-4">
+              <Circle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <h3 className="font-medium mb-2">{t('lists_no_category_title') || 'No Category Assigned'}</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                {t('lists_no_category_description') || 'This list needs a category before you can add items to it.'}
+              </p>
+              <Button
+                onClick={() => setIsEditingList(true)}
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {t('lists_assign_category') || 'Assign Category'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Items List */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <span>{t('lists_detail_items') || 'Items'}</span>
-            <span className="text-sm font-normal text-muted-foreground">
+      {list.categoryId && (
+        <Card>
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-lg">{t('lists_detail_items') || 'Items'}</CardTitle>
+            <span className="text-sm text-muted-foreground">
               {list.itemCount} {list.itemCount === 1
                 ? (t('lists_detail_item') || 'item')
                 : (t('lists_detail_items_plural') || 'items')
               }
             </span>
-          </CardTitle>
+          </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pt-0">
           {list.items && list.items.length > 0 ? (
             <div className="space-y-2">
               {list.items.map((item) => (
                 <div
                   key={item.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer hover:bg-muted/50 ${
+                  className={`flex items-start gap-3 p-4 rounded-lg transition-all cursor-pointer active:scale-[0.98] ${
                     item.isChecked
-                      ? 'bg-muted/20 border-muted text-muted-foreground'
-                      : 'border-border'
+                      ? 'bg-muted/10 opacity-75'
+                      : 'bg-card hover:bg-muted/10 active:bg-muted/20 shadow-sm hover:shadow-md'
                   }`}
                   onClick={() => handleToggleItem(item)}
                 >
                   <Checkbox
                     checked={item.isChecked}
-                    className="pointer-events-none"
+                    className="pointer-events-none shrink-0 h-6 w-6 mt-0.5"
                   />
-                  <div
-                    className="w-3 h-3 rounded-full shrink-0"
-                    style={{ backgroundColor: item.category?.color || '#6B7280' }}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className={`font-medium ${item.isChecked ? 'line-through' : ''}`}>
-                      {item.name}
-                    </p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {item.category && (
-                        <Badge variant="outline">
-                          {getCategoryDisplayName(item.category, t)}
-                        </Badge>
-                      )}
-                      {item.createdBy && (
-                        <span className="text-xs text-muted-foreground">
-                          {t('lists_item_created_by') || 'Created by'} {item.createdBy.name}
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-start justify-between gap-2">
+                      <p className={`font-medium leading-tight ${item.isChecked ? 'line-through text-muted-foreground' : ''}`}>
+                        {item.name}
+                      </p>
+                      {item.estimatedPrice && (
+                        <span className="text-sm font-semibold text-right shrink-0 text-primary">
+                          {formatCurrency(parseFloat(item.estimatedPrice))}
                         </span>
                       )}
                     </div>
-                  </div>
-                  {item.estimatedPrice && (
-                    <div className="text-sm font-medium">
-                      {formatCurrency(parseFloat(item.estimatedPrice))}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        {item.category && (
+                          <div className="flex items-center gap-1">
+                            <div
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: item.category?.color || '#6B7280' }}
+                            />
+                            <span>{getCategoryDisplayName(item.category, t)}</span>
+                          </div>
+                        )}
+                        {item.createdBy && (
+                          <div className="flex items-center gap-1">
+                            <User className="h-3 w-3" />
+                            <span>{item.createdBy.name}</span>
+                          </div>
+                        )}
+                      </div>
+                      {item.isChecked && (
+                        <div className="flex items-center gap-2">
+                          <Check className="h-4 w-4 text-primary shrink-0" />
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => handleDeleteItem(item.id, e)}
+                            className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  {item.isChecked && (
-                    <Check className="h-4 w-4 text-primary shrink-0" />
-                  )}
+                  </div>
                 </div>
               ))}
             </div>
@@ -321,27 +386,54 @@ export default function ListDetailPage() {
           )}
         </CardContent>
       </Card>
+      )}
 
       {/* List Edit Modal */}
       <ListForm
         isOpen={isEditingList}
         onClose={() => setIsEditingList(false)}
         onSubmit={handleUpdateList}
+        categories={categoriesData?.categories || []}
         initialData={list}
         mode="edit"
         isSubmitting={updateListMutation.isPending}
       />
 
-      {/* List Item Form Modal */}
-      <ListItemForm
-        isOpen={isItemFormOpen}
-        onClose={handleCloseItemForm}
-        onSubmit={handleSubmitItem}
-        categories={categoriesData?.categories || []}
-        initialData={editingItem || undefined}
-        mode={editingItem ? 'edit' : 'create'}
-        isSubmitting={createItemMutation.isPending || updateItemMutation.isPending}
-      />
+      {/* List Item Form Modal - Only show if list has a category */}
+      {list.categoryId && (
+        <ListItemForm
+          isOpen={isItemFormOpen}
+          onClose={handleCloseItemForm}
+          onSubmit={handleSubmitItem}
+          categories={categoriesData?.categories || []}
+          defaultCategoryId={list.categoryId}
+          initialData={editingItem || undefined}
+          mode={editingItem ? 'edit' : 'create'}
+          isSubmitting={createItemMutation.isPending || updateItemMutation.isPending}
+        />
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('lists_delete_title') || 'Delete List'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('lists_delete_confirmation') || 'Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDeleteList}
+              disabled={deleteListMutation.isPending}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground cursor-pointer disabled:cursor-not-allowed"
+            >
+              {deleteListMutation.isPending ? (t('lists_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

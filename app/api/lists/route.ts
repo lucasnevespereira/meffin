@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { lists, listItems, categories, users } from '@/lib/db/schema';
+import { lists, listItems, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, desc, or, and, sql } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
-import { Category } from '@/types';
 
 const createListSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   color: z.string().default('#3B82F6'),
+  categoryId: z.string().min(1, 'Category is required'),
   isShared: z.boolean().default(false),
 });
 
@@ -36,7 +35,6 @@ export async function GET(request: NextRequest) {
     }
 
     // Get lists from user and partner
-    const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
 
     type ListWithCreator = {
       list: typeof lists.$inferSelect;
@@ -127,6 +125,7 @@ export async function POST(request: NextRequest) {
       title: validatedData.title,
       description: validatedData.description || null,
       color: validatedData.color,
+      categoryId: validatedData.categoryId,
       isShared: validatedData.isShared,
     }).returning();
 

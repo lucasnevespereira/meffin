@@ -11,6 +11,7 @@ const updateListSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
   color: z.string().default('#3B82F6'),
+  categoryId: z.string().min(1, 'Category is required'),
   isShared: z.boolean().default(false),
 });
 
@@ -186,6 +187,7 @@ export async function PUT(
         title: validatedData.title,
         description: validatedData.description || null,
         color: validatedData.color,
+        categoryId: validatedData.categoryId,
         isShared: validatedData.isShared,
         updatedAt: new Date().toISOString(),
       })

@@ -9,13 +9,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
-import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -29,6 +22,7 @@ interface ListItemFormProps {
   onClose: () => void;
   onSubmit: (data: ListItemFormData) => void;
   categories: Category[];
+  defaultCategoryId: string;
   initialData?: Partial<ListItemWithCategory>;
   mode?: 'create' | 'edit';
   isSubmitting?: boolean;
@@ -45,6 +39,7 @@ export function ListItemForm({
   onClose,
   onSubmit,
   categories,
+  defaultCategoryId,
   initialData,
   mode = 'create',
   isSubmitting = false,
@@ -61,42 +56,36 @@ export function ListItemForm({
     register,
     handleSubmit,
     reset,
-    setValue,
-    watch,
     formState: { errors },
   } = useForm<ListItemFormData>({
     resolver: zodResolver(itemSchema),
     defaultValues: {
       name: initialData?.name || '',
       estimatedPrice: initialData?.estimatedPrice ? parseFloat(initialData.estimatedPrice) : undefined,
-      categoryId: initialData?.categoryId || '',
+      categoryId: initialData?.categoryId || defaultCategoryId,
     },
   });
-
-  const selectedCategoryId = watch('categoryId');
 
   useEffect(() => {
     if (isOpen && initialData) {
       reset({
         name: initialData.name || '',
         estimatedPrice: initialData.estimatedPrice ? parseFloat(initialData.estimatedPrice) : undefined,
-        categoryId: initialData.categoryId || '',
+        categoryId: initialData.categoryId || defaultCategoryId,
       });
     } else if (isOpen && !initialData) {
       reset({
         name: '',
         estimatedPrice: undefined,
-        categoryId: '',
+        categoryId: defaultCategoryId,
       });
     }
-  }, [isOpen, initialData, reset]);
+  }, [isOpen, initialData, defaultCategoryId, reset]);
 
   const handleFormSubmit = (data: ListItemFormData) => {
     onSubmit(data);
   };
 
-  // Separate income and expense categories
-  const expenseCategories = categories.filter(cat => cat.type === 'expense');
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -130,32 +119,25 @@ export function ListItemForm({
           {/* Category */}
           <div className="space-y-2">
             <Label>
-              {t('transaction_category') || 'Category'} *
+              {t('transaction_category') || 'Category'}
             </Label>
-            <Select
-              value={selectedCategoryId}
-              onValueChange={(value) => setValue('categoryId', value)}
-            >
-              <SelectTrigger className={errors.categoryId ? 'border-red-500' : ''}>
-                <SelectValue placeholder={t('transaction_select_category') || 'Select a category'} />
-              </SelectTrigger>
-              <SelectContent>
-                {expenseCategories.map((category) => (
-                  <SelectItem key={category.id} value={category.id}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: category.color }}
-                      />
-                      {getCategoryDisplayName(category, t)}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoryId && (
-              <p className="text-sm text-red-500">{errors.categoryId.message}</p>
-            )}
+            <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/10 text-sm">
+              {(() => {
+                const defaultCategory = categories.find(cat => cat.id === defaultCategoryId);
+                return defaultCategory ? (
+                  <>
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: defaultCategory.color }}
+                    />
+                    <span>{getCategoryDisplayName(defaultCategory, t)}</span>
+                    <span className="text-muted-foreground ml-auto">({t('lists_default_category') || 'List category'})</span>
+                  </>
+                ) : (
+                  <span className="text-muted-foreground">{t('lists_category_not_found') || 'Category not found'}</span>
+                );
+              })()}
+            </div>
           </div>
 
           {/* Estimated Price */}
