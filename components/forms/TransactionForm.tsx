@@ -483,14 +483,14 @@ export function TransactionForm({
               type="button"
               variant="outline"
               onClick={handleClose}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto order-2 sm:order-1 cursor-pointer"
             >
               {t('transaction_cancel')}
             </Button>
             <Button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto order-1 sm:order-2"
+              className="w-full sm:w-auto order-1 sm:order-2 cursor-pointer disabled:cursor-not-allowed"
             >
               {isSubmitting ? t('transaction_submitting') : (mode === 'create' ? t('transaction_submit_add') : t('transaction_submit_edit'))}
             </Button>

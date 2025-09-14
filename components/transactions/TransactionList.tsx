@@ -222,7 +222,7 @@ export function TransactionList({
                         size="sm"
                         variant="ghost"
                         onClick={() => onEdit(transaction)}
-                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary cursor-pointer"
                       >
                         <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
                       </Button>
@@ -231,7 +231,7 @@ export function TransactionList({
                         variant="ghost"
                         onClick={() => handleDeleteClick(transaction.id)}
                         disabled={isDeleting}
-                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                       >
                         <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
                       </Button>
@@ -253,11 +253,11 @@ export function TransactionList({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogCancel className="cursor-pointer">{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 cursor-pointer disabled:cursor-not-allowed"
             >
               {isDeleting ? (t('transaction_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
             </AlertDialogAction>

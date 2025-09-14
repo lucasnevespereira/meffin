@@ -17,7 +17,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           border: "1px solid var(--border)",
         },
       }}
-      position="top-right"
+      position="bottom-right"
       {...props}
     />
   )
