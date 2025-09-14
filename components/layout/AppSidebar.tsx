@@ -116,7 +116,7 @@ export function AppSidebar() {
                     className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group cursor-pointer ${
                       isActive(item.url)
                         ? 'bg-primary text-primary-foreground font-medium shadow-card'
-                        : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-subtle'
+                        : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground hover:shadow-subtle'
                     }`}
                   >
                     <Link
@@ -186,7 +186,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={handleSignOut}
-                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full rounded-lg transition-all duration-200 touch-manipulation group cursor-pointer"
+                    className="text-muted-foreground hover:bg-sidebar-accent hover:text-foreground w-full rounded-lg transition-all duration-200 touch-manipulation group cursor-pointer"
                   >
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
                       <LogOut className="h-4 w-4 transition-colors duration-200 text-muted-foreground group-hover:text-foreground" />

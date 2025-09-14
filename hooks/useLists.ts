@@ -389,6 +389,7 @@ export function useToggleListItem() {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
 
       if (result.transactionCreated) {
         toast.success(t('lists_item_checked_transaction_created') || 'Item checked and transaction created!');
