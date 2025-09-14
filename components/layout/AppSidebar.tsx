@@ -131,7 +131,7 @@ export function AppSidebar() {
                       <item.icon className={`h-5 w-5 transition-all duration-200 group-hover:scale-110 ${
                         isActive(item.url)
                           ? 'text-primary-foreground'
-                          : 'text-sidebar-foreground group-hover:text-sidebar-accent-foreground'
+                          : 'text-muted-foreground group-hover:text-foreground'
                       }`} />
                       <span className="text-sm font-medium">{item.title}</span>
                     </Link>
@@ -189,7 +189,7 @@ export function AppSidebar() {
                     className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full rounded-lg transition-all duration-200 touch-manipulation group cursor-pointer"
                   >
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
-                      <LogOut className="h-4 w-4 transition-colors duration-200 text-sidebar-foreground group-hover:text-sidebar-accent-foreground" />
+                      <LogOut className="h-4 w-4 transition-colors duration-200 text-muted-foreground group-hover:text-foreground" />
                       <span className="text-sm font-medium">{t('nav_signOut')}</span>
                     </div>
                   </SidebarMenuButton>
