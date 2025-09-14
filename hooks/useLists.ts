@@ -129,7 +129,7 @@ async function deleteList(id: string): Promise<{ success: boolean }> {
 // Create list item
 async function createListItem(listId: string, data: {
   name: string;
-  estimatedPrice?: string;
+  estimatedPrice?: number;
   categoryId?: string;
   notes?: string;
 }): Promise<{ item: ListItemWithCategory }> {
@@ -153,7 +153,7 @@ async function createListItem(listId: string, data: {
 // Update list item
 async function updateListItem(listId: string, itemId: string, data: {
   name?: string;
-  estimatedPrice?: string;
+  estimatedPrice?: number;
   categoryId?: string;
   notes?: string;
 }): Promise<{ item: ListItemWithCategory }> {
@@ -306,7 +306,7 @@ export function useCreateListItem() {
       listId: string;
       data: {
         name: string;
-        estimatedPrice?: string;
+        estimatedPrice?: number;
         categoryId?: string;
         notes?: string;
       }
@@ -334,7 +334,7 @@ export function useUpdateListItem() {
       itemId: string;
       data: {
         name?: string;
-        estimatedPrice?: string;
+        estimatedPrice?: number;
         categoryId?: string;
         notes?: string;
       }

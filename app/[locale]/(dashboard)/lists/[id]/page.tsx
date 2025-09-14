@@ -140,15 +140,9 @@ export default function ListDetailPage() {
 
 
   const handleSubmitItem = (data: ListItemFormData) => {
-    // Transform the data to match API expectations
-    const apiData = {
-      ...data,
-      estimatedPrice: data.estimatedPrice?.toString(),
-    };
-
     if (editingItem) {
       updateItemMutation.mutate(
-        { listId, itemId: editingItem.id, data: apiData },
+        { listId, itemId: editingItem.id, data },
         {
           onSuccess: () => {
             setIsItemFormOpen(false);
@@ -158,7 +152,7 @@ export default function ListDetailPage() {
       );
     } else {
       createItemMutation.mutate(
-        { listId, data: apiData },
+        { listId, data },
         {
           onSuccess: () => {
             setIsItemFormOpen(false);
