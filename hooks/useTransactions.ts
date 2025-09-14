@@ -131,8 +131,7 @@ export function useTransactions(month?: number, year?: number) {
   return useQuery({
     queryKey: ['transactions', month, year],
     queryFn: () => fetchTransactions(month, year),
-    staleTime: 0, // Reduced stale time for debugging
-    gcTime: 30 * 1000, // 30 seconds garbage collection time
+    staleTime: 5 * 60 * 1000, // 5 minutes
   }) as UseQueryResult<{ transactions: TransactionWithCategory[] }>;
 }
 

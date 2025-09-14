@@ -31,19 +31,9 @@ export async function GET(request: NextRequest) {
     const year = url.searchParams.get('year') || new Date().getFullYear().toString();
     const isAnnualQuery = url.searchParams.get('annual') === 'true';
 
-    const startDate = new Date(parseInt(year), parseInt(month), 1);
-    const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59);
+    const startDate = new Date(parseInt(year), parseInt(month), 1, 0, 0, 0, 0);
+    const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59, 999);
 
-    // Debug logging for production
-    console.log('Transaction query parameters:', {
-      month,
-      year,
-      isAnnualQuery,
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-      currentDate: new Date().toISOString(),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    });
 
     // Get user and partner info
     const user = await db.select({
@@ -190,13 +180,6 @@ export async function GET(request: NextRequest) {
       }
     }));
 
-    // Debug logging for transactions found
-    console.log('Transactions found:', {
-      totalUserTransactions: userTransactions.length,
-      transactionIds: userTransactions.map(t => t.transaction.id),
-      transactionDates: userTransactions.map(t => t.transaction.date),
-      isAnnualQuery
-    });
 
     return NextResponse.json({ transactions: transactionsWithCategories });
   } catch (error) {
@@ -251,21 +234,7 @@ export async function POST(request: NextRequest) {
       endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
     };
 
-    // Debug logging for transaction creation
-    console.log('Creating transaction:', {
-      ...transactionData,
-      currentDate: new Date().toISOString(),
-      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-    });
-
     const [newTransaction] = await db.insert(transactions).values(transactionData).returning();
-
-    console.log('Transaction created successfully:', {
-      id: newTransaction.id,
-      date: newTransaction.date,
-      amount: newTransaction.amount,
-      description: newTransaction.description
-    });
 
     return NextResponse.json({ transaction: newTransaction });
   } catch (error) {

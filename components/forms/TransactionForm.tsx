@@ -165,16 +165,17 @@ export function TransactionForm({
     }
 
     // Convert dayOfMonth to actual date (for annual, use specified month; for others, use current month)
+    // Use noon (12:00) to avoid timezone shifting issues when converting to ISO string
     const now = new Date();
     let targetDate: Date;
 
     if (data.repeatType === 'annual') {
       // For annual transactions, use the specified month and day
       const month = data.monthOfYear !== undefined ? data.monthOfYear : now.getMonth();
-      targetDate = new Date(now.getFullYear(), month, data.dayOfMonth);
+      targetDate = new Date(now.getFullYear(), month, data.dayOfMonth, 12, 0, 0, 0);
     } else {
       // For other recurring transactions, use current month
-      targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth);
+      targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth, 12, 0, 0, 0);
     }
 
     // Calculate end date based on repeat type
@@ -189,9 +190,10 @@ export function TransactionForm({
         };
 
         const months = monthsMap[data.repeatType];
-        endDate = new Date(now.getFullYear(), now.getMonth() + months, data.dayOfMonth);
+        endDate = new Date(now.getFullYear(), now.getMonth() + months, data.dayOfMonth, 12, 0, 0, 0);
       } else if (data.repeatType === 'until' && data.customEndDate) {
-        endDate = data.customEndDate;
+        // Set end date to noon to avoid timezone issues
+        endDate = new Date(data.customEndDate.getFullYear(), data.customEndDate.getMonth(), data.customEndDate.getDate(), 12, 0, 0, 0);
       }
     }
 
