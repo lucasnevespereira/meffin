@@ -77,11 +77,11 @@ export function AnnualTransactionList({
     <>
       <div className="rounded-xl border border-border bg-card shadow-card">
         <div className="p-4 md:p-6">
-          <div className="flex items-center justify-between mb-4 md:mb-6">
-            <h2 className="text-lg md:text-xl font-bold tracking-tight">
+          <div className="flex items-center justify-between mb-4 md:mb-6 gap-3">
+            <h2 className="text-lg md:text-xl font-bold tracking-tight min-w-0 flex-1">
               {hasPartner ? t('transactions_our_annual') : t('transactions_my_annual')}
             </h2>
-            <div className="px-2 md:px-3 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800">
+            <div className="px-2 md:px-3 py-1 rounded-full text-xs font-medium border bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/50 dark:text-blue-400 dark:border-blue-800 whitespace-nowrap shrink-0">
               {transactions.length} transaction{transactions.length > 1 ? 's' : ''}
             </div>
           </div>
