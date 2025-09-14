@@ -107,7 +107,7 @@ export function AppSidebar() {
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton
                     asChild
-                    className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group ${
+                    className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group cursor-pointer ${
                       isActive(item.url)
                         ? 'bg-primary text-primary-foreground font-medium shadow-card'
                         : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground hover:shadow-subtle'
@@ -122,8 +122,10 @@ export function AppSidebar() {
                         }
                       }}
                     >
-                      <item.icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                        isActive(item.url) ? 'text-primary-foreground' : ''
+                      <item.icon className={`h-5 w-5 transition-all duration-200 group-hover:scale-110 ${
+                        isActive(item.url)
+                          ? 'text-primary-foreground'
+                          : 'text-sidebar-foreground group-hover:text-sidebar-accent-foreground'
                       }`} />
                       <span className="text-sm font-medium">{item.title}</span>
                     </Link>
@@ -143,7 +145,7 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     asChild
-                    className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group"
+                    className="hover:bg-sidebar-accent hover:text-sidebar-accent-foreground rounded-lg transition-all duration-200 touch-manipulation group cursor-pointer"
                   >
                     <Link
                       href={`/${locale}/profile`}
@@ -178,10 +180,10 @@ export function AppSidebar() {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={handleSignOut}
-                    className="text-sidebar-foreground hover:text-destructive hover:bg-destructive/10 w-full rounded-lg transition-all duration-200 touch-manipulation group"
+                    className="text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground w-full rounded-lg transition-all duration-200 touch-manipulation group cursor-pointer"
                   >
                     <div className="flex items-center gap-3 px-4 py-3 min-h-[48px]">
-                      <LogOut className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                      <LogOut className="h-4 w-4 transition-colors duration-200 text-sidebar-foreground group-hover:text-sidebar-accent-foreground" />
                       <span className="text-sm font-medium">{t('nav_signOut')}</span>
                     </div>
                   </SidebarMenuButton>
