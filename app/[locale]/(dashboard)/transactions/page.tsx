@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Calendar, TrendingUp } from 'lucide-react';
+import { Plus, Calendar, TrendingUp, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -20,9 +20,11 @@ import { usePartnerInfo } from '@/hooks/usePartner';
 import { TransactionFormData, TransactionWithCategory, RepeatType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function TransactionsPage() {
   const t = useI18n();
+  const queryClient = useQueryClient();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
   const [activeTab, setActiveTab] = useState('monthly');
@@ -96,6 +98,11 @@ export default function TransactionsPage() {
     setEditingTransaction(null);
   };
 
+  const handleRefreshTransactions = () => {
+    queryClient.invalidateQueries({ queryKey: ['transactions'] });
+    queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+  };
+
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -131,14 +138,24 @@ export default function TransactionsPage() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
           <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('transactions_subtitle')}</p>
         </div>
-        <Button
-          onClick={() => setIsFormOpen(true)}
-          className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto"
-          disabled={isLoadingCategories || categories.length === 0}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          {t('transactions_add_button')}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handleRefreshTransactions}
+            variant="outline"
+            className="shadow-card hover:shadow-lg shrink-0"
+          >
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Refresh
+          </Button>
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto"
+            disabled={isLoadingCategories || categories.length === 0}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {t('transactions_add_button')}
+          </Button>
+        </div>
       </div>
 
       {/* Discrete view toggle */}

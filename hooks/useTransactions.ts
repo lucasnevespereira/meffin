@@ -131,7 +131,8 @@ export function useTransactions(month?: number, year?: number) {
   return useQuery({
     queryKey: ['transactions', month, year],
     queryFn: () => fetchTransactions(month, year),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Reduced stale time for debugging
+    cacheTime: 30 * 1000, // 30 seconds cache time
   });
 }
 
