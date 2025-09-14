@@ -257,7 +257,15 @@ export function useUpdateList() {
   const t = useI18n();
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: any }) => updateList(id, data),
+    mutationFn: ({ id, data }: {
+      id: string;
+      data: {
+        title?: string;
+        description?: string;
+        color?: string;
+        isShared?: boolean;
+      }
+    }) => updateList(id, data),
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.id] });
@@ -294,7 +302,15 @@ export function useCreateListItem() {
   const t = useI18n();
 
   return useMutation({
-    mutationFn: ({ listId, data }: { listId: string; data: any }) => createListItem(listId, data),
+    mutationFn: ({ listId, data }: {
+      listId: string;
+      data: {
+        name: string;
+        estimatedPrice?: string;
+        categoryId?: string;
+        notes?: string;
+      }
+    }) => createListItem(listId, data),
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
@@ -313,8 +329,16 @@ export function useUpdateListItem() {
   const t = useI18n();
 
   return useMutation({
-    mutationFn: ({ listId, itemId, data }: { listId: string; itemId: string; data: any }) =>
-      updateListItem(listId, itemId, data),
+    mutationFn: ({ listId, itemId, data }: {
+      listId: string;
+      itemId: string;
+      data: {
+        name?: string;
+        estimatedPrice?: string;
+        categoryId?: string;
+        notes?: string;
+      }
+    }) => updateListItem(listId, itemId, data),
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
@@ -353,8 +377,14 @@ export function useToggleListItem() {
   const t = useI18n();
 
   return useMutation({
-    mutationFn: ({ listId, itemId, data }: { listId: string; itemId: string; data: any }) =>
-      toggleListItem(listId, itemId, data),
+    mutationFn: ({ listId, itemId, data }: {
+      listId: string;
+      itemId: string;
+      data: {
+        isChecked: boolean;
+        actualPrice?: number;
+      }
+    }) => toggleListItem(listId, itemId, data),
     onSuccess: (result, variables) => {
       queryClient.invalidateQueries({ queryKey: ['lists'] });
       queryClient.invalidateQueries({ queryKey: ['lists', variables.listId] });
