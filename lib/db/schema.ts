@@ -96,6 +96,35 @@ export const transactions = pgTable('transactions', {
 });
 
 
+// Shopping lists table
+export const lists = pgTable('lists', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  color: varchar('color', { length: 7 }).default('#3B82F6').notNull(), // Default blue color
+  categoryId: text('category_id'), // Default category for items in this list
+  isShared: boolean('is_shared').default(false).notNull(), // Shared with partner
+  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
+});
+
+// Shopping list items table
+export const listItems = pgTable('list_items', {
+  id: text('id').primaryKey(),
+  listId: text('list_id').references(() => lists.id, { onDelete: 'cascade' }).notNull(),
+  createdBy: text('created_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  estimatedPrice: decimal('estimated_price', { precision: 10, scale: 2 }),
+  categoryId: text('category_id').notNull(), // Can be default ID or custom category ID
+  isChecked: boolean('is_checked').default(false).notNull(),
+  checkedAt: timestamp('checked_at', { mode: 'string' }), // When item was checked
+  transactionId: text('transaction_id').references(() => transactions.id, { onDelete: 'set null' }), // Link to created transaction
+  createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
+});
+
 // Partner invitations table
 export const partnerInvitations = pgTable('partner_invitations', {
   id: text('id').primaryKey(),
@@ -117,6 +146,8 @@ export const usersRelations = relations(users, ({ one, many }) => ({
   }),
   categories: many(categories),
   transactions: many(transactions),
+  lists: many(lists),
+  listItems: many(listItems),
   sentInvitations: many(partnerInvitations, { relationName: 'invitationSender' }),
   receivedInvitations: many(partnerInvitations, { relationName: 'invitationReceiver' }),
 }));
@@ -140,6 +171,34 @@ export const transactionsRelations = relations(transactions, ({ one }) => ({
   }),
 }));
 
+export const listsRelations = relations(lists, ({ one, many }) => ({
+  user: one(users, {
+    fields: [lists.userId],
+    references: [users.id],
+  }),
+  createdBy: one(users, {
+    fields: [lists.createdBy],
+    references: [users.id],
+    relationName: 'listCreator',
+  }),
+  items: many(listItems),
+}));
+
+export const listItemsRelations = relations(listItems, ({ one }) => ({
+  list: one(lists, {
+    fields: [listItems.listId],
+    references: [lists.id],
+  }),
+  createdBy: one(users, {
+    fields: [listItems.createdBy],
+    references: [users.id],
+    relationName: 'itemCreator',
+  }),
+  transaction: one(transactions, {
+    fields: [listItems.transactionId],
+    references: [transactions.id],
+  }),
+}));
 
 export const partnerInvitationsRelations = relations(partnerInvitations, ({ one }) => ({
   fromUser: one(users, {

@@ -14,7 +14,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { TransactionWithCategory } from '@/types';
-import { useI18n } from '@/locales/client';
+import { useI18n, useCurrentLocale } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { useFormatCurrency } from '@/lib/currency-utils';
 
@@ -38,7 +38,28 @@ export function AnnualTransactionList({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
   const t = useI18n();
+  const currentLocale = useCurrentLocale();
   const formatCurrency = useFormatCurrency();
+
+  const getTranslatedMonthName = (date: Date): string => {
+    const month = date.getMonth();
+    const monthKeys = [
+      'month_january', 'month_february', 'month_march', 'month_april',
+      'month_may', 'month_june', 'month_july', 'month_august',
+      'month_september', 'month_october', 'month_november', 'month_december'
+    ] as const;
+
+    const monthKey = monthKeys[month];
+    const translatedMonth = t(monthKey);
+
+    // If translation exists and is not the key itself, use it
+    if (translatedMonth && translatedMonth !== monthKey) {
+      return translatedMonth;
+    }
+
+    // Fallback to native date formatting
+    return date.toLocaleDateString(currentLocale === 'fr' ? 'fr-FR' : 'en-US', { month: 'long' });
+  };
 
   const handleDeleteClick = (id: string) => {
     setTransactionToDelete(id);
@@ -88,7 +109,7 @@ export function AnnualTransactionList({
 
           <div className="space-y-2 md:space-y-3">
             {transactions.map((transaction) => {
-              const renewalMonth = new Date(transaction.date).toLocaleDateString('en', { month: 'long' });
+              const renewalMonth = getTranslatedMonthName(new Date(transaction.date));
               const isIncome = transaction.category.type === 'income';
 
               return (

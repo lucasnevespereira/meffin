@@ -44,6 +44,7 @@ export default {
   // Navigation
   "nav_dashboard": "Dashboard",
   "nav_transactions": "Transactions",
+  "nav_lists": "Lists",
   "nav_categories": "Categories",
   "nav_profile": "My Profile",
   "nav_signOut": "Sign Out",
@@ -119,7 +120,7 @@ export default {
   "transaction_annual": "annual",
   "transactions_monthly": "Monthly",
   "transactions_annual": "Annual",
-  
+
   // Common
   "loading": "Loading...",
 
@@ -308,7 +309,7 @@ export default {
   "partner_shared_description": "All your transactions, categories and budget goals are now synchronized.",
   "partner_stop_sharing": "Stop sharing",
   "partner_no_partner_title": "No partner yet",
-  "partner_no_partner_description": "Invite your spouse to manage your budget together and see all shared transactions.",
+  "partner_no_partner_description": "Invite a partner to manage your budget together and see all shared transactions.",
   "partner_invite_button": "Invite a partner",
   "partner_invite_title": "Invite a partner",
   "partner_invite_description": "Search for a Meffin user by name or email to invite them to collaborate on your budget.",
@@ -342,5 +343,80 @@ export default {
 
   // Transaction Permissions
   "transaction_edit_permission_denied": "You can only edit transactions that you created",
-  "transaction_delete_permission_denied": "You can only delete transactions that you created"
+  "transaction_delete_permission_denied": "You can only delete transactions that you created",
+
+  // Lists Feature
+  "lists_title": "Lists",
+  "lists_subtitle": "Create lists for potential purchases and convert them to transactions",
+  "lists_create": "Create List",
+  "lists_create_first": "Create your first list",
+  "lists_empty_title": "No lists yet",
+  "lists_empty_description": "Create your first shopping list to start organizing your potential purchases.",
+  "lists_progress": "Progress",
+  "lists_remaining": "Remaining",
+  "lists_estimated": "Estimated",
+  "lists_updated": "Updated",
+  "lists_by": "by",
+  "items": "items",
+
+  // List Form
+  "lists_create_title": "Create New List",
+  "lists_edit_title": "Edit List",
+  "lists_form_title": "List Title",
+  "lists_form_title_placeholder": "e.g. Weekly Groceries, Birthday Ideas...",
+  "lists_form_description": "Description",
+  "lists_form_description_placeholder": "Brief description of this list...",
+  "lists_form_color": "Color",
+  "lists_form_shared": "Share with partner",
+  "lists_form_shared_description": "Allow your budget partner to see and edit this list",
+  "lists_form_category": "Default Category",
+  "lists_form_category_placeholder": "Select a default category...",
+  "lists_form_no_category": "No default category",
+  "lists_form_category_description": "Items added to this list will use this category by default",
+  "lists_default_category": "List category",
+  "lists_category_not_found": "Category not found",
+  "lists_delete_title": "Delete List",
+  "lists_delete_confirmation": "Are you sure you want to delete this list? This will also delete all items in the list. This action cannot be undone.",
+  "lists_deleting": "Deleting...",
+  "lists_no_category_title": "No Category Assigned",
+  "lists_no_category_description": "This list needs a category before you can add items to it.",
+  "lists_assign_category": "Assign Category",
+  "lists_create_success": "List created successfully!",
+  "lists_update_success": "List updated successfully!",
+  "lists_delete_success": "List deleted successfully!",
+  "lists_item_add_success": "Item added successfully!",
+  "lists_item_update_success": "Item updated successfully!",
+  "lists_item_delete_success": "Item deleted successfully!",
+  "lists_creating": "Creating...",
+  "lists_updating": "Updating...",
+  "common_optional": "optional",
+
+  // List Detail Page
+  "lists_detail_progress": "Progress",
+  "lists_detail_remaining": "Remaining",
+  "lists_detail_estimated_total": "Estimated Total",
+  "lists_detail_items": "Items",
+  "lists_detail_no_items": "No items in this list yet",
+  "lists_detail_add_first_item": "Add your first item",
+  "lists_detail_add_item": "Add Item",
+  "lists_detail_item": "item",
+  "lists_detail_items_plural": "items",
+
+  // List Item Form
+  "lists_item_create_title": "Add New Item",
+  "lists_item_edit_title": "Edit Item",
+  "lists_item_name": "Item Name",
+  "lists_item_name_placeholder": "e.g. Milk, Bread, Gift for John...",
+  "lists_item_estimated_price": "Estimated Price",
+  "lists_item_add": "Add Item",
+  "lists_item_creating": "Adding...",
+  "lists_item_updating": "Updating...",
+
+  // Toast notifications
+  "lists_item_checked_transaction_created": "Item checked and transaction created!",
+  "lists_item_unchecked_transaction_deleted": "Item unchecked and transaction removed!",
+  "lists_item_updated_successfully": "Item updated successfully!",
+
+  // Item creator info
+  "lists_item_created_by": "Created by"
 } as const;
