@@ -8,6 +8,7 @@ import {
   Tag,
   LogOut,
   CreditCard,
+  ClipboardList,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -66,6 +67,11 @@ export function AppSidebar() {
       title: t('nav_categories'),
       url: `/${locale}/categories`,
       icon: Tag,
+    },
+    {
+      title: t('nav_lists'),
+      url: `/${locale}/lists`,
+      icon: ClipboardList,
     },
   ];
 

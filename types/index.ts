@@ -1,5 +1,5 @@
 import type { InferSelectModel, InferInsertModel } from 'drizzle-orm';
-import type { users, categories, transactions } from '@/lib/db/schema';
+import type { users, categories, transactions, lists, listItems } from '@/lib/db/schema';
 
 // Database model types
 export type User = InferSelectModel<typeof users>;
@@ -22,6 +22,12 @@ export type NewCategory = InferInsertModel<typeof categories>;
 export type Transaction = InferSelectModel<typeof transactions>;
 export type NewTransaction = InferInsertModel<typeof transactions>;
 
+export type List = InferSelectModel<typeof lists>;
+export type NewList = InferInsertModel<typeof lists>;
+
+export type ListItem = InferSelectModel<typeof listItems>;
+export type NewListItem = InferInsertModel<typeof listItems>;
+
 // Extended types with relations
 export type TransactionWithCategory = Transaction & {
   category: Category;
@@ -34,6 +40,26 @@ export type TransactionWithCategory = Transaction & {
 
 export type CategoryWithTransactions = Category & {
   transactions: Transaction[];
+};
+
+// Extended types for lists
+export type ListWithItems = List & {
+  items: ListItemWithCategory[];
+  createdBy?: {
+    id: string;
+    name: string;
+  };
+  itemCount: number;
+  checkedCount: number;
+  totalEstimatedPrice: number;
+};
+
+export type ListItemWithCategory = ListItem & {
+  category: Category;
+  createdBy?: {
+    id: string;
+    name: string;
+  };
 };
 
 // Repeat type definitions
@@ -66,6 +92,20 @@ export type CategoryFormData = {
   name: string;
   type: CategoryType;
   color: string;
+};
+
+// Form types for lists
+export type ListFormData = {
+  title: string;
+  description?: string;
+  color?: string;
+  isShared?: boolean;
+};
+
+export type ListItemFormData = {
+  name: string;
+  estimatedPrice?: number;
+  categoryId: string;
 };
 
 

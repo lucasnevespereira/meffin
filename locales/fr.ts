@@ -44,6 +44,7 @@ export default {
   // Navigation
   "nav_dashboard": "Dashboard",
   "nav_transactions": "Transactions",
+  "nav_lists": "Listes",
   "nav_categories": "Catégories",
   "nav_profile": "Mon Profil",
   "nav_signOut": "Déconnexion",
@@ -343,5 +344,62 @@ export default {
 
   // Transaction Permissions
   "transaction_edit_permission_denied": "Vous ne pouvez modifier que les transactions que vous avez créées",
-  "transaction_delete_permission_denied": "Vous ne pouvez supprimer que les transactions que vous avez créées"
+  "transaction_delete_permission_denied": "Vous ne pouvez supprimer que les transactions que vous avez créées",
+
+  // Lists Feature
+  "lists_title": "Listes",
+  "lists_subtitle": "Créez des listes pour vos achats potentiels et convertissez-les en transactions",
+  "lists_create": "Créer une liste",
+  "lists_create_first": "Créer votre première liste",
+  "lists_empty_title": "Aucune liste pour le moment",
+  "lists_empty_description": "Créez votre première liste de courses pour commencer à organiser vos achats potentiels.",
+  "lists_progress": "Progression",
+  "lists_remaining": "Restants",
+  "lists_estimated": "Estimé",
+  "lists_updated": "Mis à jour",
+  "lists_by": "par",
+  "items": "articles",
+
+  // List Form
+  "lists_create_title": "Créer une nouvelle liste",
+  "lists_edit_title": "Modifier la liste",
+  "lists_form_title": "Titre de la liste",
+  "lists_form_title_placeholder": "ex. Courses hebdomadaires, Idées cadeaux...",
+  "lists_form_description": "Description",
+  "lists_form_description_placeholder": "Brève description de cette liste...",
+  "lists_form_color": "Couleur",
+  "lists_form_shared": "Partager avec partenaire",
+  "lists_form_shared_description": "Permettre à votre partenaire budgétaire de voir et modifier cette liste",
+  "lists_creating": "Création...",
+  "lists_updating": "Mise à jour...",
+  "common_optional": "optionnel",
+
+  // List Detail Page
+  "lists_detail_progress": "Progression",
+  "lists_detail_remaining": "Restants",
+  "lists_detail_estimated_total": "Total Estimé",
+  "lists_detail_items": "Articles",
+  "lists_detail_no_items": "Aucun article dans cette liste pour le moment",
+  "lists_detail_add_first_item": "Ajouter votre premier article",
+  "lists_detail_add_item": "Ajouter Article",
+  "lists_detail_item": "article",
+  "lists_detail_items_plural": "articles",
+
+  // List Item Form
+  "lists_item_create_title": "Ajouter un Article",
+  "lists_item_edit_title": "Modifier l'Article",
+  "lists_item_name": "Nom de l'Article",
+  "lists_item_name_placeholder": "ex. Lait, Pain, Cadeau pour Jean...",
+  "lists_item_estimated_price": "Prix Estimé",
+  "lists_item_add": "Ajouter Article",
+  "lists_item_creating": "Ajout...",
+  "lists_item_updating": "Modification...",
+
+  // Toast notifications
+  "lists_item_checked_transaction_created": "Article coché et transaction créée !",
+  "lists_item_unchecked_transaction_deleted": "Article décoché et transaction supprimée !",
+  "lists_item_updated_successfully": "Article mis à jour avec succès !",
+
+  // Item creator info
+  "lists_item_created_by": "Créé par"
 } as const;
