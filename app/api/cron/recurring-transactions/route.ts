@@ -1,9 +1,9 @@
-import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { transactions } from '@/lib/db/schema';
-import { eq, and, lte, or, isNull, gte } from 'drizzle-orm';
+import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
+import { transactions } from "@/lib/db/schema";
+import { eq, and, lte, or, isNull, gte } from "drizzle-orm";
 
-export async function POST() {
+export async function GET() {
   try {
     const now = new Date();
     const currentMonth = now.getMonth();
@@ -14,8 +14,8 @@ export async function POST() {
     if (currentDay !== 1) {
       return NextResponse.json({
         success: true,
-        message: 'Cron job runs only on the 1st day of each month',
-        createdCount: 0
+        message: "Cron job runs only on the 1st day of each month",
+        createdCount: 0,
       });
     }
 
@@ -28,18 +28,21 @@ export async function POST() {
           eq(transactions.isFixed, true),
           // Handle all recurring types except 'annual' and 'once'
           or(
-            eq(transactions.repeatType, 'forever'),
-            eq(transactions.repeatType, '3months'),
-            eq(transactions.repeatType, '4months'),
-            eq(transactions.repeatType, '6months'),
-            eq(transactions.repeatType, '12months'),
-            eq(transactions.repeatType, 'until'),
+            eq(transactions.repeatType, "forever"),
+            eq(transactions.repeatType, "3months"),
+            eq(transactions.repeatType, "4months"),
+            eq(transactions.repeatType, "6months"),
+            eq(transactions.repeatType, "12months"),
+            eq(transactions.repeatType, "until"),
             isNull(transactions.repeatType) // Legacy transactions
           ),
           // Either no end date or end date is in the future
           or(
             isNull(transactions.endDate),
-            gte(transactions.endDate, new Date(currentYear, currentMonth, 1).toISOString()) // Start of current month
+            gte(
+              transactions.endDate,
+              new Date(currentYear, currentMonth, 1).toISOString()
+            ) // Start of current month
           )
         )
       );
@@ -48,8 +51,7 @@ export async function POST() {
     const annualTransactions = await db
       .select()
       .from(transactions)
-      .where(eq(transactions.repeatType, 'annual'));
-
+      .where(eq(transactions.repeatType, "annual"));
 
     let createdCount = 0;
     let updatedAnnualCount = 0;
@@ -82,8 +84,21 @@ export async function POST() {
             eq(transactions.isFixed, true),
             // Check if transaction exists in current month
             and(
-              gte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth).toISOString()),
-              lte(transactions.date, new Date(currentYear, currentMonth, dayOfMonth, 23, 59, 59).toISOString())
+              gte(
+                transactions.date,
+                new Date(currentYear, currentMonth, dayOfMonth).toISOString()
+              ),
+              lte(
+                transactions.date,
+                new Date(
+                  currentYear,
+                  currentMonth,
+                  dayOfMonth,
+                  23,
+                  59,
+                  59
+                ).toISOString()
+              )
             )
           )
         )
@@ -99,7 +114,7 @@ export async function POST() {
           amount: recurring.amount,
           date: transactionDate.toISOString(),
           isFixed: false, // Monthly generated transactions are not recurring themselves
-          repeatType: 'once', // This is a one-time transaction for this month
+          repeatType: "once", // This is a one-time transaction for this month
           createdBy: recurring.userId,
           createdAt: now.toISOString(),
           updatedAt: now.toISOString(),
@@ -124,7 +139,7 @@ export async function POST() {
           .update(transactions)
           .set({
             date: nextYearDate.toISOString(),
-            updatedAt: now.toISOString()
+            updatedAt: now.toISOString(),
           })
           .where(eq(transactions.id, annual.id));
 
@@ -141,7 +156,7 @@ export async function POST() {
             .update(transactions)
             .set({
               date: nextYearDate.toISOString(),
-              updatedAt: now.toISOString()
+              updatedAt: now.toISOString(),
             })
             .where(eq(transactions.id, annual.id));
 
@@ -153,7 +168,7 @@ export async function POST() {
             .update(transactions)
             .set({
               date: nextYearDate.toISOString(),
-              updatedAt: now.toISOString()
+              updatedAt: now.toISOString(),
             })
             .where(eq(transactions.id, annual.id));
 
@@ -166,13 +181,12 @@ export async function POST() {
       success: true,
       message: `Created ${createdCount} recurring transactions, updated ${updatedAnnualCount} annual transactions to next year`,
       createdCount,
-      updatedAnnualCount
+      updatedAnnualCount,
     });
-
   } catch (error) {
-    console.error('Error creating recurring transactions:', error);
+    console.error("Error creating recurring transactions:", error);
     return NextResponse.json(
-      { success: false, error: 'Failed to create recurring transactions' },
+      { success: false, error: "Failed to create recurring transactions" },
       { status: 500 }
     );
   }
