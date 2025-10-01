@@ -4,20 +4,27 @@ import { transactions } from "@/lib/db/schema";
 import { eq, and, lte, or, isNull, gte } from "drizzle-orm";
 
 export async function GET() {
+  console.log("[Cron Job] Starting recurring transactions cron job...");
+
   try {
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
     const currentDay = now.getDate();
 
+    console.log(`[Cron Job] Current date: ${now.toISOString()}`);
+
     // Only run this job on the first day of each month
     if (currentDay !== 1) {
+      console.log("[Cron Job] Not the 1st day of the month. Exiting.");
       return NextResponse.json({
         success: true,
         message: "Cron job runs only on the 1st day of each month",
         createdCount: 0,
       });
     }
+
+    console.log("[Cron Job] Fetching recurring transactions...");
 
     // Get all recurring transactions (monthly and time-limited) that should be created for this month
     const recurringTransactions = await db
@@ -47,14 +54,24 @@ export async function GET() {
         )
       );
 
+    console.log(
+      `[Cron Job] Found ${recurringTransactions.length} recurring transactions.`
+    );
+
     // Get all annual transactions for monthly budget allocation
     const annualTransactions = await db
       .select()
       .from(transactions)
       .where(eq(transactions.repeatType, "annual"));
 
+    console.log(
+      `[Cron Job] Found ${annualTransactions.length} annual transactions.`
+    );
+
     let createdCount = 0;
     let updatedAnnualCount = 0;
+
+    console.log("[Cron Job] Processing recurring transactions...");
 
     // Process monthly recurring transactions
     for (const recurring of recurringTransactions) {
@@ -124,6 +141,12 @@ export async function GET() {
       }
     }
 
+    console.log(
+      `[Cron Job] Created ${createdCount} new recurring transactions.`
+    );
+
+    console.log("[Cron Job] Processing annual transactions...");
+
     // Process annual transactions - update them to next year if their renewal month has passed
     for (const annual of annualTransactions) {
       const annualDate = new Date(annual.date);
@@ -177,6 +200,10 @@ export async function GET() {
       }
     }
 
+    console.log(
+      `[Cron Job] Updated ${updatedAnnualCount} annual transactions to next year.`
+    );
+
     return NextResponse.json({
       success: true,
       message: `Created ${createdCount} recurring transactions, updated ${updatedAnnualCount} annual transactions to next year`,
@@ -184,7 +211,7 @@ export async function GET() {
       updatedAnnualCount,
     });
   } catch (error) {
-    console.error("Error creating recurring transactions:", error);
+    console.error("[Cron Job] Error creating recurring transactions:", error);
     return NextResponse.json(
       { success: false, error: "Failed to create recurring transactions" },
       { status: 500 }
