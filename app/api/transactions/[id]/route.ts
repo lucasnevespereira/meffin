@@ -13,6 +13,7 @@ const updateTransactionSchema = z.object({
   date: z.string().pipe(z.coerce.date()),
   isFixed: z.boolean().default(false),
   isPrivate: z.boolean().default(false),
+  repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']).default('once'),
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 
@@ -100,6 +101,7 @@ export async function PUT(
         date: validatedData.date.toISOString(),
         isFixed: validatedData.isFixed,
         isPrivate: validatedData.isPrivate || false,
+        repeatType: validatedData.repeatType,
         endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
       })
       .where(and(

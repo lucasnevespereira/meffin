@@ -14,7 +14,7 @@ const createTransactionSchema = z.object({
   date: z.string().pipe(z.coerce.date()),
   isFixed: z.boolean().default(false),
   isPrivate: z.boolean().default(false),
-  repeatType: z.string().default('once'),
+  repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']).default('once'),
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 

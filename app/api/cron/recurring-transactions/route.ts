@@ -27,6 +27,7 @@ export async function GET() {
     console.log("[Cron Job] Fetching recurring transactions...");
 
     // Get all recurring transactions (monthly and time-limited) that should be created for this month
+    // TODO: when repeatType is 3months, 4months, 6months, 12months, until date we need to create them again if endDate has not passed.
     const recurringTransactions = await db
       .select()
       .from(transactions)
