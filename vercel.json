@@ -1,8 +1,1 @@
-{
-  "crons": [
-    {
-      "path": "/api/cron/recurring-transactions",
-      "schedule": "0 1 1 * *"
-    }
-  ]
-}
+{}
