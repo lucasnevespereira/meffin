@@ -18,7 +18,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = acceptSchema.parse(body);
 
-    const partnership = await PartnerService.acceptInvitation(validatedData.token);
+    const partnership = await PartnerService.acceptInvitation(
+      validatedData.token,
+      session.user.id
+    );
     
     return NextResponse.json({ 
       message: 'Partner invitation accepted successfully',

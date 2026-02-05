@@ -1,4 +1,4 @@
-const CACHE_NAME = 'meffin-v1';
+const CACHE_NAME = 'meffin-v2';
 const urlsToCache = [
   '/',
   '/dashboard',
@@ -26,8 +26,16 @@ self.addEventListener('install', (event) => {
 
 // Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
+  const url = new URL(event.request.url);
+
   // Skip cross-origin requests and chrome-extension requests
   if (!event.request.url.startsWith(self.location.origin)) {
+    return;
+  }
+
+  // NEVER cache API routes or auth-related requests - always fetch from network
+  if (url.pathname.startsWith('/api/')) {
+    event.respondWith(fetch(event.request));
     return;
   }
 
@@ -53,7 +61,7 @@ self.addEventListener('fetch', (event) => {
 
           caches.open(CACHE_NAME)
             .then((cache) => {
-              // Only cache GET requests
+              // Only cache GET requests for non-API routes
               if (event.request.method === 'GET') {
                 cache.put(event.request, responseToCache);
               }

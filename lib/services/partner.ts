@@ -22,8 +22,14 @@ export type UserSearchResult = {
 };
 
 export class PartnerService {
+  // Escape special characters in LIKE patterns to prevent SQL injection
+  private static escapeLikePattern(pattern: string): string {
+    return pattern.replace(/[%_\\]/g, '\\$&');
+  }
+
   // Search for users by name or email
   static async searchUsers(query: string, currentUserId: string): Promise<UserSearchResult[]> {
+    const escapedQuery = this.escapeLikePattern(query);
     const searchResults = await db
       .select({
         id: users.id,
@@ -36,8 +42,8 @@ export class PartnerService {
       .where(
         and(
           or(
-            ilike(users.name, `%${query}%`),
-            ilike(users.email, `%${query}%`)
+            ilike(users.name, `%${escapedQuery}%`),
+            ilike(users.email, `%${escapedQuery}%`)
           ),
           // Exclude current user
           // Exclude users who already have a partner
@@ -125,7 +131,7 @@ export class PartnerService {
   }
 
   // Accept partner invitation
-  static async acceptInvitation(token: string) {
+  static async acceptInvitation(token: string, acceptingUserId: string) {
     const invitation = await db
       .select({
         invitation: partnerInvitations,
@@ -153,6 +159,11 @@ export class PartnerService {
     }
 
     const { invitation: inv, fromUser, toUser } = invitation[0];
+
+    // Verify the accepting user is the intended recipient
+    if (inv.toUserId !== acceptingUserId) {
+      throw new Error('This invitation was not sent to you');
+    }
 
     // Check if invitation has expired
     if (new Date() > inv.expiresAt) {

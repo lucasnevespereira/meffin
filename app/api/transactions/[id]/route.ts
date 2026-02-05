@@ -103,6 +103,7 @@ export async function PUT(
         isPrivate: validatedData.isPrivate || false,
         repeatType: validatedData.repeatType,
         endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
+        updatedAt: new Date().toISOString(),
       })
       .where(and(
         eq(transactions.id, id),
