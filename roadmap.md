@@ -1,50 +1,102 @@
 # Meffin Roadmap
 
-## Feature Development Plan
+## Completed Features
 
-### 1. Dashboard User Sharing
-**Goal:** Allow users to invite others (e.g., spouse) to collaborate on their dashboard and budget management.
-
-- [ ] Design user invitation system
-- [ ] Implement user roles and permissions
-- [ ] Create invitation flow (send/accept invitations)
-- [ ] Add user management interface to dashboard
-- [ ] Enable shared transaction entry for invited users
-- [ ] Implement access controls and privacy settings
-- [ ] Add user profile management for shared accounts
-- [ ] Testing and validation
-
-### 2. Annual Transactions
-**Goal:** Support yearly recurring transactions for better long-term expense tracking.
-
-- [ ] Design annual transaction data model
-- [ ] Create annual transaction entry interface
-- [ ] Implement yearly recurrence logic
-- [ ] Add annual transaction display/management
-- [ ] Integrate annual transactions with monthly budget views
-- [ ] Add annual transaction notifications/reminders
-- [ ] Create annual expense reporting and analytics
-- [ ] Testing and validation
-
-### 3. Transaction Lists (Shared Shopping Lists)
-**Goal:** Create collaborative lists where users can add potential transactions that become actual expenses when checked off.
-
-- [ ] Design list data structure and UI
-- [ ] Create list creation and management interface
-- [ ] Implement item addition/removal functionality
-- [ ] Add checkbox functionality to convert items to transactions
-- [ ] Enable real-time collaboration between users
-- [ ] Integrate list transactions with monthly budget tracking
-- [ ] Add list templates (grocery, household, etc.)
-- [ ] Implement list sharing and permissions
-- [ ] Testing and validation
+- [x] **Partner sharing** - Invite a partner to collaborate on budgets
+- [x] **Annual transactions** - Support yearly recurring transactions
+- [x] **Shopping lists** - Collaborative lists with price tracking
 
 ---
 
-## Implementation Notes
+## Short Term (v0.2.x)
 
-- All features should maintain existing dashboard functionality
-- Consider mobile responsiveness for all new interfaces
-- Ensure proper data synchronization for shared features
-- Implement proper error handling and user feedback
-- Follow existing code patterns and styling conventions
+### UX Improvements
+- [ ] **Swipe actions on mobile** - Swipe left/right on transactions and list items for quick edit/delete
+- [ ] **Undo for deletions** - Show a toast with "Undo" button for 5 seconds after deleting items
+- [ ] **Retry button on errors** - Add retry functionality when data fails to load
+- [ ] **Better loading states** - Show spinners on buttons during form submissions
+
+### Filters & Search
+- [ ] **Transaction search** - Search transactions by description
+- [ ] **Category filter** - Filter transactions by category
+- [ ] **Amount range filter** - Filter by min/max amount
+- [ ] **Date range filter** - Custom date range selection
+
+### Data Export
+- [ ] **CSV export** - Export transactions to CSV file
+- [ ] **PDF report** - Generate monthly PDF report
+
+---
+
+## Medium Term (v0.3.x)
+
+### Budget Goals
+- [ ] **Category budgets** - Set monthly spending limits per category
+- [ ] **Budget alerts** - Notification when approaching/exceeding budget
+- [ ] **Budget progress bars** - Visual indicator of spending vs budget on dashboard
+
+### Analytics & Charts
+- [ ] **Spending over time** - Line chart showing expense trends
+- [ ] **Category pie chart** - Visual breakdown of spending by category
+- [ ] **Income vs Expenses** - Monthly comparison bar chart
+- [ ] **Year-over-year comparison** - Compare spending between years
+
+### Recurring Transactions
+- [ ] **Weekly recurring** - Support for weekly transactions
+- [ ] **Custom intervals** - Every X days/weeks/months
+- [ ] **Skip occurrence** - Skip a single occurrence without deleting the recurring rule
+- [ ] **Pause recurring** - Temporarily pause a recurring transaction
+
+---
+
+## Long Term (v0.4.x)
+
+### Notifications
+- [ ] **Monthly summary email** - Optional email with monthly spending recap
+- [ ] **Push notifications** - Reminders for bills, budget alerts
+- [ ] **Partner activity notifications** - Get notified when partner adds transactions
+
+### Multi-currency
+- [ ] **Multiple currencies** - Track accounts in different currencies
+- [ ] **Currency conversion** - Automatic conversion for dashboard totals
+- [ ] **Exchange rate history** - Track rates over time
+
+### Savings Goals
+- [ ] **Create savings goals** - Set target amount and deadline
+- [ ] **Track progress** - Visual progress toward goals
+- [ ] **Automatic allocation** - Auto-allocate income to savings goals
+
+### Advanced Features
+- [ ] **Receipt scanning** - OCR to extract amount and description from receipts
+- [ ] **Bank import** - Import transactions from bank CSV/OFX files
+- [ ] **Split transactions** - Split a single payment across multiple categories
+- [ ] **Tags** - Add custom tags to transactions for more flexible categorization
+
+---
+
+## Technical Debt & Improvements
+
+### Performance
+- [ ] **Pagination** - Add pagination to transaction lists
+- [ ] **Virtual scrolling** - For large transaction lists
+- [ ] **Database indexes** - Add indexes for common queries
+
+### Security
+- [ ] **Cron authentication** - Add CRON_SECRET verification for scheduled jobs
+- [ ] **Rate limiting** - Protect API endpoints from abuse
+- [ ] **Audit log** - Track sensitive operations
+
+### Code Quality
+- [ ] **Extract shared services** - DRY up duplicated API logic
+- [ ] **E2E tests** - Add Playwright tests for critical flows
+- [ ] **API documentation** - OpenAPI/Swagger docs
+
+---
+
+## Community Suggestions
+
+Have a feature request? Open an issue on GitHub!
+
+---
+
+*Last updated: February 2025*

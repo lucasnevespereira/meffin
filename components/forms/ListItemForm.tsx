@@ -47,9 +47,9 @@ export function ListItemForm({
   const t = useI18n();
 
   const itemSchema = z.object({
-    name: z.string().min(1, 'Name is required').max(255, 'Name is too long'),
-    estimatedPrice: z.number().positive('Price must be positive').optional(),
-    categoryId: z.string().min(1, 'Category is required'),
+    name: z.string().min(1, t('validation_nameRequired')).max(255, t('validation_nameTooLong')),
+    estimatedPrice: z.number().positive(t('validation_priceMustBePositive')).optional(),
+    categoryId: z.string().min(1, t('validation_categoryRequired')),
   });
 
   const {

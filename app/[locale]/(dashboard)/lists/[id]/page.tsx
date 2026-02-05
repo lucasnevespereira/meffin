@@ -59,6 +59,8 @@ export default function ListDetailPage() {
   const [isItemFormOpen, setIsItemFormOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ListItemWithCategory | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteItemDialogOpen, setIsDeleteItemDialogOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
   const list = listData?.list;
 
@@ -169,7 +171,22 @@ export default function ListDetailPage() {
 
   const handleDeleteItem = (itemId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering the toggle
-    deleteItemMutation.mutate({ listId, itemId });
+    setItemToDelete(itemId);
+    setIsDeleteItemDialogOpen(true);
+  };
+
+  const handleConfirmDeleteItem = () => {
+    if (itemToDelete) {
+      deleteItemMutation.mutate(
+        { listId, itemId: itemToDelete },
+        {
+          onSuccess: () => {
+            setIsDeleteItemDialogOpen(false);
+            setItemToDelete(null);
+          },
+        }
+      );
+    }
   };
 
   const handleDeleteList = () => {
@@ -413,7 +430,7 @@ export default function ListDetailPage() {
         />
       )}
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete List Confirmation Dialog */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -430,6 +447,28 @@ export default function ListDetailPage() {
               className="bg-destructive hover:bg-destructive/90 text-destructive-foreground cursor-pointer disabled:cursor-not-allowed"
             >
               {deleteListMutation.isPending ? (t('lists_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Item Confirmation Dialog */}
+      <AlertDialog open={isDeleteItemDialogOpen} onOpenChange={setIsDeleteItemDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('lists_item_delete_title') || 'Delete Item'}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('lists_item_delete_confirmation') || 'Are you sure you want to delete this item? This action cannot be undone.'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="cursor-pointer">{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDeleteItem}
+              disabled={deleteItemMutation.isPending}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground cursor-pointer disabled:cursor-not-allowed"
+            >
+              {deleteItemMutation.isPending ? (t('lists_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

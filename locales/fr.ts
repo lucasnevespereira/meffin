@@ -40,6 +40,8 @@ export default {
   "validation_descriptionRequired": "La description est requise",
   "validation_amountPositive": "Le montant doit être positif",
   "validation_categoryRequired": "La catégorie est requise",
+  "validation_nameTooLong": "Le nom est trop long",
+  "validation_priceMustBePositive": "Le prix doit être positif",
 
   // Navigation
   "nav_dashboard": "Dashboard",
@@ -243,6 +245,8 @@ export default {
   "category_form_type_label": "Type",
   "category_form_type_placeholder": "Sélectionner un type",
   "category_form_color_label": "Couleur",
+  "category_form_add_button": "Ajouter",
+  "category_form_edit_button": "Enregistrer",
 
   // Transaction Recurring Options
   "transaction_day_of_month": "Jour du mois",
@@ -412,6 +416,8 @@ export default {
   "lists_item_add": "Ajouter Article",
   "lists_item_creating": "Ajout...",
   "lists_item_updating": "Modification...",
+  "lists_item_delete_title": "Supprimer l'article",
+  "lists_item_delete_confirmation": "Êtes-vous sûr de vouloir supprimer cet article ? Cette action est irréversible.",
 
   // Toast notifications
   "lists_item_checked_transaction_created": "Article coché et transaction créée !",

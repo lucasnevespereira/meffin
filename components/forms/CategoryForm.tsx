@@ -155,10 +155,13 @@ export function CategoryForm({
 
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={handleClose}>
-              Annuler
+              {t('common_cancel')}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? 'En cours...' : (mode === 'create' ? 'Ajouter' : 'Modifier')}
+              {isSubmitting
+                ? t('common_loading')
+                : (mode === 'create' ? t('category_form_add_button') : t('category_form_edit_button'))
+              }
             </Button>
           </div>
         </form>

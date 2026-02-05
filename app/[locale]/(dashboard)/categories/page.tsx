@@ -215,7 +215,7 @@ export default function CategoriesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+                  <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
                     <Button
                       size="sm"
                       variant="ghost"
