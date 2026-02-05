@@ -41,9 +41,23 @@ const I18nMiddleware = createI18nMiddleware({
   urlMappingStrategy: "rewrite",
 });
 
+const SUPPORTED_LOCALES = ["en", "fr"];
+
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   const detectedLocale = detectUserLocale(request);
+
+  // Check if path starts with an unsupported locale and redirect to default
+  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)(\/|$)/);
+  if (localeMatch) {
+    const pathLocale = localeMatch[1].toLowerCase();
+    if (!SUPPORTED_LOCALES.includes(pathLocale)) {
+      // Redirect unsupported locale to default (en)
+      const restOfPath = pathname.slice(localeMatch[0].length - 1) || "/";
+      const url = new URL(`/en${restOfPath}`, request.url);
+      return NextResponse.redirect(url);
+    }
+  }
 
   // If on root path and no locale detected yet, redirect to detected locale
   if (pathname === "/" && !request.cookies.get("detected-locale")) {
@@ -63,8 +77,7 @@ export async function middleware(request: NextRequest) {
   // Normal i18n middleware processing
   const response = I18nMiddleware(request);
 
-  // Extract current locale from pathname
-  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)/);
+  // Extract current locale from pathname (already validated above)
   const currentLocale = localeMatch ? localeMatch[1] : detectedLocale;
 
   // Set Content-Language header for SEO
