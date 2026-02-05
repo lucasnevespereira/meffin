@@ -1,22 +1,22 @@
-const CACHE_NAME = 'meffin-v2';
-const urlsToCache = [
-  '/',
-  '/dashboard',
-  '/transactions',
-  '/categories',
-  '/profile',
+const CACHE_NAME = 'meffin-v3';
+
+// Only cache static assets, not HTML pages (Next.js handles those)
+const STATIC_ASSETS = [
   '/manifest.json',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png',
 ];
 
-// Install event - cache resources
+// Install event - cache static assets only
 self.addEventListener('install', (event) => {
+  // Skip waiting to activate immediately
+  self.skipWaiting();
+
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
+        console.log('Caching static assets');
+        return cache.addAll(STATIC_ASSETS);
       })
       .catch((error) => {
         console.log('Cache install failed:', error);
@@ -24,73 +24,100 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Fetch event - serve from cache when offline
+// Fetch event - network-first for pages, cache-first for assets
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip cross-origin requests and chrome-extension requests
+  // Skip cross-origin requests
   if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
-  // NEVER cache API routes or auth-related requests - always fetch from network
+  // NEVER intercept API routes - always go to network
   if (url.pathname.startsWith('/api/')) {
-    event.respondWith(fetch(event.request));
     return;
   }
 
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        if (response) {
-          return response;
-        }
+  // For navigation requests (HTML pages), use network-first strategy
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .catch(() => {
+          // Only if network fails, try to return a cached page
+          return caches.match(event.request);
+        })
+    );
+    return;
+  }
 
-        // Clone the request because it's a stream
-        const fetchRequest = event.request.clone();
-
-        return fetch(fetchRequest).then((response) => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
+  // For static assets (images, fonts, etc.), use cache-first strategy
+  if (
+    url.pathname.startsWith('/icons/') ||
+    url.pathname.startsWith('/images/') ||
+    url.pathname.endsWith('.png') ||
+    url.pathname.endsWith('.jpg') ||
+    url.pathname.endsWith('.svg') ||
+    url.pathname.endsWith('.woff2') ||
+    url.pathname === '/manifest.json'
+  ) {
+    event.respondWith(
+      caches.match(event.request)
+        .then((response) => {
+          if (response) {
             return response;
           }
-
-          // Clone the response because it's a stream
-          const responseToCache = response.clone();
-
-          caches.open(CACHE_NAME)
-            .then((cache) => {
-              // Only cache GET requests for non-API routes
-              if (event.request.method === 'GET') {
+          return fetch(event.request).then((networkResponse) => {
+            // Cache the new response
+            if (networkResponse && networkResponse.status === 200) {
+              const responseToCache = networkResponse.clone();
+              caches.open(CACHE_NAME).then((cache) => {
                 cache.put(event.request, responseToCache);
-              }
-            });
+              });
+            }
+            return networkResponse;
+          });
+        })
+    );
+    return;
+  }
 
-          return response;
-        }).catch(() => {
-          // Return offline page for navigation requests
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
-          }
-        });
+  // For everything else (JS, CSS, etc.), use network-first
+  event.respondWith(
+    fetch(event.request)
+      .then((response) => {
+        // Cache successful responses
+        if (response && response.status === 200) {
+          const responseToCache = response.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseToCache);
+          });
+        }
+        return response;
+      })
+      .catch(() => {
+        return caches.match(event.request);
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and take control immediately
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
+        return Promise.all(
+          cacheNames.map((cacheName) => {
+            if (cacheName !== CACHE_NAME) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
+      // Take control of all clients immediately
+      self.clients.claim()
+    ])
   );
 });
 
