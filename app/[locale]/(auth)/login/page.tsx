@@ -68,6 +68,7 @@ export default function LoginPage() {
     try {
       await signIn.social({
         provider: 'google',
+        callbackURL: `/${locale}/dashboard`,
       });
     } catch (err: unknown) {
       setError((err as Error).message || t('login_error'));

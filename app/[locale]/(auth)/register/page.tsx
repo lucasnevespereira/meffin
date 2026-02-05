@@ -80,6 +80,7 @@ export default function RegisterPage() {
     try {
       await signIn.social({
         provider: 'google',
+        callbackURL: `/${locale}/dashboard`,
       });
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message  : t('register_error') ;
