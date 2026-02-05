@@ -1,13 +1,17 @@
 import { createI18nMiddleware } from "next-international/middleware";
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionCookie } from "better-auth/cookies";
+
+const SUPPORTED_LOCALES = ["en", "fr"] as const;
+const DEFAULT_LOCALE = "en";
+
+// Session cookie names used by better-auth
+const SESSION_COOKIE_NAME = "better-auth.session_token";
+const SECURE_SESSION_COOKIE_NAME = "__Secure-better-auth.session_token";
 
 function detectUserLocale(request: NextRequest): string {
   const acceptLanguage = request.headers.get("accept-language");
+  if (!acceptLanguage) return DEFAULT_LOCALE;
 
-  if (!acceptLanguage) return "en";
-
-  // Parse Accept-Language header
   const languages = acceptLanguage
     .split(",")
     .map((lang) => {
@@ -16,90 +20,65 @@ function detectUserLocale(request: NextRequest): string {
     })
     .sort((a, b) => b.quality - a.quality);
 
-  // Map browser locales to supported locales
-  const supportedLocales = ["en", "fr"];
-
   for (const { locale } of languages) {
     // Exact match
-    if (supportedLocales.includes(locale)) {
+    if (SUPPORTED_LOCALES.includes(locale as typeof SUPPORTED_LOCALES[number])) {
       return locale;
     }
-
-    // Language match (fr-FR -> fr)
+    // Language prefix match (fr-FR -> fr)
     const lang = locale.split("-")[0];
-    if (supportedLocales.includes(lang)) {
+    if (SUPPORTED_LOCALES.includes(lang as typeof SUPPORTED_LOCALES[number])) {
       return lang;
     }
   }
 
-  return "en"; // fallback
+  return DEFAULT_LOCALE;
+}
+
+function hasSessionCookie(request: NextRequest): boolean {
+  const secureCookie = request.cookies.get(SECURE_SESSION_COOKIE_NAME);
+  const normalCookie = request.cookies.get(SESSION_COOKIE_NAME);
+  return Boolean(secureCookie?.value || normalCookie?.value);
+}
+
+function getLocaleFromPath(pathname: string): string | null {
+  const match = pathname.match(/^\/([a-z]{2})(\/|$)/);
+  return match ? match[1] : null;
 }
 
 const I18nMiddleware = createI18nMiddleware({
-  locales: ["en", "fr"],
-  defaultLocale: "en",
+  locales: [...SUPPORTED_LOCALES],
+  defaultLocale: DEFAULT_LOCALE,
   urlMappingStrategy: "rewrite",
 });
 
-const SUPPORTED_LOCALES = ["en", "fr"];
-
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+
+  // Extract locale from path
+  const pathLocale = getLocaleFromPath(pathname);
+
+  // Redirect unsupported locales to default
+  if (pathLocale && !SUPPORTED_LOCALES.includes(pathLocale as typeof SUPPORTED_LOCALES[number])) {
+    const restOfPath = pathname.slice(3) || "/"; // Remove /xx
+    return NextResponse.redirect(new URL(`/${DEFAULT_LOCALE}${restOfPath}`, request.url));
+  }
+
+  // Detect user locale for redirects
   const detectedLocale = detectUserLocale(request);
+  const currentLocale = pathLocale || detectedLocale;
 
-  // Check if path starts with an unsupported locale and redirect to default
-  const localeMatch = pathname.match(/^\/([a-z]{2}(?:-[A-Z]{2})?)(\/|$)/);
-  if (localeMatch) {
-    const pathLocale = localeMatch[1].toLowerCase();
-    if (!SUPPORTED_LOCALES.includes(pathLocale)) {
-      // Redirect unsupported locale to default (en)
-      const restOfPath = pathname.slice(localeMatch[0].length - 1) || "/";
-      const url = new URL(`/en${restOfPath}`, request.url);
-      return NextResponse.redirect(url);
-    }
+  // Redirect root to detected locale
+  if (pathname === "/") {
+    return NextResponse.redirect(new URL(`/${detectedLocale}`, request.url));
   }
 
-  // If on root path and no locale detected yet, redirect to detected locale
-  if (pathname === "/" && !request.cookies.get("detected-locale")) {
-    const url = new URL(`/${detectedLocale}`, request.url);
-    const response = NextResponse.redirect(url);
-
-    response.cookies.set("detected-locale", detectedLocale, {
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-
-    return response;
-  }
-
-  // Normal i18n middleware processing
+  // Process i18n
   const response = I18nMiddleware(request);
 
-  // Extract current locale from pathname (already validated above)
-  const currentLocale = localeMatch ? localeMatch[1] : detectedLocale;
-
-  // Set Content-Language header for SEO
-  response.headers.set("Content-Language", currentLocale);
-
-  // Store detected locale in cookie for future visits
-  if (!request.cookies.get("detected-locale")) {
-    response.cookies.set("detected-locale", detectedLocale, {
-      maxAge: 60 * 60 * 24 * 365, // 1 year
-      httpOnly: false,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-    });
-  }
-
-  const searchParams = request.nextUrl.searchParams.toString();
-  response.headers.set("searchParams", searchParams);
-
-  if (request.nextUrl.pathname.includes("/dashboard")) {
-    const session = getSessionCookie(request);
-
-    if (!session) {
+  // Protect /dashboard routes
+  if (pathname.includes("/dashboard")) {
+    if (!hasSessionCookie(request)) {
       return NextResponse.redirect(new URL(`/${currentLocale}/login`, request.url));
     }
   }
