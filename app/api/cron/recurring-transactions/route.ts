@@ -122,7 +122,26 @@ export async function GET() {
         .limit(1);
 
       if (existingTransaction.length === 0) {
-        // Create new monthly transaction (not recurring, just for this month)
+        // Delete previous month's entry for this recurring transaction
+        const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+        const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
+        const previousMonthStart = new Date(previousYear, previousMonth, 1, 0, 0, 0, 0);
+        const previousMonthEnd = new Date(previousYear, previousMonth + 1, 0, 23, 59, 59, 999);
+
+        await db
+          .delete(transactions)
+          .where(
+            and(
+              eq(transactions.userId, recurring.userId),
+              eq(transactions.categoryId, recurring.categoryId),
+              eq(transactions.description, recurring.description),
+              eq(transactions.amount, recurring.amount),
+              gte(transactions.date, previousMonthStart.toISOString()),
+              lte(transactions.date, previousMonthEnd.toISOString())
+            )
+          );
+
+        // Create new monthly transaction with the same repeat type
         await db.insert(transactions).values({
           id: crypto.randomUUID(),
           userId: recurring.userId,
@@ -130,8 +149,8 @@ export async function GET() {
           description: recurring.description,
           amount: recurring.amount,
           date: transactionDate.toISOString(),
-          isFixed: false, // Monthly generated transactions are not recurring themselves
-          repeatType: "once", // This is a one-time transaction for this month
+          isFixed: true,
+          repeatType: recurring.repeatType || "forever",
           createdBy: recurring.userId,
           createdAt: now.toISOString(),
           updatedAt: now.toISOString(),

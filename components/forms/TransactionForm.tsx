@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useEffect } from 'react';
@@ -78,6 +78,7 @@ export function TransactionForm({
     reset,
     setValue,
     watch,
+    control,
     formState: { errors },
   } = useForm<TransactionFormInput>({
     resolver: zodResolver(transactionSchema),
@@ -342,21 +343,27 @@ export function TransactionForm({
                 <Label htmlFor="dayOfMonth" className="text-sm font-medium">
                   {t('transaction_day_of_month')}
                 </Label>
-                <Select
-                  value={dayOfMonth?.toString() || ''}
-                  onValueChange={(value) => setValue('dayOfMonth', parseInt(value))}
-                >
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder={t('transaction_select_day')} />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                      <SelectItem key={day} value={day.toString()}>
-                        {t('day') || 'Day'} {day}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="dayOfMonth"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value?.toString() || ''}
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder={t('transaction_select_day')} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                          <SelectItem key={day} value={day.toString()}>
+                            {t('day') || 'Day'} {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.dayOfMonth && (
                   <p className="text-sm text-destructive">{errors.dayOfMonth.message}</p>
                 )}
@@ -366,26 +373,30 @@ export function TransactionForm({
                 <Label htmlFor="repeatType" className="text-sm font-medium">
                   {t('transaction_repeats')}
                 </Label>
-                <Select
-                  value={repeatType}
-                  onValueChange={(value: RepeatType) => setValue('repeatType', value)}
-                >
-                  <SelectTrigger className="h-10">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="once">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">✔️</span>
-                        <span>{t('transaction_one_time_only')}</span>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="forever">
-                      <div className="flex items-center gap-2">
-                        <span className="text-lg">♾️</span>
-                        <span>{t('transaction_monthly_forever')}</span>
-                      </div>
-                    </SelectItem>
+                <Controller
+                  name="repeatType"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="once">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">✔️</span>
+                            <span>{t('transaction_one_time_only')}</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="forever">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">♾️</span>
+                            <span>{t('transaction_monthly_forever')}</span>
+                          </div>
+                        </SelectItem>
                     <SelectItem value="3months">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">📅</span>
@@ -424,6 +435,8 @@ export function TransactionForm({
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                  )}
+                />
               </div>
             </div>
 
@@ -432,21 +445,27 @@ export function TransactionForm({
                 <Label htmlFor="monthOfYear" className="text-sm font-medium">
                   {t('transaction_month_of_year') || 'Month of Year'}
                 </Label>
-                <Select
-                  value={monthOfYear?.toString() || ''}
-                  onValueChange={(value) => setValue('monthOfYear', parseInt(value))}
-                >
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder={t('transaction_select_month') || 'Select month'} />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {Array.from({ length: 12 }, (_, i) => (
-                      <SelectItem key={i} value={i.toString()}>
-                        {new Date(2000, i, 1).toLocaleDateString('en', { month: 'long' })}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Controller
+                  name="monthOfYear"
+                  control={control}
+                  render={({ field }) => (
+                    <Select
+                      value={field.value?.toString() || ''}
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                    >
+                      <SelectTrigger className="h-10">
+                        <SelectValue placeholder={t('transaction_select_month') || 'Select month'} />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {Array.from({ length: 12 }, (_, i) => (
+                          <SelectItem key={i} value={i.toString()}>
+                            {new Date(2000, i, 1).toLocaleDateString('en', { month: 'long' })}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                />
                 {errors.monthOfYear && (
                   <p className="text-sm text-destructive">{errors.monthOfYear.message}</p>
                 )}
