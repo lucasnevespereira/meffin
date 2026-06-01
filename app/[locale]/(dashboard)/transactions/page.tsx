@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Calendar, TrendingUp } from 'lucide-react';
+import { useParams } from 'next/navigation';
+import { Plus, Calendar, TrendingUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -20,12 +21,19 @@ import { usePartnerInfo } from '@/hooks/usePartner';
 import { TransactionFormData, TransactionWithCategory, RepeatType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
+import { useUserCurrency } from '@/lib/currency-utils';
+import { getCategoryDisplayName } from '@/lib/category-utils';
+import { downloadMonthExcel, type ExcelRow } from '@/lib/excel-export';
 
 export default function TransactionsPage() {
   const t = useI18n();
+  const params = useParams();
+  const locale = (params.locale as string) || 'en';
+  const currency = useUserCurrency();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
   const [activeTab, setActiveTab] = useState('monthly');
+  const [isExporting, setIsExporting] = useState(false);
 
   const { data: session } = useSession();
   const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
@@ -96,6 +104,50 @@ export default function TransactionsPage() {
     setEditingTransaction(null);
   };
 
+  const handleExport = async () => {
+    const txns = transactionsData?.transactions ?? [];
+    const rows: ExcelRow[] = txns
+      .filter((tx) => tx.category.type === 'income' || tx.category.type === 'expense')
+      .map((tx) => ({
+        date: new Date(tx.date),
+        description: tx.description,
+        category: getCategoryDisplayName(tx.category, t),
+        type: tx.category.type as 'income' | 'expense',
+        amount: Number(tx.amount),
+        createdBy: tx.createdBy?.name,
+      }));
+
+    if (rows.length === 0) return;
+
+    setIsExporting(true);
+    try {
+      const now = new Date();
+      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      await downloadMonthExcel({
+        filename: `meffin-${now.getFullYear()}-${mm}.xlsx`,
+        sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(now),
+        rows,
+        currencyCode: currency,
+        includeCreatedBy: !!partnerInfo?.partner,
+        labels: {
+          date: t('transaction_date'),
+          description: t('transaction_description'),
+          category: t('transaction_category'),
+          type: t('export_type_label'),
+          amount: t('transaction_amount'),
+          createdBy: t('transaction_created_by'),
+          income: t('export_type_income'),
+          expense: t('export_type_expense'),
+          totalIncome: t('export_total_income'),
+          totalExpenses: t('export_total_expenses'),
+          balance: t('trends_balance'),
+        },
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -131,14 +183,25 @@ export default function TransactionsPage() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
           <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('transactions_subtitle')}</p>
         </div>
-        <Button
-          onClick={() => setIsFormOpen(true)}
-          className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto cursor-pointer"
-          disabled={isLoadingCategories || categories.length === 0}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          {t('transactions_add_button')}
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
+          <Button
+            variant="outline"
+            onClick={handleExport}
+            disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
+            className="shrink-0 w-full sm:w-auto cursor-pointer"
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {t('export_button')}
+          </Button>
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto cursor-pointer"
+            disabled={isLoadingCategories || categories.length === 0}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            {t('transactions_add_button')}
+          </Button>
+        </div>
       </div>
 
       {/* Discrete view toggle */}

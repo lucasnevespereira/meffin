@@ -46,6 +46,9 @@ function getLocaleFromPath(pathname: string): string | null {
   return match ? match[1] : null;
 }
 
+// Top-level paths (after the locale prefix) that require a session
+const PROTECTED_SEGMENTS = ["dashboard", "transactions", "trends", "categories", "lists", "profile"];
+
 const I18nMiddleware = createI18nMiddleware({
   locales: [...SUPPORTED_LOCALES],
   defaultLocale: DEFAULT_LOCALE,
@@ -76,11 +79,11 @@ export async function middleware(request: NextRequest) {
   // Process i18n
   const response = I18nMiddleware(request);
 
-  // Protect /dashboard routes
-  if (pathname.includes("/dashboard")) {
-    if (!hasSessionCookie(request)) {
-      return NextResponse.redirect(new URL(`/${currentLocale}/login`, request.url));
-    }
+  // Protect authenticated routes
+  const pathWithoutLocale = pathLocale ? pathname.slice(pathLocale.length + 1) : pathname;
+  const topSegment = pathWithoutLocale.split("/").filter(Boolean)[0] ?? "";
+  if (PROTECTED_SEGMENTS.includes(topSegment) && !hasSessionCookie(request)) {
+    return NextResponse.redirect(new URL(`/${currentLocale}/login`, request.url));
   }
 
   return response;
