@@ -9,6 +9,7 @@ import {
   LogOut,
   CreditCard,
   ClipboardList,
+  LineChart,
 } from 'lucide-react';
 import {
   Sidebar,
@@ -62,6 +63,11 @@ export function AppSidebar() {
       title: t('nav_transactions'),
       url: `/${locale}/transactions`,
       icon: CreditCard,
+    },
+    {
+      title: t('nav_trends'),
+      url: `/${locale}/trends`,
+      icon: LineChart,
     },
     {
       title: t('nav_categories'),
