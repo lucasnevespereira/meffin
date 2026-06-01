@@ -317,6 +317,12 @@ export default {
   trends_empty_title: "Pas encore assez d'historique",
   trends_empty_subtitle:
     "Continuez à enregistrer vos transactions, vos tendances apparaîtront ici dans les prochains mois",
+  export_button: "Exporter",
+  export_type_label: "Type",
+  export_type_income: "Revenu",
+  export_type_expense: "Dépense",
+  export_total_income: "Total des revenus",
+  export_total_expenses: "Total des dépenses",
   dashboard_category_breakdown: "Répartition par catégorie",
   dashboard_no_transactions_category: "Aucune transaction pour cette catégorie",
   dashboard_no_expenses_month: "Aucune dépense pour ce mois",

@@ -95,11 +95,17 @@ export async function GET(request: NextRequest) {
       if (idx !== undefined) apply(row.categoryId, Number(row.amount), idx);
     }
 
-    // An annual transaction counts in its renewal month for every year shown
+    // An annual transaction counts in its renewal month for every year shown,
+    // starting from the transaction's original year/month.
     for (const row of annualRows) {
-      const renewalMonth = new Date(row.date).getMonth();
+      const renewalDate = new Date(row.date);
+      const renewalMonth = renewalDate.getMonth();
+      const firstRenewalKey = renewalDate.getFullYear() * 12 + renewalMonth;
       buckets.forEach((bucket, idx) => {
-        if (bucket.month === renewalMonth) apply(row.categoryId, Number(row.amount), idx);
+        const bucketKey = bucket.year * 12 + bucket.month;
+        if (bucket.month === renewalMonth && bucketKey >= firstRenewalKey) {
+          apply(row.categoryId, Number(row.amount), idx);
+        }
       });
     }
 
