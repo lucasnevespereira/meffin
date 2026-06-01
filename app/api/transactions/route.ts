@@ -27,12 +27,15 @@ export async function GET(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const month = url.searchParams.get('month') || new Date().getMonth().toString();
-    const year = url.searchParams.get('year') || new Date().getFullYear().toString();
+    const now = new Date();
+    const monthParam = parseInt(url.searchParams.get('month') ?? '');
+    const yearParam = parseInt(url.searchParams.get('year') ?? '');
+    const month = Number.isInteger(monthParam) && monthParam >= 0 && monthParam <= 11 ? monthParam : now.getMonth();
+    const year = Number.isInteger(yearParam) && yearParam >= 1970 && yearParam <= 9999 ? yearParam : now.getFullYear();
     const isAnnualQuery = url.searchParams.get('annual') === 'true';
 
-    const startDate = new Date(parseInt(year), parseInt(month), 1, 0, 0, 0, 0);
-    const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59, 999);
+    const startDate = new Date(year, month, 1, 0, 0, 0, 0);
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
 
 
     // Get user and partner info
@@ -123,12 +126,17 @@ export async function GET(request: NextRequest) {
       // Filter annual transactions to only include ones that renew in current month
       const currentMonthAnnuals = annualTransactions.filter(({ transaction }) => {
         const annualDate = new Date(transaction.date);
-        return annualDate.getMonth() === parseInt(month);
+        return annualDate.getMonth() === month;
       });
 
       // Combine monthly and applicable annual transactions
       userTransactions = [...monthlyTransactions, ...currentMonthAnnuals];
     }
+
+    // A partner's private transactions are invisible to the other partner.
+    userTransactions = userTransactions.filter(
+      ({ transaction }) => !(transaction.isPrivate && transaction.createdBy !== session.user.id)
+    );
 
     // Get custom categories from user and partner
     const customCategories = await db.select()
@@ -203,13 +211,20 @@ export async function POST(request: NextRequest) {
     const isDefaultCategory = validatedData.categoryId.startsWith('default_');
 
     if (!isDefaultCategory) {
-      // Check if custom category exists and belongs to user
+      // Custom category must belong to the user or their partner
+      const [user] = await db.select({ partnerId: users.partnerId })
+        .from(users)
+        .where(eq(users.id, session.user.id))
+        .limit(1);
+
+      const allowedOwners = user?.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
+
       const customCategory = await db.select()
         .from(categories)
         .where(eq(categories.id, validatedData.categoryId))
         .limit(1);
 
-      if (customCategory.length === 0 || customCategory[0].userId !== session.user.id) {
+      if (customCategory.length === 0 || !allowedOwners.includes(customCategory[0].userId)) {
         return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
       }
     } else {

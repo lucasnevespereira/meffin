@@ -288,6 +288,9 @@ export default {
   // Dashboard
   "dashboard_title": "Dashboard",
   "dashboard_subtitle": "Vue d'ensemble de vos finances personnelles",
+  "dashboard_loading_error": "Erreur lors du chargement des données",
+  "dashboard_login_required": "Veuillez vous connecter pour accéder au tableau de bord",
+  "transaction_created_by": "Créé par",
   "dashboard_category_breakdown": "Répartition par catégorie",
   "dashboard_no_transactions_category": "Aucune transaction pour cette catégorie",
   "dashboard_no_expenses_month": "Aucune dépense pour ce mois",

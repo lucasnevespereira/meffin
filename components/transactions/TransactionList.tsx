@@ -168,7 +168,7 @@ export function TransactionList({
                           {transaction.createdBy && hasPartner && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <User className="h-3 w-3" />
-                              <span className="font-medium">Created by {transaction.createdBy.name}</span>
+                              <span className="font-medium">{t('transaction_created_by')} {transaction.createdBy.name}</span>
                             </div>
                           )}
                         </div>
@@ -187,7 +187,7 @@ export function TransactionList({
                           {transaction.createdBy && hasPartner && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
                               <User className="h-3 w-3" />
-                              <span className="font-medium">Created by {transaction.createdBy.name}</span>
+                              <span className="font-medium">{t('transaction_created_by')} {transaction.createdBy.name}</span>
                             </div>
                           )}
                           {(() => {

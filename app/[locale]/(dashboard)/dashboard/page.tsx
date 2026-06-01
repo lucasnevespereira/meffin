@@ -18,9 +18,9 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md">
           <CardContent className="p-6 text-center">
-            <p className="text-destructive">Erreur lors du chargement des données</p>
+            <p className="text-destructive">{t('dashboard_loading_error')}</p>
             <p className="text-sm text-muted-foreground mt-2">
-              Veuillez vous connecter pour accéder au tableau de bord
+              {t('dashboard_login_required')}
             </p>
           </CardContent>
         </Card>

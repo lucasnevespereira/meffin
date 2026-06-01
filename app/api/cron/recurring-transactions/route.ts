@@ -58,22 +58,13 @@ export async function GET() {
       `[Cron Job] Found ${recurringTransactions.length} recurring transactions.`
     );
 
-    // Get all annual transactions for monthly budget allocation
-    const annualTransactions = await db
-      .select()
-      .from(transactions)
-      .where(eq(transactions.repeatType, "annual"));
-
-    console.log(
-      `[Cron Job] Found ${annualTransactions.length} annual transactions.`
-    );
-
     let createdCount = 0;
-    let updatedAnnualCount = 0;
 
     console.log("[Cron Job] Processing recurring transactions...");
 
-    // Process monthly recurring transactions
+    // Once a recurring transaction has been materialized for a month, that row is
+    // its permanent record for that month. We only ever add the current month's
+    // entry and never touch past months, so history stays intact.
     for (const recurring of recurringTransactions) {
       // Extract day from the original transaction date
       const originalDate = new Date(recurring.date);
@@ -88,7 +79,7 @@ export async function GET() {
       // Create the transaction date for current month
       const transactionDate = new Date(currentYear, currentMonth, dayOfMonth);
 
-      // Check if transaction already exists for this month
+      // Check if an entry already exists for this recurring transaction this month
       const existingTransaction = await db
         .select()
         .from(transactions)
@@ -97,51 +88,22 @@ export async function GET() {
             eq(transactions.userId, recurring.userId),
             eq(transactions.categoryId, recurring.categoryId),
             eq(transactions.description, recurring.description),
-            eq(transactions.amount, recurring.amount),
             eq(transactions.isFixed, true),
             // Check if transaction exists in current month
-            and(
-              gte(
-                transactions.date,
-                new Date(currentYear, currentMonth, dayOfMonth).toISOString()
-              ),
-              lte(
-                transactions.date,
-                new Date(
-                  currentYear,
-                  currentMonth,
-                  dayOfMonth,
-                  23,
-                  59,
-                  59
-                ).toISOString()
-              )
+            gte(
+              transactions.date,
+              new Date(currentYear, currentMonth, 1).toISOString()
+            ),
+            lte(
+              transactions.date,
+              new Date(currentYear, currentMonth + 1, 0, 23, 59, 59).toISOString()
             )
           )
         )
         .limit(1);
 
       if (existingTransaction.length === 0) {
-        // Delete previous month's entry for this recurring transaction
-        const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-        const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-        const previousMonthStart = new Date(previousYear, previousMonth, 1, 0, 0, 0, 0);
-        const previousMonthEnd = new Date(previousYear, previousMonth + 1, 0, 23, 59, 59, 999);
-
-        await db
-          .delete(transactions)
-          .where(
-            and(
-              eq(transactions.userId, recurring.userId),
-              eq(transactions.categoryId, recurring.categoryId),
-              eq(transactions.description, recurring.description),
-              eq(transactions.amount, recurring.amount),
-              gte(transactions.date, previousMonthStart.toISOString()),
-              lte(transactions.date, previousMonthEnd.toISOString())
-            )
-          );
-
-        // Create new monthly transaction with the same repeat type
+        // Create this month's entry, keeping the same repeat type
         await db.insert(transactions).values({
           id: crypto.randomUUID(),
           userId: recurring.userId,
@@ -151,7 +113,7 @@ export async function GET() {
           date: transactionDate.toISOString(),
           isFixed: true,
           repeatType: recurring.repeatType || "forever",
-          createdBy: recurring.userId,
+          createdBy: recurring.createdBy,
           createdAt: now.toISOString(),
           updatedAt: now.toISOString(),
         });
@@ -164,70 +126,13 @@ export async function GET() {
       `[Cron Job] Created ${createdCount} new recurring transactions.`
     );
 
-    console.log("[Cron Job] Processing annual transactions...");
-
-    // Process annual transactions - update them to next year if their renewal month has passed
-    for (const annual of annualTransactions) {
-      const annualDate = new Date(annual.date);
-      const renewalMonth = annualDate.getMonth();
-      const renewalYear = annualDate.getFullYear();
-
-      // If we're past the renewal month of the current year, update to next year
-      if (currentMonth > renewalMonth && currentYear >= renewalYear) {
-        const nextYearDate = new Date(annualDate);
-        nextYearDate.setFullYear(currentYear + 1);
-
-        await db
-          .update(transactions)
-          .set({
-            date: nextYearDate.toISOString(),
-            updatedAt: now.toISOString(),
-          })
-          .where(eq(transactions.id, annual.id));
-
-        updatedAnnualCount++;
-      }
-      // If we're in the same year but renewal month hasn't come yet, and the year is behind current year
-      else if (renewalYear < currentYear) {
-        const nextYearDate = new Date(annualDate);
-        nextYearDate.setFullYear(currentYear);
-
-        // If the renewal month is in the future this year, set to current year
-        if (renewalMonth >= currentMonth) {
-          await db
-            .update(transactions)
-            .set({
-              date: nextYearDate.toISOString(),
-              updatedAt: now.toISOString(),
-            })
-            .where(eq(transactions.id, annual.id));
-
-          updatedAnnualCount++;
-        } else {
-          // If renewal month already passed this year, set to next year
-          nextYearDate.setFullYear(currentYear + 1);
-          await db
-            .update(transactions)
-            .set({
-              date: nextYearDate.toISOString(),
-              updatedAt: now.toISOString(),
-            })
-            .where(eq(transactions.id, annual.id));
-
-          updatedAnnualCount++;
-        }
-      }
-    }
-
-    console.log(
-      `[Cron Job] Updated ${updatedAnnualCount} annual transactions to next year.`
-    );
+    // Annual transactions are displayed by their renewal month regardless of the
+    // stored year, so there is nothing to materialize or roll forward here.
 
     return NextResponse.json({
       success: true,
-      message: `Created ${createdCount} recurring transactions, updated ${updatedAnnualCount} annual transactions to next year`,
+      message: `Created ${createdCount} recurring transactions`,
       createdCount,
-      updatedAnnualCount,
     });
   } catch (error) {
     console.error("[Cron Job] Error creating recurring transactions:", error);

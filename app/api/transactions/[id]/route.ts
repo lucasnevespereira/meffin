@@ -76,13 +76,13 @@ export async function PUT(
     const isDefaultCategory = validatedData.categoryId.startsWith('default_');
 
     if (!isDefaultCategory) {
-      // Check if custom category exists and belongs to user
+      // Custom category must belong to the user or their partner
       const customCategory = await db.select()
         .from(categories)
         .where(eq(categories.id, validatedData.categoryId))
         .limit(1);
 
-      if (customCategory.length === 0 || customCategory[0].userId !== session.user.id) {
+      if (customCategory.length === 0 || !userIds.includes(customCategory[0].userId)) {
         return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
       }
     } else {

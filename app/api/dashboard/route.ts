@@ -15,11 +15,14 @@ export async function GET(request: NextRequest) {
     }
 
     const url = new URL(request.url);
-    const month = url.searchParams.get('month') || new Date().getMonth().toString();
-    const year = url.searchParams.get('year') || new Date().getFullYear().toString();
+    const now = new Date();
+    const monthParam = parseInt(url.searchParams.get('month') ?? '');
+    const yearParam = parseInt(url.searchParams.get('year') ?? '');
+    const month = Number.isInteger(monthParam) && monthParam >= 0 && monthParam <= 11 ? monthParam : now.getMonth();
+    const year = Number.isInteger(yearParam) && yearParam >= 1970 && yearParam <= 9999 ? yearParam : now.getFullYear();
 
-    const startDate = new Date(parseInt(year), parseInt(month), 1);
-    const endDate = new Date(parseInt(year), parseInt(month) + 1, 0, 23, 59, 59);
+    const startDate = new Date(year, month, 1);
+    const endDate = new Date(year, month + 1, 0, 23, 59, 59);
 
     // Get user and partner ID
     const user = await db.select({
@@ -67,11 +70,13 @@ export async function GET(request: NextRequest) {
     // Filter annual transactions to only include ones that renew in current month
     const currentMonthAnnuals = annualTransactions.filter(annual => {
       const annualDate = new Date(annual.date);
-      return annualDate.getMonth() === parseInt(month);
+      return annualDate.getMonth() === month;
     });
 
-    // Combine monthly and applicable annual transactions
-    const userTransactions = [...monthlyTransactions, ...currentMonthAnnuals];
+    // Combine monthly and applicable annual transactions, hiding a partner's private ones
+    const userTransactions = [...monthlyTransactions, ...currentMonthAnnuals].filter(
+      transaction => !(transaction.isPrivate && transaction.createdBy !== session.user.id)
+    );
 
     // Get custom categories from user and partner
     const customCategories = await db.select()
@@ -155,8 +160,8 @@ export async function GET(request: NextRequest) {
         expenses,
       },
       categoryBreakdown: categoryData,
-      month: parseInt(month),
-      year: parseInt(year),
+      month,
+      year,
     });
   } catch (error) {
     console.error('Error fetching dashboard data:', error);

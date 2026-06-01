@@ -2,6 +2,7 @@ import { db } from '../db';
 import { users, partnerInvitations } from '@/lib/db/schema';
 import { eq, and, or, not, ilike } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
+import { ServiceError } from '@/lib/errors';
 import crypto from 'crypto';
 
 export type PartnerInvitation = {
@@ -83,11 +84,11 @@ export class PartnerService {
     const toUser = users_check.find(u => u.id === toUserId);
 
     if (!fromUser || !toUser) {
-      throw new Error('User not found');
+      throw new ServiceError('User not found', 404);
     }
 
     if (fromUser.partnerId || toUser.partnerId) {
-      throw new Error('One of the users already has a partner');
+      throw new ServiceError('One of the users already has a partner', 409);
     }
 
     // Check for existing pending invitation
@@ -106,7 +107,7 @@ export class PartnerService {
       .limit(1);
 
     if (existingInvitation.length) {
-      throw new Error('There is already a pending invitation between these users');
+      throw new ServiceError('There is already a pending invitation between these users', 409);
     }
 
     // Create invitation
@@ -155,14 +156,14 @@ export class PartnerService {
       .limit(1);
 
     if (!invitation.length) {
-      throw new Error('Invalid or expired invitation');
+      throw new ServiceError('Invalid or expired invitation', 404);
     }
 
     const { invitation: inv, fromUser, toUser } = invitation[0];
 
     // Verify the accepting user is the intended recipient
     if (inv.toUserId !== acceptingUserId) {
-      throw new Error('This invitation was not sent to you');
+      throw new ServiceError('This invitation was not sent to you', 403);
     }
 
     // Check if invitation has expired
@@ -172,7 +173,7 @@ export class PartnerService {
         .set({ status: 'expired' })
         .where(eq(partnerInvitations.id, inv.id));
 
-      throw new Error('Invitation has expired');
+      throw new ServiceError('Invitation has expired', 410);
     }
 
     // Check if either user already has a partner
@@ -185,7 +186,7 @@ export class PartnerService {
       .where(or(eq(users.id, inv.fromUserId), eq(users.id, inv.toUserId)));
 
     if (currentUsers.some(u => u.partnerId)) {
-      throw new Error('One of the users already has a partner');
+      throw new ServiceError('One of the users already has a partner', 409);
     }
 
     // Accept invitation and create partnership
@@ -253,7 +254,7 @@ export class PartnerService {
       .limit(1);
 
     if (!user.length || !user[0].partnerId) {
-      throw new Error('User has no partner');
+      throw new ServiceError('User has no partner', 409);
     }
 
     const partnerId = user[0].partnerId;
@@ -322,7 +323,7 @@ export class PartnerService {
       .limit(1);
 
     if (!result.length) {
-      throw new Error('User not found');
+      throw new ServiceError('User not found', 404);
     }
 
     return {

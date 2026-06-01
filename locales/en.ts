@@ -292,6 +292,9 @@ export default {
   // Dashboard
   "dashboard_title": "Dashboard",
   "dashboard_subtitle": "Overview of your personal finances",
+  "dashboard_loading_error": "Error loading data",
+  "dashboard_login_required": "Please sign in to access the dashboard",
+  "transaction_created_by": "Created by",
   "dashboard_category_breakdown": "Category Breakdown",
   "dashboard_no_transactions_category": "No transactions for this category",
   "dashboard_no_expenses_month": "No expenses for this month",
