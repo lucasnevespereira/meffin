@@ -74,6 +74,13 @@ export const DEFAULT_CATEGORIES: DefaultCategory[] = [
     isCustom: false,
   },
   {
+    id: 'default_subscriptions',
+    name: 'category_subscriptions',
+    type: 'expense',
+    color: '#A855F7',
+    isCustom: false,
+  },
+  {
     id: 'default_healthcare',
     name: 'category_healthcare',
     type: 'expense',
