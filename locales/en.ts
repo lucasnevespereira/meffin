@@ -228,6 +228,10 @@ export default {
     'Are you sure you want to delete the category "{name}"? This action cannot be undone.',
   categories_delete: "Delete",
   categories_deleting: "Deleting...",
+  categories_delete_success: 'Category "{name}" deleted successfully.',
+  categories_delete_error: "Failed to delete category.",
+  categories_delete_in_use_error:
+    "Cannot delete this category because it is used by existing transactions.",
 
   // Currencies
   currency_eur: "Euro - €",

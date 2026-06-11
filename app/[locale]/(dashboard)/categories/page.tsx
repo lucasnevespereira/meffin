@@ -19,6 +19,7 @@ import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory 
 import { Category, CategoryFormData, CategoryType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
+import { toast } from 'sonner';
 
 export default function CategoriesPage() {
   const t = useI18n();
@@ -64,10 +65,21 @@ export default function CategoriesPage() {
 
   const handleConfirmDelete = () => {
     if (categoryToDelete) {
+      const categoryName = getCategoryDisplayName(categoryToDelete, t);
+
       deleteMutation.mutate(categoryToDelete.id, {
         onSuccess: () => {
           setDeleteDialogOpen(false);
           setCategoryToDelete(null);
+          toast.success(t('categories_delete_success', { name: categoryName }));
+        },
+        onError: (error) => {
+          const message = error instanceof Error ? error.message : '';
+          const errorMessage = message === 'Cannot delete this category because it is used by existing transactions.'
+            ? t('categories_delete_in_use_error')
+            : message || t('categories_delete_error');
+
+          toast.error(errorMessage);
         },
       });
     }
