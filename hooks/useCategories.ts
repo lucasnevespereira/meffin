@@ -56,7 +56,8 @@ async function deleteCategory(id: string): Promise<{ success: boolean }> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to delete category');
+    const errorData = await response.json().catch(() => ({ error: 'Failed to delete category' }));
+    throw new Error(errorData.error || 'Failed to delete category');
   }
 
   return response.json();

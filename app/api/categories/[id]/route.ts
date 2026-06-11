@@ -117,7 +117,7 @@ export async function DELETE(
 
     if (categoryTransactions.length > 0) {
       return NextResponse.json({
-        error: 'Cannot delete category with existing transactions'
+        error: 'Cannot delete this category because it is used by existing transactions.'
       }, { status: 409 });
     }
 

@@ -232,6 +232,10 @@ export default {
     'Êtes-vous sûr de vouloir supprimer la catégorie "{name}" ? Cette action ne peut pas être annulée.',
   categories_delete: "Supprimer",
   categories_deleting: "Suppression...",
+  categories_delete_success: 'Catégorie "{name}" supprimée avec succès.',
+  categories_delete_error: "Échec de la suppression de la catégorie.",
+  categories_delete_in_use_error:
+    "Impossible de supprimer cette catégorie car elle est utilisée par des transactions existantes.",
 
   // Currencies
   currency_eur: "Euro - €",
