@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { expo } from "@better-auth/expo";
+import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { users, account, session, verification } from "./db/schema";
 
@@ -39,6 +40,17 @@ export const auth = betterAuth({
   account: {
     accountLinking: {
       enabled: true,
+    },
+  },
+
+  user: {
+    deleteUser: {
+      enabled: true,
+      // partnerId is a plain text column with no FK, so unlink the partner
+      // before the cascade wipes this user's rows.
+      beforeDelete: async (user) => {
+        await db.update(users).set({ partnerId: null }).where(eq(users.partnerId, user.id));
+      },
     },
   },
 
