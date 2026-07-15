@@ -4,6 +4,14 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 
 const runMigrate = async () => {
+  // Preview deployments should validate and build the application without
+  // mutating the shared production database. Production and local builds keep
+  // the existing migration behavior.
+  if (process.env.VERCEL_ENV === "preview") {
+    console.log("Skipping database migrations for Vercel Preview deployment.");
+    return;
+  }
+
   const connectionString = process.env.DATABASE_URL;
   if (!connectionString) {
     throw new Error("DATABASE_URL is not set");
