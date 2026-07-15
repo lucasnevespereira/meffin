@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { expo } from "@better-auth/expo";
 import { db } from "./db";
 import { users, account, session, verification } from "./db/schema";
 
@@ -41,10 +42,17 @@ export const auth = betterAuth({
     },
   },
 
+  // Allows native Expo clients to forward their app origin and keeps OAuth
+  // callbacks compatible with the meffin:// deep-link scheme.
+  plugins: [expo()],
+
   trustedOrigins: [
     "https://meffin.app",
     "https://www.meffin.app",
+    "meffin://",
+    "meffin://*",
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
+    ...(process.env.NODE_ENV === "development" ? ["exp://", "exp://**"] : []),
   ].filter(Boolean),
 });
 
