@@ -57,6 +57,23 @@ DATABASE_URL=postgresql://user:password@host:port/database
 
 Works with Neon, Supabase, Railway, or self-hosted PostgreSQL.
 
+### Sign in with Apple
+
+The native iOS app sends its Apple identity token to this Better Auth server.
+Configure these production environment variables before deploying:
+
+```bash
+APPLE_CLIENT_ID=app.meffin.signin
+APPLE_CLIENT_SECRET=generated-apple-client-secret-jwt
+APPLE_APP_BUNDLE_IDENTIFIER=app.meffin.mobile
+```
+
+`APPLE_CLIENT_ID` is the Services ID associated with the primary App ID.
+Generate `APPLE_CLIENT_SECRET` from the Sign in with Apple key in the Apple
+Developer portal, and rotate it before its expiry (Apple permits at most six
+months). Configure `meffin.app` as the domain and
+`https://meffin.app/api/auth/callback/apple` as the return URL.
+
 ## 🤝 Contributing
 
 Contributions welcome! Fork the repo and submit a PR.

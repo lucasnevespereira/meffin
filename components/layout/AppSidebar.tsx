@@ -148,14 +148,14 @@ export function AppSidebar() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="group flex w-full min-w-0 items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-primary/10 data-[state=open]:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="group flex w-full min-w-0 items-center gap-2.5 rounded-xl p-2 text-left transition-colors hover:bg-primary/10 data-[state=open]:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   aria-label={t("nav_profile")}
                 >
                   <UserAvatar
                     image={session.user.image}
                     name={session.user.name}
                     email={session.user.email}
-                    size={36}
+                    size={32}
                     className="rounded-lg"
                   />
                   <div className="flex min-w-0 flex-1 flex-col items-start">
@@ -166,7 +166,7 @@ export function AppSidebar() {
                       {session.user.email}
                     </span>
                   </div>
-                  <HugeiconsIcon icon={ArrowUp01Icon} className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                  <HugeiconsIcon icon={ArrowUp01Icon} className="size-3.5 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent

@@ -21,12 +21,26 @@ export const auth = betterAuth({
     requireEmailVerification: false,
   },
 
-  socialProviders: process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
-    google: {
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    },
-  } : {},
+  socialProviders: {
+    ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET ? {
+      google: {
+        clientId: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      },
+    } : {}),
+    ...(process.env.APPLE_CLIENT_ID && process.env.APPLE_CLIENT_SECRET ? {
+      apple: {
+        clientId: process.env.APPLE_CLIENT_ID,
+        clientSecret: process.env.APPLE_CLIENT_SECRET,
+        appBundleIdentifier: process.env.APPLE_APP_BUNDLE_IDENTIFIER || "app.meffin.mobile",
+        // Apple only includes email on the first authorization. Existing
+        // accounts are matched by the stable Apple subject on later sign-ins.
+        mapProfileToUser: (profile: { email?: string | null; sub: string }) => ({
+          email: profile.email ?? `${profile.sub}@apple.invalid`,
+        }),
+      },
+    } : {}),
+  },
 
   session: {
     expiresIn: 60 * 60 * 24 * 30, // 30 days
@@ -61,6 +75,7 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://meffin.app",
     "https://www.meffin.app",
+    "https://appleid.apple.com",
     "meffin://",
     "meffin://*",
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
