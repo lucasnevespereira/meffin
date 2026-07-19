@@ -79,7 +79,11 @@ export const auth = betterAuth({
     "meffin://",
     "meffin://*",
     process.env.BETTER_AUTH_URL || "http://localhost:3000",
-    ...(process.env.NODE_ENV === "development" ? ["exp://", "exp://**"] : []),
+    // Expo dev clients report their Metro origin (exp://<lan-ip>:8081). Trusted
+    // everywhere so the app can be tested against production from `expo start`.
+    // exp:// isn't a browser-reachable origin, so this doesn't open a CSRF hole.
+    "exp://",
+    "exp://**",
   ].filter(Boolean),
 });
 
