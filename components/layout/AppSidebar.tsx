@@ -175,19 +175,10 @@ export function AppSidebar() {
                 className="w-(--radix-dropdown-menu-trigger-width) min-w-0 rounded-xl p-1.5 shadow-xl"
               >
                 <div className="min-w-0 px-2.5 py-2.5">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <UserAvatar
-                      image={session.user.image}
-                      name={session.user.name}
-                      email={session.user.email}
-                      size={40}
-                      className="rounded-lg"
-                    />
-                    <span className="min-w-0 flex-1 truncate text-sm font-semibold">
-                      {session.user.name || t("nav_profile")}
-                    </span>
-                  </div>
-                  <p className="mt-2 break-all text-xs leading-relaxed text-muted-foreground">
+                  <p className="truncate text-sm font-semibold">
+                    {session.user.name || t("nav_profile")}
+                  </p>
+                  <p className="mt-1 truncate text-xs text-muted-foreground" title={session.user.email}>
                     {session.user.email}
                   </p>
                 </div>
