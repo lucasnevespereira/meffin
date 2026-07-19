@@ -176,6 +176,7 @@ export default {
   profile_info_section: "Profile Information",
   profile_preferences_section: "Preferences",
   profile_danger_section: "Danger Zone",
+  profile_section_account: "Account",
   profile_name: "Name",
   profile_email: "Email",
   profile_email_readonly: "Email cannot be modified",

@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Image from 'next/image';
-import { Trash2, Save, AlertTriangle, ChevronRight } from 'lucide-react';
+import { Trash2, Save, AlertTriangle } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -68,6 +68,11 @@ const getAvatarUrl = (user: { name?: string | null; email?: string | null; image
   // Fallback to initials avatar
   return generateFallbackAvatarUrl(user.name || user.email || 'user');
 };
+
+// Small uppercase section label, mirroring the mobile "You" screen grouping.
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">{children}</h2>;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -211,39 +216,40 @@ export default function ProfilePage() {
         <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
       </div>
 
-      {/* Profile Card */}
-      <div className="rounded-lg md:rounded-xl border border-border bg-card shadow-card">
-        <div className="p-4 md:p-6">
-          {/* Profile Header */}
-          <div className="flex items-start md:items-center gap-3 md:gap-4 pb-5 md:pb-6 border-b border-border">
-            <div className="w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl overflow-hidden ring-2 ring-border shadow-sm shrink-0">
-              <Image
-                src={getAvatarUrl(session.user)}
-                alt={session.user.name || 'User Avatar'}
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
-                onError={(e) => {
-                  // Fallback to initials avatar if Google image fails to load
-                  const target = e.target as HTMLImageElement;
-                  target.src = generateFallbackAvatarUrl(session.user.name || session.user.email || 'user');
-                }}
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h2 className="text-base md:text-xl font-bold tracking-tight truncate">{profileData?.user?.name || session.user.name || 'User'}</h2>
-              <p className="text-muted-foreground text-xs md:text-sm truncate">{profileData?.user?.email || session.user.email}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 md:mt-1">
-                {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
-              </p>
-            </div>
-            <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-400 shrink-0">
-              ✓ {t('profile_status_active')}
-            </div>
+      {/* Profile header */}
+      <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl overflow-hidden ring-2 ring-border shrink-0">
+            <Image
+              src={getAvatarUrl(session.user)}
+              alt={session.user.name || 'User Avatar'}
+              width={64}
+              height={64}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.src = generateFallbackAvatarUrl(session.user.name || session.user.email || 'user');
+              }}
+            />
           </div>
+          <div className="flex-1 min-w-0">
+            <h2 className="text-base md:text-xl font-bold tracking-tight truncate">{profileData?.user?.name || session.user.name || 'User'}</h2>
+            <p className="text-muted-foreground text-xs md:text-sm truncate">{profileData?.user?.email || session.user.email}</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
+            </p>
+          </div>
+          <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-500 shrink-0">
+            ✓ {t('profile_status_active')}
+          </div>
+        </div>
+      </div>
 
-          {/* Profile Form */}
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6 pt-5 md:pt-6">
+      {/* Account */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_account')}</SectionLabel>
+        <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
             <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
@@ -295,7 +301,7 @@ export default function ProfilePage() {
               )}
             </div>
 
-            <div className="flex justify-end pt-2 md:pt-4">
+            <div className="flex justify-end pt-2">
               <Button
                 type="submit"
                 disabled={updateProfileMutation.isPending}
@@ -307,7 +313,7 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
-      </div>
+      </section>
 
       {/* Received Partner Invitations */}
       {invitations?.invitations && invitations.invitations.length > 0 && (
@@ -342,30 +348,27 @@ export default function ProfilePage() {
         onPartnerUpdate={refreshPartnerInfo}
       />
 
-      {/* Danger Zone - Minimal */}
-      <div className="pt-4 md:pt-8 border-t border-border/30">
-        <details className="group">
-          <summary className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer touch-manipulation">
-            <ChevronRight className="h-4 w-4 shrink-0 transition-transform group-open:rotate-90" />
-            <AlertTriangle className="h-4 w-4 shrink-0" />
-            <span>{t('profile_danger_section')}</span>
-          </summary>
-          <div className="mt-3 md:mt-4 pl-6 md:pl-10">
-            <p className="text-xs text-muted-foreground mb-3">
-              {t('profile_delete_description')}
-            </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowDeleteDialog(true)}
-              className="text-xs text-destructive hover:text-destructive hover:border-destructive/50 transition-colors w-full sm:w-auto"
-            >
-              <Trash2 className="h-3.5 w-3.5 mr-2" />
-              {t('profile_delete_button')}
-            </Button>
+      {/* Security */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_danger_section')}</SectionLabel>
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 md:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-foreground">{t('profile_delete_button')}</p>
+              <p className="text-xs text-muted-foreground mt-1 max-w-md">{t('profile_delete_description')}</p>
+            </div>
           </div>
-        </details>
-      </div>
+          <Button
+            variant="outline"
+            onClick={() => setShowDeleteDialog(true)}
+            className="text-destructive hover:text-destructive hover:border-destructive/50 transition-colors w-full sm:w-auto shrink-0"
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            {t('profile_delete_button')}
+          </Button>
+        </div>
+      </section>
 
 
       {/* Delete Confirmation Dialog */}
