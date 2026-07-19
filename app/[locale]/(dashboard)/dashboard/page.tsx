@@ -1,20 +1,19 @@
 'use client';
 
 import React from 'react';
-import { useParams } from 'next/navigation';
 import { Card, CardContent } from '@/components/ui/card';
 import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { useDashboard } from '@/hooks/useDashboard';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 
 export default function DashboardPage() {
   const { data, isLoading, error } = useDashboard();
   const { data: session } = useSession();
   const t = useI18n();
-  const params = useParams();
-  const locale = params.locale as string;
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const firstName = session?.user?.name?.trim().split(/\s+/)[0] || t('dashboard_default_name');
   const dashboardDate = data ? new Date(data.year, data.month, 1) : new Date();
   const monthLabel = new Intl.DateTimeFormat(locale, { month: 'long' }).format(dashboardDate);

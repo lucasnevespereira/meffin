@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 import { Calendar } from 'lucide-react';
@@ -20,35 +20,37 @@ import { Separator } from "@/components/ui/separator";
 export function DashboardHeader() {
   const pathname = usePathname();
   const t = useI18n();
-  const locale = pathname.split('/').filter(Boolean)[0] || 'en';
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
 
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
-    const activeLocale = segments[0];
-    const route = segments[1] || 'dashboard';
+    const route = segments.find((segment) =>
+      ['dashboard', 'transactions', 'categories', 'profile', 'trends', 'lists'].includes(segment)
+    ) || 'dashboard';
 
     const breadcrumbs = [
-      { name: t('app_name'), href: `/${activeLocale}` },
+      { name: t('app_name'), href: `/${locale}` },
     ];
 
     switch (route) {
       case 'dashboard':
-        breadcrumbs.push({ name: t('nav_dashboard'), href: `/${activeLocale}/dashboard` });
+        breadcrumbs.push({ name: t('nav_dashboard'), href: `/${locale}/dashboard` });
         break;
       case 'transactions':
-        breadcrumbs.push({ name: t('nav_transactions'), href: `/${activeLocale}/transactions` });
+        breadcrumbs.push({ name: t('nav_transactions'), href: `/${locale}/transactions` });
         break;
       case 'categories':
-        breadcrumbs.push({ name: t('nav_categories'), href: `/${activeLocale}/categories` });
+        breadcrumbs.push({ name: t('nav_categories'), href: `/${locale}/categories` });
         break;
       case 'profile':
-        breadcrumbs.push({ name: t('nav_profile'), href: `/${activeLocale}/profile` });
+        breadcrumbs.push({ name: t('nav_profile'), href: `/${locale}/profile` });
         break;
       case 'trends':
-        breadcrumbs.push({ name: t('nav_trends'), href: `/${activeLocale}/trends` });
+        breadcrumbs.push({ name: t('nav_trends'), href: `/${locale}/trends` });
         break;
       case 'lists':
-        breadcrumbs.push({ name: t('nav_lists'), href: `/${activeLocale}/lists` });
+        breadcrumbs.push({ name: t('nav_lists'), href: `/${locale}/lists` });
         break;
       default:
         breadcrumbs.push({ name: route.charAt(0).toUpperCase() + route.slice(1), href: pathname });
