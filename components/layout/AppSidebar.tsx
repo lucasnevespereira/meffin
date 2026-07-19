@@ -165,13 +165,16 @@ export function AppSidebar() {
           {session && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-2.5 w-full rounded-lg p-2 hover:bg-primary/10 transition-colors cursor-pointer text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <div className="w-8 h-8 rounded-lg overflow-hidden ring-2 ring-border shrink-0">
+                <button
+                  className="group flex w-full min-w-0 items-center gap-3 rounded-xl p-2.5 text-left transition-colors hover:bg-primary/10 data-[state=open]:bg-primary/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  aria-label={t("nav_profile")}
+                >
+                  <div className="size-9 overflow-hidden rounded-lg ring-2 ring-border shrink-0">
                     <Image
                       src={getAvatarUrl(session.user)}
                       alt={session.user.name || "User"}
-                      width={32}
-                      height={32}
+                      width={36}
+                      height={36}
                       className="w-full h-full object-cover"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
@@ -181,40 +184,47 @@ export function AppSidebar() {
                       }}
                     />
                   </div>
-                  <div className="flex flex-col items-start min-w-0 flex-1">
-                    <span className="text-sm font-medium truncate w-full">
+                  <div className="flex min-w-0 flex-1 flex-col items-start">
+                    <span className="w-full truncate text-sm font-medium">
                       {session.user.name || t("nav_profile")}
                     </span>
-                    <span className="text-xs text-muted-foreground truncate w-full">
+                    <span className="w-full truncate text-xs text-muted-foreground">
                       {session.user.email}
                     </span>
                   </div>
-                  <ChevronsUpDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <ChevronsUpDown className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
                 side="top"
                 align="start"
                 sideOffset={8}
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-60 rounded-xl p-1.5"
+                collisionPadding={16}
+                className="w-(--radix-dropdown-menu-trigger-width) min-w-0 rounded-xl p-1.5 shadow-xl"
               >
-                <div className="flex items-center gap-2.5 px-2 py-2">
-                  <div className="w-9 h-9 rounded-lg overflow-hidden ring-2 ring-border shrink-0">
+                <div className="flex min-w-0 items-center gap-3 px-2.5 py-2.5">
+                  <div className="size-10 overflow-hidden rounded-lg ring-2 ring-border shrink-0">
                     <Image
                       src={getAvatarUrl(session.user)}
                       alt={session.user.name || "User"}
-                      width={36}
-                      height={36}
+                      width={40}
+                      height={40}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = generateFallbackAvatarUrl(
+                          session.user.name || session.user.email || "user",
+                        );
+                      }}
                     />
                   </div>
-                  <div className="flex flex-col min-w-0">
-                    <span className="text-sm font-semibold truncate">{session.user.name || t("nav_profile")}</span>
-                    <span className="text-xs text-muted-foreground truncate">{session.user.email}</span>
+                  <div className="flex min-w-0 flex-1 flex-col">
+                    <span className="truncate text-sm font-semibold">{session.user.name || t("nav_profile")}</span>
+                    <span className="truncate text-xs text-muted-foreground">{session.user.email}</span>
                   </div>
                 </div>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                <DropdownMenuItem asChild className="h-10 cursor-pointer rounded-lg px-2.5">
                   <Link
                     href={`/${locale}/profile`}
                     onClick={() => {
@@ -227,7 +237,7 @@ export function AppSidebar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="rounded-lg cursor-pointer text-destructive focus:text-destructive"
+                  className="h-10 cursor-pointer rounded-lg px-2.5 text-destructive focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4 text-destructive" />
                   {t("nav_signOut")}

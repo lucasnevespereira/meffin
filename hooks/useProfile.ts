@@ -6,6 +6,7 @@ export interface ProfileData {
   id: string;
   name: string;
   email: string;
+  image: string | null;
   currency: string;
   createdAt: string;
   updatedAt: string;

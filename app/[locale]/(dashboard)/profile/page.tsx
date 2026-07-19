@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -75,6 +76,41 @@ function GradientAvatar({ name, email, size = 56 }: { name?: string | null; emai
     >
       {initialsFrom(name, email)}
     </div>
+  );
+}
+
+// Prefer the account avatar and fall back to initials if it is unavailable.
+function ProfileAvatar({
+  image,
+  name,
+  email,
+  size = 56,
+}: {
+  image?: string | null;
+  name?: string | null;
+  email?: string | null;
+  size?: number;
+}) {
+  const [imageFailed, setImageFailed] = useState(false);
+
+  React.useEffect(() => {
+    setImageFailed(false);
+  }, [image]);
+
+  if (!image || imageFailed) {
+    return <GradientAvatar name={name} email={email} size={size} />;
+  }
+
+  return (
+    <Image
+      src={image}
+      alt={name || 'User'}
+      width={size}
+      height={size}
+      className="rounded-xl object-cover shrink-0"
+      style={{ width: size, height: size }}
+      onError={() => setImageFailed(true)}
+    />
   );
 }
 
@@ -286,7 +322,8 @@ export default function ProfilePage() {
       {/* Profile card with inline name editing */}
       <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
         <div className="flex items-center gap-3 md:gap-4">
-          <GradientAvatar
+          <ProfileAvatar
+            image={profileData?.user?.image || session.user.image}
             name={profileData?.user?.name || session.user.name}
             email={profileData?.user?.email || session.user.email}
             size={60}
@@ -325,30 +362,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Budget */}
-      <section className="space-y-3">
-        <SectionLabel>{t('profile_section_budget')}</SectionLabel>
-        <Panel>
-          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
-          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
-        </Panel>
-      </section>
-
-      {/* Budget Partner — its own section (the card carries its own heading) */}
-      <section className="space-y-3">
-        {invitations?.invitations?.map((invitation) => (
-          <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
-        ))}
-        {sentInvitations?.invitations?.map((invitation) => (
-          <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
-        ))}
-        <PartnerManagement
-          partnerInfo={partnerInfo}
-          sentInvitations={sentInvitations?.invitations}
-          onPartnerUpdate={refreshPartnerInfo}
-        />
-      </section>
-
       {/* Preferences */}
       <section className="space-y-3">
         <SectionLabel>{t('profile_section_preferences')}</SectionLabel>
@@ -375,6 +388,30 @@ export default function ProfilePage() {
           <SettingsRow icon={Languages} tint="green" title={t('profile_language')} right={<LocaleSwitcher variant="ghost" showText />} />
           <SettingsRow icon={Moon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
         </Panel>
+      </section>
+
+      {/* Budget */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_budget')}</SectionLabel>
+        <Panel>
+          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
+          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+        </Panel>
+      </section>
+
+      {/* Budget Partner — its own section (the card carries its own heading) */}
+      <section className="space-y-3">
+        {invitations?.invitations?.map((invitation) => (
+          <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        {sentInvitations?.invitations?.map((invitation) => (
+          <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        <PartnerManagement
+          partnerInfo={partnerInfo}
+          sentInvitations={sentInvitations?.invitations}
+          onPartnerUpdate={refreshPartnerInfo}
+        />
       </section>
 
       {/* Security */}
