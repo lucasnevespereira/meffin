@@ -116,7 +116,7 @@ export function AppSidebar() {
                     asChild
                     className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group cursor-pointer ${
                       isActive(item.url)
-                        ? 'bg-primary text-primary-foreground font-medium shadow-card hover:bg-primary/90 hover:text-primary-foreground'
+                        ? 'bg-primary/15 text-primary font-semibold hover:bg-primary/20 hover:text-primary'
                         : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
                     }`}
                   >
