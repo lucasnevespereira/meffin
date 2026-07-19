@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { useParams } from 'next/navigation';
 import { TrendingUp, LineChart as LineChartIcon } from 'lucide-react';
 import {
   Area,
@@ -23,14 +22,15 @@ import {
 } from '@/components/ui/chart';
 import { useHistory } from '@/hooks/useHistory';
 import { useFormatCurrency } from '@/lib/currency-utils';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 type Period = '6' | '12' | 'ytd';
 
 export default function TrendsPage() {
   const t = useI18n();
-  const params = useParams();
-  const locale = (params.locale as string) || 'en';
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const formatCurrency = useFormatCurrency();
   const [period, setPeriod] = useState<Period>('12');
 
@@ -68,29 +68,27 @@ export default function TrendsPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('trends_title')}</h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('trends_subtitle')}</p>
-        </div>
-
-        {/* Period toggle */}
-        <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg shrink-0">
-          {periods.map((p) => (
-            <button
-              key={p.value}
-              onClick={() => setPeriod(p.value)}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-all cursor-pointer ${
-                period === p.value
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <PageHeader
+        title={t('trends_title')}
+        description={t('trends_subtitle')}
+        actions={
+          <div className="flex w-full items-center gap-1 rounded-lg bg-muted/50 p-1 sm:w-auto">
+            {periods.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => setPeriod(p.value)}
+                className={`flex-1 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-all sm:flex-none ${
+                  period === p.value
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        }
+      />
 
       {isLoading ? (
         <div className="space-y-4 md:space-y-6">

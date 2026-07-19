@@ -42,6 +42,7 @@ import PartnerInvitationCard from '@/components/partner-invitation-card';
 import SentInvitationCard from '@/components/sent-invitation-card';
 import { toast } from 'sonner';
 import { SUPPORTED_CURRENCIES } from '@/lib/currency-utils';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 
 const createProfileSchema = (t: ReturnType<typeof useI18n>) =>
@@ -235,10 +236,7 @@ export default function ProfilePage() {
   if (profileLoading) {
     return (
       <div className="space-y-3 md:space-y-6">
-        <div>
-          <h1 className="text-xl md:text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
-        </div>
+        <PageHeader title={t('profile_title')} description={t('profile_subtitle')} />
         <div className="rounded-lg md:rounded-xl border border-border bg-card shadow-card animate-pulse">
           <div className="p-4 md:p-6 space-y-4">
             <div className="flex items-center gap-3 md:gap-4 pb-4 md:pb-6 border-b border-border">
@@ -261,11 +259,7 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-3 md:space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-xl md:text-3xl font-bold tracking-tight text-balance">{t('profile_title')}</h1>
-        <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
-      </div>
+      <PageHeader title={t('profile_title')} description={t('profile_subtitle')} />
 
       {/* Profile card with inline name editing */}
       <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">

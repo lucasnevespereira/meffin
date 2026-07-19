@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Image from 'next/image';
 import { 
   Users2, 
   Search, 
@@ -39,6 +38,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { useI18n } from '@/locales/client';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 
 type UserSearchResult = {
   id: string;
@@ -63,23 +63,8 @@ type PartnerInfo = {
   } | null;
 };
 
-const searchSchema = z.object({
-  query: z.string().min(2, 'Entrez au moins 2 caractères pour rechercher'),
-});
-
 type SearchFormData = {
   query: string;
-};
-
-// Generate a fallback avatar URL based on user's name or email using initials
-const generateFallbackAvatarUrl = (seed: string): string => {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
-};
-
-// Get the best available avatar URL
-const getAvatarUrl = (user: { name?: string; email?: string; image?: string }): string => {
-  if (user.image) return user.image;
-  return generateFallbackAvatarUrl(user.name || user.email || 'user');
 };
 
 type SentInvitation = {
@@ -111,6 +96,9 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
   const [isRemoving, setIsRemoving] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserSearchResult | null>(null);
   const t = useI18n();
+  const searchSchema = z.object({
+    query: z.string().min(2, t('partner_search_minimum')),
+  });
 
   const {
     register,
@@ -124,7 +112,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
   const searchQuery = watch('query');
 
   // Search for users
-  const searchUsers = async (query: string) => {
+  const searchUsers = React.useCallback(async (query: string) => {
     if (query.length < 2) {
       setSearchResults([]);
       return;
@@ -138,17 +126,17 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
       if (response.ok) {
         setSearchResults(data.users || []);
       } else {
-        toast.error('Erreur lors de la recherche');
+        toast.error(t('partner_search_error'));
         setSearchResults([]);
       }
     } catch (error) {
       console.error('Search error:', error);
-      toast.error('Erreur lors de la recherche');
+      toast.error(t('partner_search_error'));
       setSearchResults([]);
     } finally {
       setIsSearching(false);
     }
-  };
+  }, [t]);
 
   // Debounced search
   React.useEffect(() => {
@@ -161,7 +149,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
     }, 300);
 
     return () => clearTimeout(timer);
-  }, [searchQuery]);
+  }, [searchQuery, searchUsers]);
 
   // Send invitation
   const sendInvitation = async (userId: string) => {
@@ -178,8 +166,8 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
       const data = await response.json();
 
       if (response.ok) {
-        toast.success('Invitation envoyée!', {
-          description: 'Votre partenaire recevra un email d\'invitation.',
+        toast.success(t('partner_invite_success'), {
+          description: t('partner_invite_success_description'),
         });
         setShowInviteDialog(false);
         reset();
@@ -187,13 +175,13 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
         setSelectedUser(null);
         onPartnerUpdate?.();
       } else {
-        toast.error('Erreur', {
-          description: data.error || 'Impossible d\'envoyer l\'invitation',
+        toast.error(t('profile_error'), {
+          description: data.error || t('partner_invite_error'),
         });
       }
     } catch (error) {
       console.error('Invitation error:', error);
-      toast.error('Erreur lors de l\'envoi de l\'invitation');
+      toast.error(t('partner_invite_send_error'));
     } finally {
       setIsInviting(false);
     }
@@ -208,20 +196,20 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
       });
 
       if (response.ok) {
-        toast.success('Partenariat supprimé', {
-          description: 'Vous n\'êtes plus partenaires budgétaires.',
+        toast.success(t('partner_remove_success'), {
+          description: t('partner_remove_success_description'),
         });
         setShowRemoveDialog(false);
         onPartnerUpdate?.();
       } else {
         const data = await response.json();
-        toast.error('Erreur', {
-          description: data.error || 'Impossible de supprimer le partenariat',
+        toast.error(t('profile_error'), {
+          description: data.error || t('partner_remove_error'),
         });
       }
     } catch (error) {
       console.error('Remove partnership error:', error);
-      toast.error('Erreur lors de la suppression');
+      toast.error(t('partner_remove_generic_error'));
     } finally {
       setIsRemoving(false);
     }
@@ -244,15 +232,12 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
               <div className="relative p-6 rounded-xl border border-border bg-gradient-to-r from-emerald-50/30 via-transparent to-transparent dark:from-emerald-950/10 dark:via-transparent dark:to-transparent">
                 <div className="flex items-center gap-4">
                   <div className="relative">
-                    <div className="w-16 h-16 rounded-xl overflow-hidden bg-muted border-2 border-emerald-200 dark:border-emerald-800/50">
-                      <Image
-                        src={getAvatarUrl(partnerInfo.partner)}
-                        alt={partnerInfo.partner.name || 'Partner Avatar'}
-                        width={64}
-                        height={64}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
+                    <UserAvatar
+                      image={partnerInfo.partner.image}
+                      name={partnerInfo.partner.name}
+                      email={partnerInfo.partner.email}
+                      size={64}
+                    />
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
                       <Heart className="h-2.5 w-2.5 text-white fill-current" />
                     </div>
@@ -297,23 +282,22 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             null
           ) : (
             // No Partner and no sent invitations
-            <div className="text-center py-12 px-4">
-              <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 flex items-center justify-center border border-blue-100 dark:border-blue-800/30">
-                <Users2 className="h-10 w-10 text-blue-600 dark:text-blue-400" />
+            <div className="px-4 py-6 text-center md:py-8">
+              <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 dark:border-blue-800/30 dark:from-blue-950/20 dark:to-indigo-950/20">
+                <Users2 className="size-7 text-blue-600 dark:text-blue-400" />
               </div>
               
-              <h3 className="text-xl font-semibold text-foreground mb-3">
+              <h3 className="mb-2 text-lg font-semibold text-foreground">
                 {t('partner_no_partner_title')}
               </h3>
               
-              <p className="text-muted-foreground max-w-sm mx-auto mb-8 leading-relaxed">
+              <p className="mx-auto mb-5 max-w-sm text-sm leading-relaxed text-muted-foreground">
                 {t('partner_no_partner_description')}
               </p>
 
               <Button
                 onClick={() => setShowInviteDialog(true)}
-                className="px-8 py-2.5 rounded-xl font-medium"
-                size="lg"
+                className="rounded-xl font-medium"
               >
                 <UserPlus className="h-4 w-4 mr-2" />
                 {t('partner_invite_button')}
@@ -372,15 +356,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                       }`}
                       onClick={() => setSelectedUser(user)}
                     >
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted border border-border shrink-0">
-                        <Image
-                          src={getAvatarUrl(user)}
-                          alt={user.name}
-                          width={48}
-                          height={48}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
+                      <UserAvatar image={user.image} name={user.name} email={user.email} size={48} />
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold text-foreground truncate">{user.name}</p>
                         <p className="text-sm text-muted-foreground truncate">{user.email}</p>
@@ -405,15 +381,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             {selectedUser && (
               <div className="pt-4 border-t">
                 <div className="flex items-center gap-3 p-3 bg-muted/20 rounded-lg mb-4">
-                  <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0">
-                    <Image
-                      src={getAvatarUrl(selectedUser)}
-                      alt={selectedUser.name}
-                      width={40}
-                      height={40}
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
+                  <UserAvatar image={selectedUser.image} name={selectedUser.name} email={selectedUser.email} size={40} />
                   <div className="flex-1">
                     <p className="font-medium">{selectedUser.name}</p>
                     <p className="text-sm text-muted-foreground">{selectedUser.email}</p>

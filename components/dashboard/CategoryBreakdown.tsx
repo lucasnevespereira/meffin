@@ -106,7 +106,9 @@ export function CategoryBreakdown({
                           -{formatCurrency(item.total)}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {t('dashboard_transaction_count', { count: item.transactionCount })}
+                          {item.transactionCount === 1
+                            ? t('transactions_count_single', { count: item.transactionCount })
+                            : t('transactions_count_plural', { count: item.transactionCount })}
                         </p>
                       </div>
                     </button>

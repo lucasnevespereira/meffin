@@ -134,7 +134,9 @@ export function TransactionList({
                 ? 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/50 dark:text-green-400 dark:border-green-800'
                 : 'bg-destructive/10 text-destructive border-destructive/20'
             }`}>
-              {filteredTransactions.length} transaction{filteredTransactions.length > 1 ? 's' : ''}
+              {filteredTransactions.length === 1
+                ? t('transactions_count_single', { count: filteredTransactions.length })
+                : t('transactions_count_plural', { count: filteredTransactions.length })}
             </div>
           </div>
 

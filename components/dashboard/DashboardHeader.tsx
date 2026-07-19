@@ -106,9 +106,9 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-3 px-6">
-        <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/30 rounded-lg border border-border/50">
+        <div className="hidden select-none items-center gap-2 text-muted-foreground md:flex">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-muted-foreground">
+          <span className="text-xs font-medium">
             {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(new Date())}
           </span>
         </div>

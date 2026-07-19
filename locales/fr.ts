@@ -104,17 +104,17 @@ export default {
   // Transactions Page
   transactions_title: "Transactions",
   transactions_subtitle: "Gérez vos revenus et dépenses",
-  transactions_add_button: "Ajouter une entrée",
-  transactions_income_section: "Mes entrées",
+  transactions_add_button: "Ajouter une transaction",
+  transactions_income_section: "Mes revenus",
   transactions_expenses_section: "Mes dépenses",
-  transactions_no_income: "Aucune entrée pour ce mois",
+  transactions_no_income: "Aucun revenu pour ce mois",
   transactions_no_expenses: "Aucune dépense pour ce mois",
   transactions_loading_error: "Erreur lors du chargement des données",
   transactions_login_required:
     "Veuillez vous connecter pour accéder aux transactions",
-  transactions_my_income: "Mes entrées",
+  transactions_my_income: "Mes revenus",
   transactions_my_expenses: "Mes dépenses",
-  transactions_our_income: "Nos entrées",
+  transactions_our_income: "Nos revenus",
   transactions_our_expenses: "Nos dépenses",
   transactions_no_shared_income: "Aucun revenu partagé ce mois-ci",
   transactions_no_shared_expenses: "Aucune dépense partagée ce mois-ci",
@@ -127,6 +127,8 @@ export default {
   transaction_annual: "annuelle",
   transactions_monthly: "Mensuel",
   transactions_annual: "Annuel",
+  transactions_count_single: "{count} transaction",
+  transactions_count_plural: "{count} transactions",
 
   // Common
   loading: "Chargement...",
@@ -354,8 +356,8 @@ export default {
   dashboard_expenses_will_appear:
     "Vos dépenses apparaîtront ici une fois ajoutées",
   dashboard_balance: "Solde",
-  dashboard_income: "Entrées",
-  dashboard_expenses: "Sorties",
+  dashboard_income: "Revenus",
+  dashboard_expenses: "Dépenses",
   dashboard_balance_month: "Solde actuel",
   dashboard_income_month: "Revenus du mois",
   dashboard_expenses_month: "Dépenses du mois",
@@ -364,7 +366,7 @@ export default {
   this_month: "Ce mois",
 
   // Partner System
-  partner_budget_title: "Partenaire Budget",
+  partner_budget_title: "Partenaire budgétaire",
   partner_active_status: "Actif",
   partner_shared_budget: "Budget Partagé",
   partner_shared_description:
@@ -380,8 +382,14 @@ export default {
   partner_search_label: "Rechercher un utilisateur",
   partner_search_placeholder: "Nom ou adresse email...",
   partner_search_results: "Résultats de recherche",
+  partner_search_minimum: "Saisissez au moins 2 caractères pour rechercher",
+  partner_search_error: "Impossible de rechercher des utilisateurs",
   partner_no_results: 'Aucun utilisateur trouvé pour "{query}"',
   partner_send_invitation: "Envoyer l'invitation",
+  partner_invite_success: "Invitation envoyée",
+  partner_invite_success_description: "Votre partenaire recevra un email d'invitation.",
+  partner_invite_error: "Impossible d'envoyer l'invitation",
+  partner_invite_send_error: "Une erreur est survenue lors de l'envoi de l'invitation",
   partner_invitation_title: "Invitation de partenariat",
   partner_collaborative_budget: "Budget collaboratif",
   partner_wants_to_share:
@@ -408,6 +416,10 @@ export default {
     "Attention : Vous ne verrez plus les transactions de votre partenaire, mais vos données existantes resteront intactes.",
   partner_removing: "Suppression...",
   partner_confirm: "Confirmer",
+  partner_remove_success: "Partenariat supprimé",
+  partner_remove_success_description: "Vous n'êtes plus partenaires budgétaires.",
+  partner_remove_error: "Impossible de supprimer le partenariat",
+  partner_remove_generic_error: "Une erreur est survenue lors de la suppression",
 
   transaction_private: "Transaction privée",
   transaction_private_description:
@@ -430,6 +442,9 @@ export default {
   lists_empty_title: "Aucune liste pour le moment",
   lists_empty_description:
     "Créez votre première liste de courses pour commencer à organiser vos achats potentiels.",
+  lists_login_required: "Connectez-vous pour consulter vos listes.",
+  lists_loading_error:
+    "Impossible de charger vos listes. Veuillez réessayer.",
   lists_progress: "Progression",
   lists_remaining: "Restants",
   lists_estimated: "Estimé",
