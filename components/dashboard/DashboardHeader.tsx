@@ -20,34 +20,35 @@ import { Separator } from "@/components/ui/separator";
 export function DashboardHeader() {
   const pathname = usePathname();
   const t = useI18n();
+  const locale = pathname.split('/').filter(Boolean)[0] || 'en';
 
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
-    const locale = segments[0];
+    const activeLocale = segments[0];
     const route = segments[1] || 'dashboard';
 
     const breadcrumbs = [
-      { name: t('app_name'), href: `/${locale}` },
+      { name: t('app_name'), href: `/${activeLocale}` },
     ];
 
     switch (route) {
       case 'dashboard':
-        breadcrumbs.push({ name: t('nav_dashboard'), href: `/${locale}/dashboard` });
+        breadcrumbs.push({ name: t('nav_dashboard'), href: `/${activeLocale}/dashboard` });
         break;
       case 'transactions':
-        breadcrumbs.push({ name: t('nav_transactions'), href: `/${locale}/transactions` });
+        breadcrumbs.push({ name: t('nav_transactions'), href: `/${activeLocale}/transactions` });
         break;
       case 'categories':
-        breadcrumbs.push({ name: t('nav_categories'), href: `/${locale}/categories` });
+        breadcrumbs.push({ name: t('nav_categories'), href: `/${activeLocale}/categories` });
         break;
       case 'profile':
-        breadcrumbs.push({ name: t('nav_profile'), href: `/${locale}/profile` });
+        breadcrumbs.push({ name: t('nav_profile'), href: `/${activeLocale}/profile` });
         break;
       case 'trends':
-        breadcrumbs.push({ name: t('nav_trends'), href: `/${locale}/trends` });
+        breadcrumbs.push({ name: t('nav_trends'), href: `/${activeLocale}/trends` });
         break;
       case 'lists':
-        breadcrumbs.push({ name: t('nav_lists'), href: `/${locale}/lists` });
+        breadcrumbs.push({ name: t('nav_lists'), href: `/${activeLocale}/lists` });
         break;
       default:
         breadcrumbs.push({ name: route.charAt(0).toUpperCase() + route.slice(1), href: pathname });
@@ -106,7 +107,7 @@ export function DashboardHeader() {
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/30 rounded-lg border border-border/50">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium text-muted-foreground">
-            {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+            {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(new Date())}
           </span>
         </div>
         <Separator orientation="vertical" className="h-6" />
