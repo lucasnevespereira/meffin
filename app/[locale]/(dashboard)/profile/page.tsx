@@ -5,8 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import Image from 'next/image';
-import { Trash2, Save, AlertTriangle } from 'lucide-react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+import { Trash2, Save, AlertTriangle, ChevronRight, Tag, TrendingUp, Languages, Moon, Coins, Users } from 'lucide-react';
+import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
+import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -53,25 +56,75 @@ type ProfileFormData = {
   currency: string;
 };
 
-// Generate a fallback avatar URL based on user's name or email using initials
-const generateFallbackAvatarUrl = (seed: string): string => {
-  return `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=f3f4f6&textColor=374151`;
-};
-
-// Get the best available avatar URL (Google profile image or fallback to initials)
-const getAvatarUrl = (user: { name?: string | null; email?: string | null; image?: string | null }): string => {
-  // Use Google profile image if available
-  if (user.image) {
-    return user.image;
-  }
-  
-  // Fallback to initials avatar
-  return generateFallbackAvatarUrl(user.name || user.email || 'user');
-};
-
 // Small uppercase section label, mirroring the mobile "You" screen grouping.
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">{children}</h2>;
+}
+
+function initialsFrom(name?: string | null, email?: string | null) {
+  const base = (name || email || 'U').trim();
+  return base.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
+}
+
+// Gradient initials avatar, matching the mobile profile card.
+function GradientAvatar({ name, email, size = 56 }: { name?: string | null; email?: string | null; size?: number }) {
+  return (
+    <div
+      className="flex items-center justify-center rounded-xl text-white font-semibold shrink-0"
+      style={{ width: size, height: size, fontSize: size * 0.36, background: 'linear-gradient(135deg, #8B7BF0, #F06CA5)' }}
+    >
+      {initialsFrom(name, email)}
+    </div>
+  );
+}
+
+// Rounded panel that groups setting rows, mobile-style.
+function Panel({ children }: { children: React.ReactNode }) {
+  return <div className="rounded-xl border border-border bg-card shadow-card overflow-hidden divide-y divide-border">{children}</div>;
+}
+
+const rowTints: Record<string, string> = {
+  coral: 'bg-primary/15 text-primary',
+  blue: 'bg-blue-500/15 text-blue-500',
+  green: 'bg-emerald-500/15 text-emerald-500',
+  red: 'bg-destructive/15 text-destructive',
+};
+
+function SettingsRow({
+  icon: Icon,
+  tint = 'coral',
+  title,
+  subtitle,
+  href,
+  onClick,
+  right,
+  destructive,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  tint?: keyof typeof rowTints;
+  title: string;
+  subtitle?: string;
+  href?: string;
+  onClick?: () => void;
+  right?: React.ReactNode;
+  destructive?: boolean;
+}) {
+  const interactive = Boolean(href || onClick);
+  const inner = (
+    <div className={`flex items-center gap-3 px-4 py-3.5 ${interactive ? 'hover:bg-primary/5 transition-colors' : ''}`}>
+      <div className={`flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ${rowTints[tint]}`}>
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className={`text-sm font-medium truncate ${destructive ? 'text-destructive' : 'text-foreground'}`}>{title}</p>
+        {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
+      </div>
+      {right ?? (interactive && <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />)}
+    </div>
+  );
+  if (href) return <Link href={href} className="block">{inner}</Link>;
+  if (onClick) return <button type="button" onClick={onClick} className="w-full text-left">{inner}</button>;
+  return inner;
 }
 
 export default function ProfilePage() {
@@ -83,9 +136,12 @@ export default function ProfilePage() {
   const { data: sentInvitations } = useSentPartnerInvitations();
   const refreshPartnerInfo = useRefreshPartnerInfo();
   const t = useI18n();
+  const params = useParams();
+  const locale = params.locale as string;
   const updateProfileMutation = useUpdateProfile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showPartner, setShowPartner] = useState(false);
 
   const profileSchema = createProfileSchema(t);
 
@@ -118,7 +174,18 @@ export default function ProfilePage() {
   }, [profileData, session, profileLoading, reset]);
 
   const selectedCurrency = watch('currency') || profileData?.user?.currency || 'EUR';
+  const currentName = watch('name') || profileData?.user?.name || session?.user?.name || '';
 
+  // Currency lives in Preferences and saves immediately on change.
+  const handleCurrencyChange = async (value: string) => {
+    setValue('currency', value);
+    try {
+      await updateProfileMutation.mutateAsync({ name: currentName, currency: value });
+      toast.success(t('profile_success'), { description: t('profile_success_description'), duration: 3000 });
+    } catch (err: unknown) {
+      toast.error(t('profile_error'), { description: err instanceof Error ? err.message : t('profile_error'), duration: 4000 });
+    }
+  };
 
   const onSubmit = async (data: ProfileFormData) => {
     try {
@@ -219,19 +286,11 @@ export default function ProfilePage() {
       {/* Profile header */}
       <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
         <div className="flex items-center gap-3 md:gap-4">
-          <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl overflow-hidden ring-2 ring-border shrink-0">
-            <Image
-              src={getAvatarUrl(session.user)}
-              alt={session.user.name || 'User Avatar'}
-              width={64}
-              height={64}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target as HTMLImageElement;
-                target.src = generateFallbackAvatarUrl(session.user.name || session.user.email || 'user');
-              }}
-            />
-          </div>
+          <GradientAvatar
+            name={profileData?.user?.name || session.user.name}
+            email={profileData?.user?.email || session.user.email}
+            size={60}
+          />
           <div className="flex-1 min-w-0">
             <h2 className="text-base md:text-xl font-bold tracking-tight truncate">{profileData?.user?.name || session.user.name || 'User'}</h2>
             <p className="text-muted-foreground text-xs md:text-sm truncate">{profileData?.user?.email || session.user.email}</p>
@@ -279,28 +338,6 @@ export default function ProfilePage() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="currency" className="text-sm font-medium text-foreground">{t('profile_currency')}</Label>
-              <Select
-                value={selectedCurrency}
-                onValueChange={(value) => setValue('currency', value)}
-              >
-                <SelectTrigger className="h-9 md:h-10 w-full sm:max-w-xs">
-                  <SelectValue placeholder={t('profile_currency_select')} />
-                </SelectTrigger>
-                <SelectContent>
-                  {SUPPORTED_CURRENCIES.map((currency) => (
-                    <SelectItem key={currency.code} value={currency.code} className="py-2">
-                      <span>{t(currency.nameKey)}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {errors.currency && (
-                <p className="text-sm text-destructive">{errors.currency.message}</p>
-              )}
-            </div>
-
             <div className="flex justify-end pt-2">
               <Button
                 type="submit"
@@ -313,6 +350,50 @@ export default function ProfilePage() {
             </div>
           </form>
         </div>
+      </section>
+
+      {/* Budget */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_budget')}</SectionLabel>
+        <Panel>
+          <SettingsRow
+            icon={Users}
+            tint="coral"
+            title={t('partner_budget_title')}
+            subtitle={partnerInfo?.partner?.name || t('partner_no_partner_title')}
+            onClick={() => setShowPartner((v) => !v)}
+          />
+          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
+          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+        </Panel>
+      </section>
+
+      {/* Preferences */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_preferences')}</SectionLabel>
+        <Panel>
+          <SettingsRow
+            icon={Coins}
+            tint="coral"
+            title={t('profile_currency')}
+            right={
+              <Select value={selectedCurrency} onValueChange={handleCurrencyChange}>
+                <SelectTrigger className="h-9 w-auto gap-2 border-0 shadow-none bg-transparent focus:ring-0">
+                  <SelectValue placeholder={t('profile_currency_select')} />
+                </SelectTrigger>
+                <SelectContent align="end">
+                  {SUPPORTED_CURRENCIES.map((currency) => (
+                    <SelectItem key={currency.code} value={currency.code} className="py-2">
+                      <span>{t(currency.nameKey)}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            }
+          />
+          <SettingsRow icon={Languages} tint="green" title={t('profile_language')} right={<LocaleSwitcher variant="ghost" showText />} />
+          <SettingsRow icon={Moon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
+        </Panel>
       </section>
 
       {/* Received Partner Invitations */}
@@ -341,33 +422,28 @@ export default function ProfilePage() {
         </div>
       )}
 
-      {/* Partner Management */}
-      <PartnerManagement 
-        partnerInfo={partnerInfo}
-        sentInvitations={sentInvitations?.invitations}
-        onPartnerUpdate={refreshPartnerInfo}
-      />
+      {/* Partner Management — shown when a partner exists or the row is toggled */}
+      {(showPartner || partnerInfo?.partner) && (
+        <PartnerManagement
+          partnerInfo={partnerInfo}
+          sentInvitations={sentInvitations?.invitations}
+          onPartnerUpdate={refreshPartnerInfo}
+        />
+      )}
 
       {/* Security */}
       <section className="space-y-3">
         <SectionLabel>{t('profile_danger_section')}</SectionLabel>
-        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-4 md:p-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-medium text-foreground">{t('profile_delete_button')}</p>
-              <p className="text-xs text-muted-foreground mt-1 max-w-md">{t('profile_delete_description')}</p>
-            </div>
-          </div>
-          <Button
-            variant="outline"
+        <Panel>
+          <SettingsRow
+            icon={Trash2}
+            tint="red"
+            title={t('profile_delete_button')}
+            subtitle={t('profile_delete_description')}
             onClick={() => setShowDeleteDialog(true)}
-            className="text-destructive hover:text-destructive hover:border-destructive/50 transition-colors w-full sm:w-auto shrink-0"
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
-            {t('profile_delete_button')}
-          </Button>
-        </div>
+            destructive
+          />
+        </Panel>
       </section>
 
 
