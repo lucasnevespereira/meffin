@@ -17,12 +17,12 @@ export function BalanceCards({ balance }: BalanceCardsProps) {
     <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-3">
       {/* Balance Card */}
       <div className="group relative overflow-hidden rounded-xl border border-border bg-card shadow-card hover:shadow-lg transition-all duration-300 touch-manipulation">
-        <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 to-transparent dark:from-slate-900/20 dark:to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent dark:from-primary/10 dark:to-transparent" />
         <div className="relative p-4 md:p-6">
           <div className="flex items-center justify-between mb-3 md:mb-4">
             <div className="flex items-center gap-2 md:gap-3">
-              <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg bg-slate-100 group-hover:bg-slate-200 dark:bg-slate-800 dark:group-hover:bg-slate-700 transition-colors">
-                <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-slate-600 dark:text-slate-300" />
+              <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg bg-primary/10 group-hover:bg-primary/20 dark:bg-primary/15 dark:group-hover:bg-primary/25 transition-colors">
+                <DollarSign className="h-4 w-4 md:h-5 md:w-5 text-primary" />
               </div>
               <span className="text-xs md:text-sm font-medium text-muted-foreground">{t('dashboard_balance')}</span>
             </div>

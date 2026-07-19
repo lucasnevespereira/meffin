@@ -3,6 +3,7 @@
 import { useRouter, usePathname, useParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Mascot } from '@/components/shared/Mascot';
 import {
   LayoutDashboard,
   Tag,
@@ -95,15 +96,9 @@ export function AppSidebar() {
     <Sidebar variant="inset" className="border-r border-border shadow-subtle">
       <SidebarHeader className="border-b border-border">
         <div className="flex items-center gap-2 px-4 py-2">
-          <Image
-            src="/logo.png"
-            alt="Meffin Logo"
-            width={64}
-            height={64}
-            className="object-cover invert dark:invert-0"
-          />
+          <Mascot size={40} />
           <div className="flex flex-col min-w-0">
-            <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 dark:from-slate-100 dark:to-slate-300 bg-clip-text text-transparent">
+            <span className="text-2xl font-semibold tracking-tight text-foreground">
               Meffin
             </span>
             <span className="text-xs text-muted-foreground font-medium">v{APP_VERSION}</span>

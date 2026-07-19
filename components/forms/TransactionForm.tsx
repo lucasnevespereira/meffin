@@ -293,8 +293,12 @@ export function TransactionForm({
                             </span>
                           </div>
                           <Badge
-                            variant={category.type === 'income' ? 'default' : 'secondary'}
-                            className="text-xs px-2 py-1 ml-auto flex-shrink-0"
+                            variant="outline"
+                            className={`text-xs px-2 py-1 ml-auto flex-shrink-0 border-transparent ${
+                              category.type === 'income'
+                                ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-400'
+                                : 'bg-rose-500/15 text-rose-700 dark:text-rose-400'
+                            }`}
                           >
                             {category.type === 'income' ? '↑ Income' : '↓ Expense'}
                           </Badge>

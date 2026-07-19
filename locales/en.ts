@@ -1,9 +1,9 @@
 export default {
   // App
   app_name: "Meffin",
-  app_tagline: "Simple, lightweight monthly budget tracking",
+  app_tagline: "Budgeting that's actually sweet.",
   app_description:
-    "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
+    "Your pocket-sized money buddy. Track every euro without the spreadsheet headache. Simple, and yours to self-host.",
 
   // Auth
   login_title: "Sign In",
