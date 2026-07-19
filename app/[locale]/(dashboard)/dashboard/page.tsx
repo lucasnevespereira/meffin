@@ -50,17 +50,17 @@ export default function DashboardPage() {
       {/* Balance Cards */}
       {isLoading ? (
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(18rem,0.8fr)]">
-          <div className="min-h-[20rem] animate-pulse rounded-2xl border border-border bg-card p-6">
+          <div className="min-h-[15rem] animate-pulse rounded-2xl border border-border bg-card p-6">
             <div className="h-4 w-40 rounded bg-muted/60" />
-            <div className="mt-10 h-12 w-56 rounded bg-muted/60" />
+            <div className="mt-6 h-12 w-56 rounded bg-muted/60" />
             <div className="mt-4 h-7 w-32 rounded-full bg-muted/60" />
-            <div className="mt-20 h-3 rounded-full bg-muted/60" />
+            <div className="mt-12 h-3 rounded-full bg-muted/60" />
           </div>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
             {[1, 2].map((i) => (
-              <div key={i} className="min-h-40 animate-pulse rounded-2xl border border-border bg-card p-6">
+              <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-5">
                 <div className="h-4 w-20 rounded bg-muted/60" />
-                <div className="mt-12 h-8 w-36 rounded bg-muted/60" />
+                <div className="mt-7 h-8 w-36 rounded bg-muted/60" />
               </div>
             ))}
           </div>
@@ -77,18 +77,17 @@ export default function DashboardPage() {
       {isLoading ? (
         <div className="mt-10">
           <div className="mb-4 h-7 w-64 rounded bg-muted/60" />
-          <div className="grid gap-4 lg:grid-cols-2">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-5">
-                <div className="flex items-center gap-4">
-                  <div className="size-12 rounded-xl bg-muted/60" />
-                  <div className="flex-1">
+          <div className="rounded-xl border border-border bg-card p-4 md:p-6">
+            <div className="space-y-3 md:space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="animate-pulse rounded-lg bg-muted/30 p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="size-8 rounded-lg bg-muted/60" />
                     <div className="h-4 w-28 rounded bg-muted/60" />
-                    <div className="mt-4 h-2 rounded-full bg-muted/60" />
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       ) : data ? (
