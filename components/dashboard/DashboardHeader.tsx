@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { usePathname } from 'next/navigation';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 import { Calendar } from 'lucide-react';
@@ -20,11 +20,14 @@ import { Separator } from "@/components/ui/separator";
 export function DashboardHeader() {
   const pathname = usePathname();
   const t = useI18n();
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
 
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
-    const locale = segments[0];
-    const route = segments[1] || 'dashboard';
+    const route = segments.find((segment) =>
+      ['dashboard', 'transactions', 'categories', 'profile', 'trends', 'lists'].includes(segment)
+    ) || 'dashboard';
 
     const breadcrumbs = [
       { name: t('app_name'), href: `/${locale}` },
@@ -106,7 +109,7 @@ export function DashboardHeader() {
         <div className="hidden md:flex items-center gap-2 px-3 py-1.5 bg-muted/30 rounded-lg border border-border/50">
           <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium text-muted-foreground">
-            {new Date().toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
+            {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(new Date())}
           </span>
         </div>
         <Separator orientation="vertical" className="h-6" />

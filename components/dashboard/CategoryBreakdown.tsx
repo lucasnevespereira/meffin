@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useI18n } from '@/locales/client';
@@ -20,104 +21,121 @@ interface CategoryBreakdownProps {
   month: number;
   year: number;
   currentUserId?: string;
+  transactionsHref: string;
 }
 
-export function CategoryBreakdown({ categories, month, year, currentUserId }: CategoryBreakdownProps) {
+export function CategoryBreakdown({
+  categories,
+  month,
+  year,
+  currentUserId,
+  transactionsHref,
+}: CategoryBreakdownProps) {
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const { data: transactionsData } = useTransactions(month, year);
   const t = useI18n();
   const formatCurrency = useFormatCurrency();
+  const expenseCategories = categories.filter((item) => item.category.type === 'expense');
 
   const formatDate = (date: string | Date) => {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
-    return new Intl.DateTimeFormat('fr-FR', {
+    return new Intl.DateTimeFormat(undefined, {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric'
+      year: 'numeric',
     }).format(dateObj);
   };
 
-
-
-  const toggleCategory = (categoryId: string) => {
-    setExpandedCategory(expandedCategory === categoryId ? null : categoryId);
-  };
-
-  const getCategoryTransactions = (categoryId: string) => {
-    return transactionsData?.transactions?.filter(t => t.categoryId === categoryId) || [];
-  };
-
-  const expenseCategories = categories.filter(cat => cat.category.type === 'expense');
+  const getCategoryTransactions = (categoryId: string) => (
+    transactionsData?.transactions?.filter((transaction) => transaction.categoryId === categoryId) || []
+  );
 
   return (
-    <div className="mt-6 md:mt-8">
+    <section className="mt-8 md:mt-10">
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <h2 className="text-xl font-bold tracking-tight sm:text-2xl">
+          {t('dashboard_where_money_went')}
+        </h2>
+        <Link
+          href={transactionsHref}
+          className="shrink-0 text-sm font-semibold text-primary transition-colors hover:text-primary/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {t('dashboard_view_all')}
+        </Link>
+      </div>
+
       <div className="rounded-xl border border-border bg-card shadow-card">
         <div className="p-4 md:p-6">
           {expenseCategories.length > 0 ? (
             <div className="space-y-3 md:space-y-4">
-              {expenseCategories.map((category) => {
-                const categoryTransactions = getCategoryTransactions(category.categoryId);
-                const isExpanded = expandedCategory === category.categoryId;
+              {expenseCategories.map((item) => {
+                const categoryTransactions = getCategoryTransactions(item.categoryId);
+                const isExpanded = expandedCategory === item.categoryId;
 
                 return (
-                  <div key={category.categoryId} className="group">
-                    <div
-                      className="flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/30 hover:bg-muted/50 cursor-pointer transition-all duration-200 border border-transparent hover:border-border active:scale-[0.98] touch-manipulation"
-                      onClick={() => toggleCategory(category.categoryId)}
+                  <div key={item.categoryId} className="group">
+                    <button
+                      type="button"
+                      className="flex w-full touch-manipulation items-center justify-between rounded-lg border border-transparent bg-muted/30 p-3 text-left transition-all duration-200 hover:border-border hover:bg-muted/50 active:scale-[0.98] md:p-4"
+                      onClick={() => setExpandedCategory(isExpanded ? null : item.categoryId)}
+                      aria-expanded={isExpanded}
                     >
-                      <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
+                      <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
                         <div className="flex items-center gap-2 md:gap-3">
                           {isExpanded ? (
-                            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform shrink-0" />
+                            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
                           ) : (
-                            <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform shrink-0" />
+                            <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
                           )}
-                          <div className="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 rounded-lg shrink-0" style={{ backgroundColor: `${category.category.color}20` }}>
+                          <div
+                            className="flex size-6 shrink-0 items-center justify-center rounded-lg md:size-8"
+                            style={{ backgroundColor: `${item.category.color}20` }}
+                          >
                             <div
-                              className="w-2 h-2 md:w-3 md:h-3 rounded-full"
-                              style={{ backgroundColor: category.category.color }}
+                              className="size-2 rounded-full md:size-3"
+                              style={{ backgroundColor: item.category.color }}
                             />
                           </div>
-                          <span className="font-semibold text-sm md:text-base truncate">{getCategoryDisplayName(category.category, t)}</span>
+                          <span className="truncate text-sm font-semibold md:text-base">
+                            {getCategoryDisplayName(item.category, t)}
+                          </span>
                         </div>
                       </div>
-                      <div className="text-right shrink-0 ml-2">
-                        <div className="font-bold text-sm md:text-base text-destructive">
-                          -{formatCurrency(category.total)}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {category.transactionCount} transaction{category.transactionCount > 1 ? 's' : ''}
-                        </div>
+                      <div className="ml-2 shrink-0 text-right">
+                        <p className="text-sm font-bold text-destructive md:text-base">
+                          -{formatCurrency(item.total)}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {t('dashboard_transaction_count', { count: item.transactionCount })}
+                        </p>
                       </div>
-                    </div>
+                    </button>
 
                     {isExpanded && (
-                      <div className="mt-2 md:mt-3 ml-8 md:ml-12 space-y-2 animate-in slide-in-from-top-2 duration-200">
+                      <div className="ml-8 mt-2 space-y-2 animate-in slide-in-from-top-2 duration-200 md:ml-12 md:mt-3">
                         {categoryTransactions.length > 0 ? (
                           categoryTransactions.map((transaction) => (
                             <div
                               key={transaction.id}
-                              className="flex items-center justify-between py-2 md:py-3 px-3 md:px-4 rounded-lg bg-card border border-border/50 hover:shadow-subtle transition-shadow touch-manipulation"
+                              className="flex touch-manipulation items-center justify-between rounded-lg border border-border/50 bg-card px-3 py-2 transition-shadow hover:shadow-subtle md:px-4 md:py-3"
                             >
-                              <div className="flex flex-col gap-0.5 md:gap-1 min-w-0 flex-1">
+                              <div className="flex min-w-0 flex-1 flex-col gap-0.5 md:gap-1">
                                 {transaction.isPrivate && transaction.createdBy && transaction.createdBy.id !== currentUserId ? (
-                                  <span className="text-sm font-medium truncate text-muted-foreground italic">
-                                    🔒 {t('transaction_private_placeholder') || 'Private transaction'}
+                                  <span className="truncate text-sm font-medium italic text-muted-foreground">
+                                    🔒 {t('transaction_private_placeholder')}
                                   </span>
                                 ) : (
-                                  <span className="text-sm font-medium truncate">{transaction.description}</span>
+                                  <span className="truncate text-sm font-medium">{transaction.description}</span>
                                 )}
-                                <span className="text-xs text-muted-foreground">
-                                  {formatDate(transaction.date)}
-                                </span>
+                                <span className="text-xs text-muted-foreground">{formatDate(transaction.date)}</span>
                               </div>
-                              <div className="text-sm font-semibold text-destructive shrink-0 ml-2">
+                              <span className="ml-2 shrink-0 text-sm font-semibold text-destructive">
                                 -{formatCurrency(Number(transaction.amount))}
-                              </div>
+                              </span>
                             </div>
                           ))
                         ) : (
-                          <div className="text-center py-4 md:py-6 text-sm text-muted-foreground bg-muted/20 rounded-lg">
+                          <div className="rounded-lg bg-muted/20 py-4 text-center text-sm text-muted-foreground md:py-6">
                             {t('dashboard_no_transactions_category')}
                           </div>
                         )}
@@ -128,16 +146,16 @@ export function CategoryBreakdown({ categories, month, year, currentUserId }: Ca
               })}
             </div>
           ) : (
-            <div className="text-center py-8 md:py-12 text-muted-foreground">
-              <div className="w-12 h-12 md:w-16 md:h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
+            <div className="py-8 text-center text-muted-foreground md:py-12">
+              <div className="mx-auto mb-3 flex size-12 items-center justify-center rounded-full bg-muted/50 md:mb-4 md:size-16">
                 <span className="text-xl md:text-2xl">📊</span>
               </div>
-              <p className="font-medium text-sm md:text-base">{t('dashboard_no_expenses_month')}</p>
-              <p className="text-xs md:text-sm mt-1">{t('dashboard_expenses_will_appear')}</p>
+              <p className="text-sm font-medium md:text-base">{t('dashboard_no_expenses_month')}</p>
+              <p className="mt-1 text-xs md:text-sm">{t('dashboard_expenses_will_appear')}</p>
             </div>
           )}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
