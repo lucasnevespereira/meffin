@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { AnalyticsUpIcon, ChartLineData01Icon } from "@hugeicons/core-free-icons";
 import { useState, useMemo } from 'react';
-import { TrendingUp, LineChart as LineChartIcon } from 'lucide-react';
 import {
   Area,
   AreaChart,
@@ -105,7 +106,7 @@ export default function TrendsPage() {
         <Card className="shadow-card">
           <CardContent className="text-center py-12 md:py-16">
             <div className="w-12 h-12 md:w-16 md:h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-3 md:mb-4">
-              <TrendingUp className="h-6 w-6 md:h-7 md:w-7 text-muted-foreground" />
+              <HugeiconsIcon icon={AnalyticsUpIcon} className="h-6 w-6 md:h-7 md:w-7 text-muted-foreground" />
             </div>
             <p className="font-medium text-sm md:text-base">{t('trends_empty_title')}</p>
             <p className="text-xs md:text-sm text-muted-foreground mt-1">{t('trends_empty_subtitle')}</p>
@@ -117,7 +118,7 @@ export default function TrendsPage() {
           <Card className="shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                <LineChartIcon className="h-4 w-4 text-primary" />
+                <HugeiconsIcon icon={ChartLineData01Icon} className="h-4 w-4 text-primary" />
                 {t('trends_balance_title')}
               </CardTitle>
             </CardHeader>
@@ -161,7 +162,7 @@ export default function TrendsPage() {
           <Card className="shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                <TrendingUp className="h-4 w-4 text-primary" />
+                <HugeiconsIcon icon={AnalyticsUpIcon} className="h-4 w-4 text-primary" />
                 {t('trends_income_expenses_title')}
               </CardTitle>
             </CardHeader>

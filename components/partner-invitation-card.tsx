@@ -1,8 +1,9 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, Clock01Icon, HeartIcon, Loading02Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Heart, Check, X, Clock, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -140,7 +141,7 @@ export default function PartnerInvitationCard({ invitation, onUpdate }: PartnerI
         <div className="px-6 py-4 border-b border-border bg-muted/20">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-              <Heart className="h-5 w-5 text-muted-foreground" />
+              <HugeiconsIcon icon={HeartIcon} className="h-5 w-5 text-muted-foreground" />
             </div>
             <div>
               <h3 className="font-semibold text-foreground">{t('partner_invitation_title')}</h3>
@@ -182,7 +183,7 @@ export default function PartnerInvitationCard({ invitation, onUpdate }: PartnerI
           {/* Metadata */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-6 p-3 rounded-lg bg-muted/30">
             <div className="flex items-center gap-1.5">
-              <Clock className="h-3 w-3" />
+              <HugeiconsIcon icon={Clock01Icon} className="h-3 w-3" />
               <span>{t('partner_received_time', { time: formatTimeAgo(invitation.createdAt) })}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -200,12 +201,12 @@ export default function PartnerInvitationCard({ invitation, onUpdate }: PartnerI
             >
               {isAccepting ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <HugeiconsIcon icon={Loading02Icon} className="h-4 w-4 mr-2 animate-spin" />
                   {t('partner_accepting')}
                 </>
               ) : (
                 <>
-                  <Check className="h-4 w-4 mr-2" />
+                  <HugeiconsIcon icon={Tick01Icon} className="h-4 w-4 mr-2" />
                   {t('partner_accept_partnership')}
                 </>
               )}
@@ -219,12 +220,12 @@ export default function PartnerInvitationCard({ invitation, onUpdate }: PartnerI
             >
               {isDeclining ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <HugeiconsIcon icon={Loading02Icon} className="h-4 w-4 mr-2 animate-spin" />
                   {t('partner_declining')}
                 </>
               ) : (
                 <>
-                  <X className="h-4 w-4 mr-2" />
+                  <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4 mr-2" />
                   {t('partner_decline')}
                 </>
               )}

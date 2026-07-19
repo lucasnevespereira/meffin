@@ -1,21 +1,21 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  Alert01Icon,
+  Cancel01Icon,
+  HeartIcon,
+  Loading02Icon,
+  Search01Icon,
+  SentIcon,
+  UserAdd01Icon,
+  UserMultipleIcon,
+  UserRemove01Icon,
+} from '@hugeicons/core-free-icons';
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { 
-  Users2, 
-  Search, 
-  UserPlus, 
-  X, 
-  Heart, 
-  Loader2, 
-  AlertTriangle,
-  Send,
-  UserX
-} from 'lucide-react';
-
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -221,7 +221,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
       <div className="rounded-lg md:rounded-xl border border-border bg-card shadow-card">
         <div className="p-4 md:p-6">
           <div className="flex items-center gap-3 mb-4 md:mb-6">
-            <Users2 className="h-5 w-5 text-muted-foreground" />
+            <HugeiconsIcon icon={UserMultipleIcon} className="h-5 w-5 text-muted-foreground" />
             <h2 className="text-lg md:text-xl font-bold tracking-tight">{t('partner_budget_title')}</h2>
           </div>
 
@@ -239,7 +239,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                       size={64}
                     />
                     <div className="absolute -top-1 -right-1 w-5 h-5 bg-emerald-500 rounded-full flex items-center justify-center">
-                      <Heart className="h-2.5 w-2.5 text-white fill-current" />
+                      <HugeiconsIcon icon={HeartIcon} className="h-2.5 w-2.5 fill-current text-white" />
                     </div>
                   </div>
                   
@@ -271,7 +271,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                     onClick={() => setShowRemoveDialog(true)}
                     className="text-muted-foreground hover:text-destructive hover:border-destructive/50 hover:bg-destructive/5 transition-colors"
                   >
-                    <UserX className="h-4 w-4 mr-2" />
+                    <HugeiconsIcon icon={UserRemove01Icon} className="h-4 w-4 mr-2" />
                     {t('partner_stop_sharing')}
                   </Button>
                 </div>
@@ -284,7 +284,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             // No Partner and no sent invitations
             <div className="px-4 py-6 text-center md:py-8">
               <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-indigo-50 dark:border-blue-800/30 dark:from-blue-950/20 dark:to-indigo-950/20">
-                <Users2 className="size-7 text-blue-600 dark:text-blue-400" />
+                <HugeiconsIcon icon={UserMultipleIcon} className="size-7 text-blue-600 dark:text-blue-400" />
               </div>
               
               <h3 className="mb-2 text-lg font-semibold text-foreground">
@@ -299,7 +299,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                 onClick={() => setShowInviteDialog(true)}
                 className="rounded-xl font-medium"
               >
-                <UserPlus className="h-4 w-4 mr-2" />
+                <HugeiconsIcon icon={UserAdd01Icon} className="h-4 w-4 mr-2" />
                 {t('partner_invite_button')}
               </Button>
             </div>
@@ -313,7 +313,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
           <DialogHeader className="text-left space-y-3">
             <DialogTitle className="flex items-center gap-3 text-xl">
               <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-                <UserPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <HugeiconsIcon icon={UserAdd01Icon} className="h-5 w-5 text-blue-600 dark:text-blue-400" />
               </div>
               {t('partner_invite_title')}
             </DialogTitle>
@@ -326,7 +326,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             <div className="space-y-2">
               <Label htmlFor="search">{t('partner_search_label')}</Label>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <HugeiconsIcon icon={Search01Icon} className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="search"
                   placeholder={t('partner_search_placeholder')}
@@ -334,7 +334,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                   {...register('query')}
                 />
                 {isSearching && (
-                  <Loader2 className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                  <HugeiconsIcon icon={Loading02Icon} className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
                 )}
               </div>
               {errors.query && (
@@ -397,7 +397,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                     }}
                     className="flex-1 h-11 rounded-xl font-medium border-border"
                   >
-                    <X className="h-4 w-4 mr-2" />
+                    <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4 mr-2" />
                     {t('common_cancel')}
                   </Button>
                   <Button
@@ -407,12 +407,12 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
                   >
                     {isInviting ? (
                       <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        <HugeiconsIcon icon={Loading02Icon} className="h-4 w-4 mr-2 animate-spin" />
                         {t('partner_sending')}
                       </>
                     ) : (
                       <>
-                        <Send className="h-4 w-4 mr-2" />
+                        <HugeiconsIcon icon={SentIcon} className="h-4 w-4 mr-2" />
                         {t('partner_send_invitation')}
                       </>
                     )}
@@ -429,7 +429,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
         <AlertDialogContent className="max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5" />
+              <HugeiconsIcon icon={Alert01Icon} className="h-5 w-5" />
               {t('partner_remove_dialog_title')}
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-3">
@@ -452,7 +452,7 @@ export default function PartnerManagement({ partnerInfo, sentInvitations, onPart
             >
               {isRemoving ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <HugeiconsIcon icon={Loading02Icon} className="h-4 w-4 mr-2 animate-spin" />
                   {t('partner_removing')}
                 </>
               ) : (

@@ -1,5 +1,7 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { LanguageCircleIcon } from "@hugeicons/core-free-icons";
 import { useCurrentLocale, useChangeLocale } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,8 +10,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Languages } from 'lucide-react';
-
 const languages = [
   { code: 'fr', name: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', flag: '🇺🇸' },
@@ -36,7 +36,7 @@ export function LanguageSwitcher() {
           size="sm" 
           className="h-10 px-3 touch-manipulation active:scale-95 transition-transform"
         >
-          <Languages className="h-4 w-4 mr-2" />
+          <HugeiconsIcon icon={LanguageCircleIcon} className="h-4 w-4 mr-2" />
           <span className="text-sm">{currentLanguage?.flag}</span>
         </Button>
       </DropdownMenuTrigger>

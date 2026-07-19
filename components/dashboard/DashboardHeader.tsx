@@ -1,11 +1,12 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Calendar01Icon } from "@hugeicons/core-free-icons";
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useCurrentLocale, useI18n } from '@/locales/client';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
-import { Calendar } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -107,7 +108,7 @@ export function DashboardHeader() {
 
       <div className="flex items-center gap-3 px-6">
         <div className="hidden select-none items-center gap-2 text-muted-foreground md:flex">
-          <Calendar className="h-3.5 w-3.5 text-muted-foreground" />
+          <HugeiconsIcon icon={Calendar01Icon} className="h-3.5 w-3.5 text-muted-foreground" />
           <span className="text-xs font-medium">
             {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(new Date())}
           </span>

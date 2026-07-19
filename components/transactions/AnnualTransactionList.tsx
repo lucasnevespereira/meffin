@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Calendar01Icon, Delete02Icon, Edit01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
-import { Edit, Trash2, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -83,7 +84,7 @@ export function AnnualTransactionList({
           </h2>
           <div className="text-center py-6 md:py-8">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
-              <Calendar className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
+              <HugeiconsIcon icon={Calendar01Icon} className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground" />
             </div>
             <p className="text-xs md:text-sm text-muted-foreground font-medium">
               {hasPartner ? t('transactions_no_shared_annual') : t('transactions_no_annual')}
@@ -134,7 +135,7 @@ export function AnnualTransactionList({
                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                           <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
                           <div className="flex items-center gap-1 shrink-0">
-                            <Calendar className="h-3 w-3" />
+                            <HugeiconsIcon icon={Calendar01Icon} className="h-3 w-3" />
                             <span className="text-blue-600 dark:text-blue-400 font-medium">
                               {t('transaction_renews_in') || 'Renews in'} {renewalMonth}
                             </span>
@@ -160,7 +161,7 @@ export function AnnualTransactionList({
                           onClick={() => onEdit(transaction)}
                           className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary cursor-pointer"
                         >
-                          <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                          <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                         </Button>
                         <Button
                           size="sm"
@@ -169,7 +170,7 @@ export function AnnualTransactionList({
                           disabled={isDeleting}
                           className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                         >
-                          <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                          <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                         </Button>
                       </div>
                     )}

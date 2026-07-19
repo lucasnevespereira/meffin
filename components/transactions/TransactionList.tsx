@@ -1,9 +1,10 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Calendar01Icon, Clock01Icon, Delete02Icon, Edit01Icon, RepeatIcon, UserIcon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Edit, Trash2, Calendar, Repeat, Clock, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   AlertDialog,
@@ -53,7 +54,7 @@ export function TransactionList({
       return { 
         type: 'annual', 
         text: t('transaction_recurring_annual') || 'Annual', 
-        icon: Calendar, 
+        icon: Calendar01Icon,
         color: 'text-muted-foreground/70' 
       };
     }
@@ -70,17 +71,17 @@ export function TransactionList({
     if (endDate) {
       const diffMonths = (endDate.getFullYear() - now.getFullYear()) * 12 + (endDate.getMonth() - now.getMonth());
       if (diffMonths <= 0) {
-        return { type: 'ended', text: t('transaction_recurring_ended') || 'Ended', icon: Clock, color: 'text-muted-foreground' };
+        return { type: 'ended', text: t('transaction_recurring_ended') || 'Ended', icon: Clock01Icon, color: 'text-muted-foreground' };
       } else if (diffMonths <= 12) {
         const remainingText = diffMonths === 1 
           ? t('transaction_recurring_last_month') || '1 month left'
           : `${diffMonths} ${t('months') || 'months'} ${t('transaction_recurring_left') || 'left'}`;
-        return { type: 'limited', text: remainingText, icon: Clock, color: 'text-orange-600 dark:text-orange-400' };
+        return { type: 'limited', text: remainingText, icon: Clock01Icon, color: 'text-orange-600 dark:text-orange-400' };
       }
     }
     
     // Forever recurring
-    return { type: 'forever', text: t('transaction_recurring_monthly') || 'Monthly', icon: Repeat, color: 'text-blue-600 dark:text-blue-400' };
+    return { type: 'forever', text: t('transaction_recurring_monthly') || 'Monthly', icon: RepeatIcon, color: 'text-blue-600 dark:text-blue-400' };
   };
 
   const filteredTransactions = transactions.filter(
@@ -163,13 +164,13 @@ export function TransactionList({
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                             <span className="truncate italic">{t('transaction_private_category') || 'Private category'}</span>
                             <div className="flex items-center gap-1 shrink-0">
-                              <Calendar className="h-3 w-3" />
+                              <HugeiconsIcon icon={Calendar01Icon} className="h-3 w-3" />
                               <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
                             </div>
                           </div>
                           {transaction.createdBy && hasPartner && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                              <User className="h-3 w-3" />
+                              <HugeiconsIcon icon={UserIcon} className="h-3 w-3" />
                               <span className="font-medium">{t('transaction_created_by')} {transaction.createdBy.name}</span>
                             </div>
                           )}
@@ -182,13 +183,13 @@ export function TransactionList({
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                             <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
                             <div className="flex items-center gap-1 shrink-0">
-                              <Calendar className="h-3 w-3" />
+                              <HugeiconsIcon icon={Calendar01Icon} className="h-3 w-3" />
                               <span>{format(new Date(transaction.date), 'dd/MM', { locale: fr })}</span>
                             </div>
                           </div>
                           {transaction.createdBy && hasPartner && (
                             <div className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                              <User className="h-3 w-3" />
+                              <HugeiconsIcon icon={UserIcon} className="h-3 w-3" />
                               <span className="font-medium">{t('transaction_created_by')} {transaction.createdBy.name}</span>
                             </div>
                           )}
@@ -196,10 +197,9 @@ export function TransactionList({
                             const recurringInfo = getRecurringInfo(transaction);
                             if (!recurringInfo) return null;
                             
-                            const Icon = recurringInfo.icon;
                             return (
                               <div className={`flex items-center gap-1 ${recurringInfo.color}`}>
-                                <Icon className="h-3 w-3" />
+                                <HugeiconsIcon icon={recurringInfo.icon} className="h-3 w-3" />
                                 <span className="font-medium">{recurringInfo.text}</span>
                               </div>
                             );
@@ -226,7 +226,7 @@ export function TransactionList({
                         onClick={() => onEdit(transaction)}
                         className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary cursor-pointer"
                       >
-                        <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                        <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                       </Button>
                       <Button
                         size="sm"
@@ -235,7 +235,7 @@ export function TransactionList({
                         disabled={isDeleting}
                         className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                       >
-                        <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                        <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                       </Button>
                     </div>
                   )}

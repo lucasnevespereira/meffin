@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, CheckListIcon, CircleIcon, ShoppingCart01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
-import { Plus, ClipboardList, Circle, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useCurrentLocale, useI18n } from '@/locales/client';
@@ -116,7 +117,7 @@ export default function ListsPage() {
             onClick={handleCreateList}
             className="w-full cursor-pointer shadow-card hover:shadow-lg sm:w-auto"
           >
-            <Plus className="mr-2 size-4" />
+            <HugeiconsIcon icon={Add01Icon} className="mr-2 size-4" />
             {t('lists_create')}
           </Button>
         }
@@ -126,7 +127,7 @@ export default function ListsPage() {
       {lists.length === 0 ? (
         <div className="text-center py-12 md:py-16">
           <div className="w-16 h-16 md:w-20 md:h-20 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-            <ClipboardList className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />
+            <HugeiconsIcon icon={CheckListIcon} className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />
           </div>
           <h3 className="text-lg md:text-xl font-semibold mb-2">
             {t('lists_empty_title') || 'No lists yet'}
@@ -135,7 +136,7 @@ export default function ListsPage() {
             {t('lists_empty_description') || 'Create your first shopping list to start organizing your potential purchases.'}
           </p>
           <Button onClick={handleCreateList} className="cursor-pointer">
-            <Plus className="h-4 w-4 mr-2" />
+            <HugeiconsIcon icon={Add01Icon} className="h-4 w-4 mr-2" />
             {t('lists_create_first') || 'Create your first list'}
           </Button>
         </div>
@@ -199,7 +200,7 @@ export default function ListsPage() {
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t border-border/50">
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-                          <Circle className="h-3 w-3" />
+                          <HugeiconsIcon icon={CircleIcon} className="h-3 w-3" />
                           <span className="text-xs font-medium">
                             {t('lists_remaining') || 'Remaining'}
                           </span>
@@ -211,7 +212,7 @@ export default function ListsPage() {
 
                       <div className="text-center">
                         <div className="flex items-center justify-center gap-1 text-muted-foreground mb-1">
-                          <ShoppingCart className="h-3 w-3" />
+                          <HugeiconsIcon icon={ShoppingCart01Icon} className="h-3 w-3" />
                           <span className="text-xs font-medium">
                             {t('lists_estimated') || 'Estimated'}
                           </span>

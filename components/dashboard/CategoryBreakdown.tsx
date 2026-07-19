@@ -1,8 +1,9 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { ArrowDown01Icon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useTransactions } from '@/hooks/useTransactions';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
@@ -83,9 +84,9 @@ export function CategoryBreakdown({
                       <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
                         <div className="flex items-center gap-2 md:gap-3">
                           {isExpanded ? (
-                            <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+                            <HugeiconsIcon icon={ArrowDown01Icon} className="size-4 shrink-0 text-muted-foreground" />
                           ) : (
-                            <ChevronRight className="size-4 shrink-0 text-muted-foreground" />
+                            <HugeiconsIcon icon={ArrowRight01Icon} className="size-4 shrink-0 text-muted-foreground" />
                           )}
                           <div
                             className="flex size-6 shrink-0 items-center justify-center rounded-lg md:size-8"

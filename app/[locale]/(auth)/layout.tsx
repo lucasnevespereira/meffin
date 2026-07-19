@@ -1,8 +1,9 @@
+import { HugeiconsIcon } from "@hugeicons/react";
+import { GithubIcon } from "@hugeicons/core-free-icons";
 import { Mascot } from '@/components/shared/Mascot';
 import { getI18n } from '@/locales/server';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
-import { Github } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AuthLayout({
@@ -42,7 +43,7 @@ export default async function AuthLayout({
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
             >
-              <Github className="h-4 w-4" />
+              <HugeiconsIcon icon={GithubIcon} className="h-4 w-4" />
               <span>Open Source on GitHub</span>
             </Link>
           </div>

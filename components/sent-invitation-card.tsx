@@ -1,8 +1,9 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Cancel01Icon, Clock01Icon, Loading02Icon, SentIcon } from "@hugeicons/core-free-icons";
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { Clock, X, Send, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
@@ -110,7 +111,7 @@ export default function SentInvitationCard({ invitation, onUpdate }: SentInvitat
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                <Send className="h-5 w-5 text-muted-foreground" />
+                <HugeiconsIcon icon={SentIcon} className="h-5 w-5 text-muted-foreground" />
               </div>
               <div>
                 <h3 className="font-semibold text-foreground">{t('partner_invitation_sent')}</h3>
@@ -139,7 +140,7 @@ export default function SentInvitationCard({ invitation, onUpdate }: SentInvitat
                 />
               </div>
               <div className="absolute -top-1 -right-1 w-5 h-5 bg-muted-foreground rounded-full flex items-center justify-center">
-                <Clock className="h-2.5 w-2.5 text-background" />
+                <HugeiconsIcon icon={Clock01Icon} className="h-2.5 w-2.5 text-background" />
               </div>
             </div>
             
@@ -159,7 +160,7 @@ export default function SentInvitationCard({ invitation, onUpdate }: SentInvitat
           {/* Metadata */}
           <div className="flex items-center gap-4 text-xs text-muted-foreground mb-6 p-3 rounded-lg bg-muted/30">
             <div className="flex items-center gap-1.5">
-              <Clock className="h-3 w-3" />
+              <HugeiconsIcon icon={Clock01Icon} className="h-3 w-3" />
               <span>{t('partner_sent_time', { time: formatTimeAgo(invitation.createdAt) })}</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -178,12 +179,12 @@ export default function SentInvitationCard({ invitation, onUpdate }: SentInvitat
             >
               {isCancelling ? (
                 <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  <HugeiconsIcon icon={Loading02Icon} className="h-4 w-4 mr-2 animate-spin" />
                   {t('partner_cancelling')}
                 </>
               ) : (
                 <>
-                  <X className="h-4 w-4 mr-2" />
+                  <HugeiconsIcon icon={Cancel01Icon} className="h-4 w-4 mr-2" />
                   {t('partner_cancel_invitation')}
                 </>
               )}

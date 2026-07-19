@@ -1,8 +1,9 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, ArrowLeft01Icon, CircleIcon, Delete02Icon, Edit01Icon, Tick01Icon, UserIcon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Plus, Check, Edit, ArrowLeft, Circle, User, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -209,7 +210,7 @@ export default function ListDetailPage() {
       <div className="flex items-center gap-3">
         <Link href={`/${locale}/lists`}>
           <Button variant="ghost" size="sm" className="cursor-pointer p-2">
-            <ArrowLeft className="h-4 w-4" />
+            <HugeiconsIcon icon={ArrowLeft01Icon} className="h-4 w-4" />
           </Button>
         </Link>
         <div
@@ -237,7 +238,7 @@ export default function ListDetailPage() {
             onClick={() => setIsEditingList(true)}
             className="cursor-pointer p-2 hidden sm:inline-flex"
           >
-            <Edit className="h-4 w-4" />
+            <HugeiconsIcon icon={Edit01Icon} className="h-4 w-4" />
           </Button>
           <Button
             variant="outline"
@@ -245,7 +246,7 @@ export default function ListDetailPage() {
             onClick={handleDeleteList}
             className="cursor-pointer p-2 hidden sm:inline-flex hover:bg-destructive/10 hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <HugeiconsIcon icon={Delete02Icon} className="h-4 w-4" />
           </Button>
           <Button
             onClick={handleAddItem}
@@ -253,7 +254,7 @@ export default function ListDetailPage() {
             className="cursor-pointer text-sm px-3 py-2 disabled:cursor-not-allowed"
             size="sm"
           >
-            <Plus className="h-4 w-4 sm:mr-2" />
+            <HugeiconsIcon icon={Add01Icon} className="h-4 w-4 sm:mr-2" />
             <span className="hidden sm:inline">{t('lists_detail_add_item') || 'Add Item'}</span>
           </Button>
         </div>
@@ -294,7 +295,7 @@ export default function ListDetailPage() {
         <Card>
           <CardContent className="p-4">
             <div className="text-center py-4">
-              <Circle className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <HugeiconsIcon icon={CircleIcon} className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
               <h3 className="font-medium mb-2">{t('lists_no_category_title') || 'No Category Assigned'}</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 {t('lists_no_category_description') || 'This list needs a category before you can add items to it.'}
@@ -305,7 +306,7 @@ export default function ListDetailPage() {
                 size="sm"
                 className="cursor-pointer"
               >
-                <Edit className="h-4 w-4 mr-2" />
+                <HugeiconsIcon icon={Edit01Icon} className="h-4 w-4 mr-2" />
                 {t('lists_assign_category') || 'Assign Category'}
               </Button>
             </div>
@@ -368,21 +369,21 @@ export default function ListDetailPage() {
                         )}
                         {item.createdBy && (
                           <div className="flex items-center gap-1">
-                            <User className="h-3 w-3" />
+                            <HugeiconsIcon icon={UserIcon} className="h-3 w-3" />
                             <span>{item.createdBy.name}</span>
                           </div>
                         )}
                       </div>
                       {item.isChecked && (
                         <div className="flex items-center gap-2">
-                          <Check className="h-4 w-4 text-primary shrink-0" />
+                          <HugeiconsIcon icon={Tick01Icon} className="h-4 w-4 text-primary shrink-0" />
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={(e) => handleDeleteItem(item.id, e)}
                             className="h-6 w-6 p-0 hover:bg-destructive/10 hover:text-destructive"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3" />
                           </Button>
                         </div>
                       )}
@@ -393,10 +394,10 @@ export default function ListDetailPage() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <Circle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <HugeiconsIcon icon={CircleIcon} className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground mb-4">{t('lists_detail_no_items') || 'No items in this list yet'}</p>
               <Button onClick={handleAddItem} className="cursor-pointer">
-                <Plus className="h-4 w-4 mr-2" />
+                <HugeiconsIcon icon={Add01Icon} className="h-4 w-4 mr-2" />
                 {t('lists_detail_add_first_item') || 'Add your first item'}
               </Button>
             </div>

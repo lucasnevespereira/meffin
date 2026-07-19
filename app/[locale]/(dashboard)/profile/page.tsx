@@ -1,5 +1,7 @@
 'use client';
 
+import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
+import { Alert01Icon, AnalyticsUpIcon, ArrowRight01Icon, Coins01Icon, Delete02Icon, FloppyDiskIcon, LanguageCircleIcon, MoonIcon, Tag01Icon } from "@hugeicons/core-free-icons";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -7,7 +9,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Trash2, Save, AlertTriangle, ChevronRight, Tag, TrendingUp, Languages, Moon, Coins } from 'lucide-react';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 import { UserAvatar } from '@/components/shared/UserAvatar';
@@ -85,7 +86,7 @@ function SettingsRow({
   right,
   destructive,
 }: {
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconSvgElement;
   tint?: keyof typeof rowTints;
   title: string;
   subtitle?: string;
@@ -98,13 +99,13 @@ function SettingsRow({
   const inner = (
     <div className={`flex items-center gap-3 px-4 py-3.5 ${interactive ? 'hover:bg-primary/5 transition-colors' : ''}`}>
       <div className={`flex items-center justify-center w-10 h-10 rounded-lg shrink-0 ${rowTints[tint]}`}>
-        <Icon className="h-5 w-5" />
+        <HugeiconsIcon icon={Icon} className="h-5 w-5" />
       </div>
       <div className="flex-1 min-w-0">
         <p className={`text-sm font-medium truncate ${destructive ? 'text-destructive' : 'text-foreground'}`}>{title}</p>
         {subtitle && <p className="text-xs text-muted-foreground truncate">{subtitle}</p>}
       </div>
-      {right ?? (interactive && <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />)}
+      {right ?? (interactive && <HugeiconsIcon icon={ArrowRight01Icon} className="h-4 w-4 text-muted-foreground shrink-0" />)}
     </div>
   );
   if (href) return <Link href={href} className="block">{inner}</Link>;
@@ -222,7 +223,7 @@ export default function ProfilePage() {
       <div className="flex items-center justify-center min-h-[400px]">
         <Card className="w-full max-w-md border-0 shadow-sm">
           <CardContent className="p-8 text-center">
-            <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-amber-500" />
+            <HugeiconsIcon icon={Alert01Icon} className="h-12 w-12 mx-auto mb-4 text-amber-500" />
             <p className="text-lg font-medium text-foreground">{t('profile_session_expired')}</p>
             <p className="text-sm text-muted-foreground mt-2">
               {t('profile_login_required')}
@@ -296,7 +297,7 @@ export default function ProfilePage() {
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={updateProfileMutation.isPending} className="w-full sm:w-auto">
-                <Save className="h-4 w-4 mr-2" />
+                <HugeiconsIcon icon={FloppyDiskIcon} className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? t('profile_saving') : t('profile_save')}
               </Button>
             </div>
@@ -309,7 +310,7 @@ export default function ProfilePage() {
         <SectionLabel>{t('profile_section_preferences')}</SectionLabel>
         <Panel>
           <SettingsRow
-            icon={Coins}
+            icon={Coins01Icon}
             tint="coral"
             title={t('profile_currency')}
             right={
@@ -327,8 +328,8 @@ export default function ProfilePage() {
               </Select>
             }
           />
-          <SettingsRow icon={Languages} tint="green" title={t('profile_language')} right={<LocaleSwitcher variant="ghost" showText />} />
-          <SettingsRow icon={Moon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
+          <SettingsRow icon={LanguageCircleIcon} tint="green" title={t('profile_language')} right={<LocaleSwitcher variant="ghost" showText />} />
+          <SettingsRow icon={MoonIcon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
         </Panel>
       </section>
 
@@ -336,8 +337,8 @@ export default function ProfilePage() {
       <section className="space-y-3">
         <SectionLabel>{t('profile_section_budget')}</SectionLabel>
         <Panel>
-          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
-          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+          <SettingsRow icon={Tag01Icon} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
+          <SettingsRow icon={AnalyticsUpIcon} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
         </Panel>
       </section>
 
@@ -361,7 +362,7 @@ export default function ProfilePage() {
         <SectionLabel>{t('profile_danger_section')}</SectionLabel>
         <Panel>
           <SettingsRow
-            icon={Trash2}
+            icon={Delete02Icon}
             tint="red"
             title={t('profile_delete_button')}
             subtitle={t('profile_delete_description')}
