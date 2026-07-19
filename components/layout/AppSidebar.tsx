@@ -1,19 +1,20 @@
 "use client";
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  ArrowUp01Icon,
+  ChartLineData01Icon,
+  CheckListIcon,
+  CreditCardIcon,
+  DashboardCircleIcon,
+  Logout01Icon,
+  Tag01Icon,
+  UserIcon,
+} from "@hugeicons/core-free-icons";
 import { useRouter, usePathname, useParams } from "next/navigation";
 import Link from "next/link";
 import { Mascot } from "@/components/shared/Mascot";
 import { UserAvatar } from "@/components/shared/UserAvatar";
-import {
-  LayoutDashboard,
-  Tag,
-  LogOut,
-  CreditCard,
-  ClipboardList,
-  LineChart,
-  User,
-  ChevronUp,
-} from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -51,27 +52,27 @@ export function AppSidebar() {
     {
       title: t("nav_dashboard"),
       url: `/${locale}/dashboard`,
-      icon: LayoutDashboard,
+      icon: DashboardCircleIcon,
     },
     {
       title: t("nav_transactions"),
       url: `/${locale}/transactions`,
-      icon: CreditCard,
+      icon: CreditCardIcon,
     },
     {
       title: t("nav_trends"),
       url: `/${locale}/trends`,
-      icon: LineChart,
+      icon: ChartLineData01Icon,
     },
     {
       title: t("nav_categories"),
       url: `/${locale}/categories`,
-      icon: Tag,
+      icon: Tag01Icon,
     },
     {
       title: t("nav_lists"),
       url: `/${locale}/lists`,
-      icon: ClipboardList,
+      icon: CheckListIcon,
     },
   ];
 
@@ -123,7 +124,8 @@ export function AppSidebar() {
                         }
                       }}
                     >
-                      <item.icon
+                      <HugeiconsIcon
+                        icon={item.icon}
                         className={`h-5 w-5 transition-all duration-200 group-hover:scale-110 ${
                           isActive(item.url)
                             ? "text-primary dark:text-primary-foreground"
@@ -164,7 +166,7 @@ export function AppSidebar() {
                       {session.user.email}
                     </span>
                   </div>
-                  <ChevronUp className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                  <HugeiconsIcon icon={ArrowUp01Icon} className="size-4 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -190,7 +192,7 @@ export function AppSidebar() {
                       if (isMobile) setOpenMobile(false);
                     }}
                   >
-                    <User className="h-4 w-4 text-muted-foreground" />
+                    <HugeiconsIcon icon={UserIcon} className="h-4 w-4 text-muted-foreground" />
                     {t("nav_profile")}
                   </Link>
                 </DropdownMenuItem>
@@ -198,7 +200,7 @@ export function AppSidebar() {
                   onClick={handleSignOut}
                   className="h-10 cursor-pointer rounded-lg px-2.5 text-destructive focus:text-destructive"
                 >
-                  <LogOut className="h-4 w-4 text-destructive" />
+                  <HugeiconsIcon icon={Logout01Icon} className="h-4 w-4 text-destructive" />
                   {t("nav_signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>

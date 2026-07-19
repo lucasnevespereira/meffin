@@ -1,8 +1,10 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Refresh01Icon, WifiOff01Icon } from "@hugeicons/core-free-icons";
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { WifiOff, RefreshCw } from 'lucide-react';
+
 export default function OfflinePage() {
 
   const handleRefresh = () => {
@@ -15,7 +17,7 @@ export default function OfflinePage() {
         <CardContent className="p-8 text-center space-y-6">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center">
-              <WifiOff className="h-8 w-8 text-muted-foreground" />
+              <HugeiconsIcon icon={WifiOff01Icon} className="h-8 w-8 text-muted-foreground" />
             </div>
           </div>
 
@@ -38,7 +40,7 @@ export default function OfflinePage() {
               className="w-full"
               variant="default"
             >
-              <RefreshCw className="h-4 w-4 mr-2" />
+              <HugeiconsIcon icon={Refresh01Icon} className="h-4 w-4 mr-2" />
               Try Again
             </Button>
           </div>

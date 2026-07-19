@@ -1,10 +1,18 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import {
+  AlertCircleIcon,
+  CancelCircleIcon,
+  CheckmarkCircle01Icon,
+  DollarSignIcon,
+  HeartIcon,
+  Loading02Icon,
+} from '@hugeicons/core-free-icons';
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, CheckCircle, XCircle, AlertCircle, Heart, DollarSign } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PartnerInvitePageProps {
@@ -78,14 +86,14 @@ export default function PartnerInvitePage({ params }: PartnerInvitePageProps) {
   const getStatusIcon = () => {
     switch (status) {
       case 'loading':
-        return <Heart className="h-12 w-12 text-pink-500" />;
+        return <HugeiconsIcon icon={HeartIcon} className="h-12 w-12 text-pink-500" />;
       case 'success':
-        return <CheckCircle className="h-12 w-12 text-green-500" />;
+        return <HugeiconsIcon icon={CheckmarkCircle01Icon} className="h-12 w-12 text-green-500" />;
       case 'expired':
-        return <AlertCircle className="h-12 w-12 text-yellow-500" />;
+        return <HugeiconsIcon icon={AlertCircleIcon} className="h-12 w-12 text-yellow-500" />;
       case 'error':
       case 'unauthorized':
-        return <XCircle className="h-12 w-12 text-red-500" />;
+        return <HugeiconsIcon icon={CancelCircleIcon} className="h-12 w-12 text-red-500" />;
       default:
         return null;
     }
@@ -135,7 +143,7 @@ export default function PartnerInvitePage({ params }: PartnerInvitePageProps) {
             <div className="space-y-6">
               <div className="bg-slate-800 rounded-lg p-4 space-y-3">
                 <h3 className="text-white font-semibold flex items-center gap-2">
-                  <DollarSign className="h-4 w-4" />
+                  <HugeiconsIcon icon={DollarSignIcon} className="h-4 w-4" />
                   As budget partners, you&apos;ll share:
                 </h3>
                 <ul className="text-sm text-slate-300 space-y-1 text-left">
@@ -153,12 +161,12 @@ export default function PartnerInvitePage({ params }: PartnerInvitePageProps) {
               >
                 {isAccepting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <HugeiconsIcon icon={Loading02Icon} className="mr-2 h-4 w-4 animate-spin" />
                     Accepting...
                   </>
                 ) : (
                   <>
-                    <Heart className="mr-2 h-4 w-4" />
+                    <HugeiconsIcon icon={HeartIcon} className="mr-2 h-4 w-4" />
                     Accept Partnership
                   </>
                 )}

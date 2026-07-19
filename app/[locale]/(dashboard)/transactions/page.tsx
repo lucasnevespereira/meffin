@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, AnalyticsUpIcon, Calendar01Icon, Download01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
-import { Plus, Calendar, TrendingUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent } from '@/components/ui/tabs';
@@ -188,7 +189,7 @@ export default function TransactionsPage() {
               disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
               className="w-full cursor-pointer sm:w-auto"
             >
-              <Download className="mr-2 size-4" />
+              <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
               {t('export_button')}
             </Button>
             <Button
@@ -196,7 +197,7 @@ export default function TransactionsPage() {
               className="w-full cursor-pointer shadow-card hover:shadow-lg sm:w-auto"
               disabled={isLoadingCategories || categories.length === 0}
             >
-              <Plus className="mr-2 size-4" />
+              <HugeiconsIcon icon={Add01Icon} className="mr-2 size-4" />
               {t('transactions_add_button')}
             </Button>
           </div>
@@ -214,7 +215,7 @@ export default function TransactionsPage() {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <TrendingUp className="h-3.5 w-3.5 inline mr-1.5" />
+            <HugeiconsIcon icon={AnalyticsUpIcon} className="h-3.5 w-3.5 inline mr-1.5" />
             {t('transactions_monthly') || 'Monthly'}
           </button>
           <button
@@ -225,7 +226,7 @@ export default function TransactionsPage() {
                 : 'text-muted-foreground hover:text-foreground'
             }`}
           >
-            <Calendar className="h-3.5 w-3.5 inline mr-1.5" />
+            <HugeiconsIcon icon={Calendar01Icon} className="h-3.5 w-3.5 inline mr-1.5" />
             {t('transactions_annual') || 'Annual'}
           </button>
         </div>

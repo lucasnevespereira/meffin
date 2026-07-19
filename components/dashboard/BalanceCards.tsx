@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { AnalyticsDownIcon, AnalyticsUpIcon, ArrowUpRight01Icon, CircleIcon } from "@hugeicons/core-free-icons";
 import Link from 'next/link';
-import { ArrowUpRight, Circle, TrendingDown, TrendingUp } from 'lucide-react';
 import { useI18n } from '@/locales/client';
 import { MonthlyBalance } from '@/types';
 import { useFormatCurrency } from '@/lib/currency-utils';
@@ -41,7 +42,7 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
               className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-background/60 px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {t('nav_trends')}
-              <ArrowUpRight className="size-3.5" />
+              <HugeiconsIcon icon={ArrowUpRight01Icon} className="size-3.5" />
             </Link>
           </div>
 
@@ -50,7 +51,7 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
               {formatCurrency(balance.balance)}
             </p>
             <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${positive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-400'}`}>
-              <Circle className="size-2 fill-current" />
+              <HugeiconsIcon icon={CircleIcon} className="size-2 fill-current" />
               {positive ? t('dashboard_on_track') : t('dashboard_over_budget')}
             </div>
           </div>
@@ -82,7 +83,7 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-emerald-500">{t('dashboard_income')}</p>
             <div className="flex size-9 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
-              <TrendingUp className="size-4.5" />
+              <HugeiconsIcon icon={AnalyticsUpIcon} className="size-4.5" />
             </div>
           </div>
           <p className="mt-3 font-display text-2xl font-semibold tracking-tight text-emerald-500 sm:text-3xl">
@@ -94,7 +95,7 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
           <div className="flex items-center justify-between gap-3">
             <p className="text-sm font-semibold text-rose-400">{t('dashboard_expenses')}</p>
             <div className="flex size-9 items-center justify-center rounded-xl bg-rose-500/15 text-rose-400">
-              <TrendingDown className="size-4.5" />
+              <HugeiconsIcon icon={AnalyticsDownIcon} className="size-4.5" />
             </div>
           </div>
           <p className="mt-3 font-display text-2xl font-semibold tracking-tight text-rose-400 sm:text-3xl">

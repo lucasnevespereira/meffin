@@ -1,7 +1,8 @@
 'use client';
 
+import { HugeiconsIcon } from "@hugeicons/react";
+import { Add01Icon, Delete02Icon, Edit01Icon, Tag01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
-import { Plus, Edit, Trash2, Tag } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -119,7 +120,7 @@ export default function CategoriesPage() {
             onClick={() => setIsFormOpen(true)}
             className="w-full shadow-card hover:shadow-lg sm:w-auto"
           >
-            <Plus className="mr-2 size-4" />
+            <HugeiconsIcon icon={Add01Icon} className="mr-2 size-4" />
             {t('categories_add_button')}
           </Button>
         }
@@ -198,7 +199,7 @@ export default function CategoriesPage() {
           {customCats.length === 0 ? (
             <div className="text-center py-8 md:py-12">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
-                <Tag className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground/60" />
+                <HugeiconsIcon icon={Tag01Icon} className="h-5 w-5 md:h-6 md:w-6 text-muted-foreground/60" />
               </div>
               <p className="text-xs md:text-sm text-muted-foreground font-medium">{t('categories_no_custom')}</p>
               <p className="text-xs text-muted-foreground mt-1">
@@ -234,7 +235,7 @@ export default function CategoriesPage() {
                       onClick={() => handleEditCategory(category)}
                       className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
                     >
-                      <Edit className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                     </Button>
                     <Button
                       size="sm"
@@ -243,7 +244,7 @@ export default function CategoriesPage() {
                       disabled={deleteMutation.isPending}
                       className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
                     >
-                      <Trash2 className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
                     </Button>
                   </div>
                 </div>
