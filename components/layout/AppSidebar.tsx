@@ -98,7 +98,7 @@ export function AppSidebar() {
         <div className="flex items-center gap-2 px-4 py-2">
           <Mascot size={40} />
           <div className="flex flex-col min-w-0">
-            <span className="text-2xl font-semibold tracking-tight text-foreground">
+            <span className="font-display text-2xl font-semibold tracking-tight text-foreground">
               Meffin
             </span>
             <span className="text-xs text-muted-foreground font-medium">v{APP_VERSION}</span>
@@ -116,7 +116,7 @@ export function AppSidebar() {
                     asChild
                     className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group cursor-pointer ${
                       isActive(item.url)
-                        ? 'bg-primary text-primary-foreground font-medium shadow-card'
+                        ? 'bg-primary text-primary-foreground font-medium shadow-card hover:bg-primary/90 hover:text-primary-foreground'
                         : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
                     }`}
                   >
