@@ -92,7 +92,7 @@ export default function RegisterPage() {
   return (
     <div className="w-full">
       <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-semibold">{t('register_title')}</h1>
+        <h1 className="font-display text-2xl font-semibold">{t('register_title')}</h1>
         <p className="text-sm text-muted-foreground">
           {t('register_subtitle')}
         </p>

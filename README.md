@@ -1,8 +1,8 @@
 <div align="center">
-  <img src="public/logo.png" alt="Meffin Logo" width="120" height="120" />
+  <img src="public/favicon.svg" alt="Meffin Logo" width="120" height="120" />
   <h1>Meffin</h1>
-  <p><strong>Simple, lightweight monthly budget tracking</strong></p>
-  <p>Built for simplicity and self-hosting</p>
+  <p><strong>Budgeting that's actually sweet.</strong></p>
+  <p>Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.</p>
 </div>
 
 

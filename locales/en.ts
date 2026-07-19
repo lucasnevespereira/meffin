@@ -1,9 +1,9 @@
 export default {
   // App
   app_name: "Meffin",
-  app_tagline: "Simple, lightweight monthly budget tracking",
+  app_tagline: "Budgeting that's actually sweet.",
   app_description:
-    "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
+    "Your pocket-sized money buddy. Track every euro without the spreadsheet headache. Simple, and yours to self-host.",
 
   // Auth
   login_title: "Sign In",
@@ -176,6 +176,11 @@ export default {
   profile_info_section: "Profile Information",
   profile_preferences_section: "Preferences",
   profile_danger_section: "Danger Zone",
+  profile_section_account: "Account",
+  profile_edit: "Edit",
+  profile_section_budget: "Budget",
+  profile_section_preferences: "Preferences",
+  profile_appearance: "Appearance",
   profile_name: "Name",
   profile_email: "Email",
   profile_email_readonly: "Email cannot be modified",

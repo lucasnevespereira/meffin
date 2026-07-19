@@ -1,15 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Fredoka, Nunito } from "next/font/google";
 import "../globals.css";
 import { QueryProvider } from "@/components/providers/QueryProvider";
 import { I18nProviderClient } from "@/locales/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/theme-provider";
 
-const inter = Inter({
+// Nunito for body text, Fredoka for display/headings — matches the mobile app.
+const nunito = Nunito({
   variable: "--font-sans",
   subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
+  weight: ["400", "600", "700"],
+});
+const fredoka = Fredoka({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -52,6 +58,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
+      { url: "/favicon.svg", type: "image/svg+xml" },
       { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
       { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
@@ -117,7 +124,7 @@ export default async function LocaleLayout({
         <meta property="og:url" content="https://meffin.app" />
         <meta property="og:image" content="https://meffin.app/icons/icon-512x512.png" />
       </head>
-      <body className={`${inter.variable} antialiased font-sans`}>
+      <body className={`${nunito.variable} ${fredoka.variable} antialiased font-sans`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
