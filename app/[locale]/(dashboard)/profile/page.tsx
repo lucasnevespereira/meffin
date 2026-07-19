@@ -10,6 +10,7 @@ import { useParams } from 'next/navigation';
 import { Trash2, Save, AlertTriangle, ChevronRight, Tag, TrendingUp, Languages, Moon, Coins } from 'lucide-react';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
+import { UserAvatar } from '@/components/shared/UserAvatar';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -59,23 +60,6 @@ type ProfileFormData = {
 // Small uppercase section label, mirroring the mobile "You" screen grouping.
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1">{children}</h2>;
-}
-
-function initialsFrom(name?: string | null, email?: string | null) {
-  const base = (name || email || 'U').trim();
-  return base.split(/\s+/).slice(0, 2).map((w) => w[0]).join('').toUpperCase();
-}
-
-// Gradient initials avatar, matching the mobile profile card.
-function GradientAvatar({ name, email, size = 56 }: { name?: string | null; email?: string | null; size?: number }) {
-  return (
-    <div
-      className="flex items-center justify-center rounded-xl text-white font-semibold shrink-0"
-      style={{ width: size, height: size, fontSize: size * 0.36, background: 'linear-gradient(135deg, #8B7BF0, #F06CA5)' }}
-    >
-      {initialsFrom(name, email)}
-    </div>
-  );
 }
 
 // Rounded panel that groups setting rows, mobile-style.
@@ -286,7 +270,8 @@ export default function ProfilePage() {
       {/* Profile card with inline name editing */}
       <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
         <div className="flex items-center gap-3 md:gap-4">
-          <GradientAvatar
+          <UserAvatar
+            image={profileData?.user?.image || session.user.image}
             name={profileData?.user?.name || session.user.name}
             email={profileData?.user?.email || session.user.email}
             size={60}
@@ -325,30 +310,6 @@ export default function ProfilePage() {
         )}
       </div>
 
-      {/* Budget */}
-      <section className="space-y-3">
-        <SectionLabel>{t('profile_section_budget')}</SectionLabel>
-        <Panel>
-          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
-          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
-        </Panel>
-      </section>
-
-      {/* Budget Partner — its own section (the card carries its own heading) */}
-      <section className="space-y-3">
-        {invitations?.invitations?.map((invitation) => (
-          <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
-        ))}
-        {sentInvitations?.invitations?.map((invitation) => (
-          <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
-        ))}
-        <PartnerManagement
-          partnerInfo={partnerInfo}
-          sentInvitations={sentInvitations?.invitations}
-          onPartnerUpdate={refreshPartnerInfo}
-        />
-      </section>
-
       {/* Preferences */}
       <section className="space-y-3">
         <SectionLabel>{t('profile_section_preferences')}</SectionLabel>
@@ -375,6 +336,30 @@ export default function ProfilePage() {
           <SettingsRow icon={Languages} tint="green" title={t('profile_language')} right={<LocaleSwitcher variant="ghost" showText />} />
           <SettingsRow icon={Moon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
         </Panel>
+      </section>
+
+      {/* Budget */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_budget')}</SectionLabel>
+        <Panel>
+          <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
+          <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+        </Panel>
+      </section>
+
+      {/* Budget Partner — its own section (the card carries its own heading) */}
+      <section className="space-y-3">
+        {invitations?.invitations?.map((invitation) => (
+          <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        {sentInvitations?.invitations?.map((invitation) => (
+          <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        <PartnerManagement
+          partnerInfo={partnerInfo}
+          sentInvitations={sentInvitations?.invitations}
+          onPartnerUpdate={refreshPartnerInfo}
+        />
       </section>
 
       {/* Security */}
