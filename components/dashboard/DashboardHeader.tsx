@@ -43,8 +43,14 @@ export function DashboardHeader() {
       case 'profile':
         breadcrumbs.push({ name: t('nav_profile'), href: `/${locale}/profile` });
         break;
+      case 'trends':
+        breadcrumbs.push({ name: t('nav_trends'), href: `/${locale}/trends` });
+        break;
+      case 'lists':
+        breadcrumbs.push({ name: t('nav_lists'), href: `/${locale}/lists` });
+        break;
       default:
-        breadcrumbs.push({ name: route, href: pathname });
+        breadcrumbs.push({ name: route.charAt(0).toUpperCase() + route.slice(1), href: pathname });
         break;
     }
 

@@ -180,6 +180,7 @@ export default {
   profile_preferences_section: "Préférences",
   profile_danger_section: "Zone de danger",
   profile_section_account: "Compte",
+  profile_edit: "Modifier",
   profile_section_budget: "Budget",
   profile_section_preferences: "Préférences",
   profile_appearance: "Apparence",

@@ -142,6 +142,7 @@ export default function ProfilePage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showPartner, setShowPartner] = useState(false);
+  const [editing, setEditing] = useState(false);
 
   const profileSchema = createProfileSchema(t);
 
@@ -283,7 +284,7 @@ export default function ProfilePage() {
         <p className="text-muted-foreground mt-1 md:mt-2 text-xs md:text-base">{t('profile_subtitle')}</p>
       </div>
 
-      {/* Profile header */}
+      {/* Profile card with inline name editing */}
       <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
         <div className="flex items-center gap-3 md:gap-4">
           <GradientAvatar
@@ -296,61 +297,34 @@ export default function ProfilePage() {
             <p className="text-muted-foreground text-xs md:text-sm truncate">{profileData?.user?.email || session.user.email}</p>
             <p className="text-xs text-muted-foreground mt-0.5">
               {t('profile_member_since')} {new Date(profileData?.user?.createdAt || session.user.createdAt).getFullYear()}
+              <span className="mx-1.5">·</span>
+              <span className="text-emerald-500 font-medium">{t('profile_status_active')}</span>
             </p>
           </div>
-          <div className="hidden sm:inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/15 text-emerald-500 shrink-0">
-            ✓ {t('profile_status_active')}
-          </div>
+          <Button variant="outline" size="sm" onClick={() => setEditing((v) => !v)} className="shrink-0">
+            {editing ? t('common_cancel') : t('profile_edit')}
+          </Button>
         </div>
-      </div>
 
-      {/* Account */}
-      <section className="space-y-3">
-        <SectionLabel>{t('profile_section_account')}</SectionLabel>
-        <div className="rounded-xl border border-border bg-card shadow-card p-4 md:p-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 md:space-y-6">
-            <div className="space-y-4 md:grid md:grid-cols-2 md:gap-6 md:space-y-0">
-              <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  placeholder={t('register_name')}
-                  className="h-9 md:h-10"
-                />
-                {errors.name && (
-                  <p className="text-sm text-destructive">{errors.name.message}</p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-foreground">{t('profile_email')}</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  {...register('email')}
-                  disabled
-                  className="h-9 md:h-10 bg-muted/30 text-muted-foreground"
-                />
-                <p className="text-xs text-muted-foreground">
-                  {t('profile_email_readonly')}
-                </p>
-              </div>
+        {editing && (
+          <form
+            onSubmit={handleSubmit(async (data) => { await onSubmit(data); setEditing(false); })}
+            className="mt-5 pt-5 border-t border-border space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-sm font-medium text-foreground">{t('profile_name')}</Label>
+              <Input id="name" {...register('name')} placeholder={t('register_name')} className="h-10" />
+              {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
             </div>
-
-            <div className="flex justify-end pt-2">
-              <Button
-                type="submit"
-                disabled={updateProfileMutation.isPending}
-                className="px-4 md:px-6 w-full sm:w-auto"
-              >
+            <div className="flex justify-end">
+              <Button type="submit" disabled={updateProfileMutation.isPending} className="w-full sm:w-auto">
                 <Save className="h-4 w-4 mr-2" />
                 {updateProfileMutation.isPending ? t('profile_saving') : t('profile_save')}
               </Button>
             </div>
           </form>
-        </div>
-      </section>
+        )}
+      </div>
 
       {/* Budget */}
       <section className="space-y-3">
@@ -366,6 +340,21 @@ export default function ProfilePage() {
           <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
           <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
         </Panel>
+
+        {/* Partner details appear right here, under the row that opened them */}
+        {invitations?.invitations?.map((invitation) => (
+          <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        {sentInvitations?.invitations?.map((invitation) => (
+          <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
+        ))}
+        {(showPartner || partnerInfo?.partner) && (
+          <PartnerManagement
+            partnerInfo={partnerInfo}
+            sentInvitations={sentInvitations?.invitations}
+            onPartnerUpdate={refreshPartnerInfo}
+          />
+        )}
       </section>
 
       {/* Preferences */}
@@ -395,41 +384,6 @@ export default function ProfilePage() {
           <SettingsRow icon={Moon} tint="blue" title={t('profile_appearance')} right={<ThemeSwitcher />} />
         </Panel>
       </section>
-
-      {/* Received Partner Invitations */}
-      {invitations?.invitations && invitations.invitations.length > 0 && (
-        <div className="space-y-3">
-          {invitations.invitations.map((invitation) => (
-            <PartnerInvitationCard
-              key={invitation.id}
-              invitation={invitation}
-              onUpdate={refreshPartnerInfo}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Sent Partner Invitations */}
-      {sentInvitations?.invitations && sentInvitations.invitations.length > 0 && (
-        <div className="space-y-3">
-          {sentInvitations.invitations.map((invitation) => (
-            <SentInvitationCard
-              key={invitation.id}
-              invitation={invitation}
-              onUpdate={refreshPartnerInfo}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Partner Management — shown when a partner exists or the row is toggled */}
-      {(showPartner || partnerInfo?.partner) && (
-        <PartnerManagement
-          partnerInfo={partnerInfo}
-          sentInvitations={sentInvitations?.invitations}
-          onPartnerUpdate={refreshPartnerInfo}
-        />
-      )}
 
       {/* Security */}
       <section className="space-y-3">
