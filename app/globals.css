@@ -200,6 +200,16 @@
   }
 }
 
+/* Mascot idle float — matches the mobile welcome animation. */
+@keyframes meffin-bob {
+  0%, 100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-10px) rotate(2deg); }
+}
+.animate-bob { animation: meffin-bob 3s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .animate-bob { animation: none; }
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 6px;

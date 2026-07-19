@@ -27,7 +27,7 @@ export default async function AuthLayout({
       {/* Left Side - Branding */}
       <div className="hidden lg:flex lg:flex-1 lg:flex-col lg:justify-center lg:px-16 bg-muted/30">
         <div className="text-center space-y-6">
-          <Mascot size={88} className="mx-auto" />
+          <Mascot size={96} className="mx-auto animate-bob" />
           <div className="space-y-3">
             <h1 className="text-3xl font-semibold">{t('app_name')}</h1>
             <p className="text-lg text-muted-foreground">{t('app_tagline')}</p>

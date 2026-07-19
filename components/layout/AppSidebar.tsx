@@ -117,7 +117,7 @@ export function AppSidebar() {
                     className={`rounded-lg transition-all duration-200 ease-in-out touch-manipulation group cursor-pointer ${
                       isActive(item.url)
                         ? 'bg-primary text-primary-foreground font-medium shadow-card'
-                        : 'text-muted-foreground hover:bg-sidebar-accent hover:text-foreground hover:shadow-subtle'
+                        : 'text-muted-foreground hover:bg-primary/10 hover:text-foreground'
                     }`}
                   >
                     <Link
