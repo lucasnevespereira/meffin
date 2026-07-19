@@ -195,24 +195,39 @@ export function AppSidebar() {
               <DropdownMenuContent
                 side="top"
                 align="start"
-                className="w-[--radix-dropdown-menu-trigger-width] min-w-56"
+                sideOffset={8}
+                className="w-[--radix-dropdown-menu-trigger-width] min-w-60 rounded-xl p-1.5"
               >
-                <DropdownMenuItem asChild>
+                <div className="flex items-center gap-2.5 px-2 py-2">
+                  <div className="w-9 h-9 rounded-lg overflow-hidden ring-2 ring-border shrink-0">
+                    <Image
+                      src={getAvatarUrl(session.user)}
+                      alt={session.user.name || "User"}
+                      width={36}
+                      height={36}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="flex flex-col min-w-0">
+                    <span className="text-sm font-semibold truncate">{session.user.name || t("nav_profile")}</span>
+                    <span className="text-xs text-muted-foreground truncate">{session.user.email}</span>
+                  </div>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
                   <Link
                     href={`/${locale}/profile`}
                     onClick={() => {
                       if (isMobile) setOpenMobile(false);
                     }}
-                    className="cursor-pointer"
                   >
-                    <User className="h-4 w-4" />
+                    <User className="h-4 w-4 text-muted-foreground" />
                     {t("nav_profile")}
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuSeparator />
                 <DropdownMenuItem
                   onClick={handleSignOut}
-                  className="cursor-pointer text-destructive focus:text-destructive"
+                  className="rounded-lg cursor-pointer text-destructive focus:text-destructive"
                 >
                   <LogOut className="h-4 w-4 text-destructive" />
                   {t("nav_signOut")}

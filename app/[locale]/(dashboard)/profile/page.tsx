@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Trash2, Save, AlertTriangle, ChevronRight, Tag, TrendingUp, Languages, Moon, Coins, Users } from 'lucide-react';
+import { Trash2, Save, AlertTriangle, ChevronRight, Tag, TrendingUp, Languages, Moon, Coins } from 'lucide-react';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 
@@ -141,7 +141,6 @@ export default function ProfilePage() {
   const updateProfileMutation = useUpdateProfile();
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [showPartner, setShowPartner] = useState(false);
   const [editing, setEditing] = useState(false);
 
   const profileSchema = createProfileSchema(t);
@@ -330,31 +329,24 @@ export default function ProfilePage() {
       <section className="space-y-3">
         <SectionLabel>{t('profile_section_budget')}</SectionLabel>
         <Panel>
-          <SettingsRow
-            icon={Users}
-            tint="coral"
-            title={t('partner_budget_title')}
-            subtitle={partnerInfo?.partner?.name || t('partner_no_partner_title')}
-            onClick={() => setShowPartner((v) => !v)}
-          />
           <SettingsRow icon={Tag} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
           <SettingsRow icon={TrendingUp} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
         </Panel>
+      </section>
 
-        {/* Partner details appear right here, under the row that opened them */}
+      {/* Budget Partner — its own section (the card carries its own heading) */}
+      <section className="space-y-3">
         {invitations?.invitations?.map((invitation) => (
           <PartnerInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
         ))}
         {sentInvitations?.invitations?.map((invitation) => (
           <SentInvitationCard key={invitation.id} invitation={invitation} onUpdate={refreshPartnerInfo} />
         ))}
-        {(showPartner || partnerInfo?.partner) && (
-          <PartnerManagement
-            partnerInfo={partnerInfo}
-            sentInvitations={sentInvitations?.invitations}
-            onPartnerUpdate={refreshPartnerInfo}
-          />
-        )}
+        <PartnerManagement
+          partnerInfo={partnerInfo}
+          sentInvitations={sentInvitations?.invitations}
+          onPartnerUpdate={refreshPartnerInfo}
+        />
       </section>
 
       {/* Preferences */}
