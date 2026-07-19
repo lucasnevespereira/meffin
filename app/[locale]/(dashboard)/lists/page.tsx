@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Plus, ClipboardList, Circle, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 import { useFormatCurrency } from '@/lib/currency-utils';
 import { useLists, useCreateList, useUpdateList } from '@/hooks/useLists';
@@ -12,12 +12,12 @@ import { useCategories } from '@/hooks/useCategories';
 import { ListForm, ListFormData } from '@/components/forms/ListForm';
 import { ListWithItems } from '@/types';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function ListsPage() {
   const t = useI18n();
-  const params = useParams();
-  const locale = params.locale as string;
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const { data: session } = useSession();
   const formatCurrency = useFormatCurrency();
   const { data: listsData, isLoading, error } = useLists();
@@ -64,7 +64,7 @@ export default function ListsPage() {
   if (!session) {
     return (
       <div className="text-center py-12 md:py-16">
-        <p className="text-muted-foreground">Please sign in to view your lists.</p>
+        <p className="text-muted-foreground">{t('lists_login_required')}</p>
       </div>
     );
   }
@@ -72,7 +72,7 @@ export default function ListsPage() {
   if (error) {
     return (
       <div className="text-center py-12 md:py-16">
-        <p className="text-muted-foreground">Error loading lists. Please try again.</p>
+        <p className="text-muted-foreground">{t('lists_loading_error')}</p>
       </div>
     );
   }
@@ -108,24 +108,19 @@ export default function ListsPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">
-            {t('lists_title') || 'Shopping Lists'}
-          </h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">
-            {t('lists_subtitle') || 'Create lists for potential purchases and convert them to transactions'}
-          </p>
-        </div>
-        <Button
-          onClick={handleCreateList}
-          className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto cursor-pointer"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          {t('lists_create') || 'Create List'}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('lists_title')}
+        description={t('lists_subtitle')}
+        actions={
+          <Button
+            onClick={handleCreateList}
+            className="w-full cursor-pointer shadow-card hover:shadow-lg sm:w-auto"
+          >
+            <Plus className="mr-2 size-4" />
+            {t('lists_create')}
+          </Button>
+        }
+      />
 
       {/* Lists Grid */}
       {lists.length === 0 ? (
@@ -145,7 +140,7 @@ export default function ListsPage() {
           </Button>
         </div>
       ) : (
-        <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6 xl:grid-cols-3">
           {lists.map((list) => (
             <Link
               key={list.id}
@@ -186,7 +181,8 @@ export default function ListsPage() {
                         {t('lists_progress') || 'Progress'}
                       </span>
                       <span className="font-medium">
-                        {list.checkedCount}/{list.itemCount} {t('items') || 'items'}
+                        {list.checkedCount}/{list.itemCount}{' '}
+                        {list.itemCount === 1 ? t('lists_detail_item') : t('lists_detail_items_plural')}
                       </span>
                     </div>
 
@@ -230,7 +226,11 @@ export default function ListsPage() {
                   {/* Footer */}
                   <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
                     <div className="text-xs text-muted-foreground">
-                      {t('lists_updated') || 'Updated'} {new Date(list.updatedAt).toLocaleDateString()}
+                      {t('lists_updated')} {new Intl.DateTimeFormat(locale, {
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric',
+                      }).format(new Date(list.updatedAt))}
                     </div>
                     {list.createdBy && (
                       <div className="text-xs text-muted-foreground">

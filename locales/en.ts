@@ -124,6 +124,8 @@ export default {
   transaction_annual: "annual",
   transactions_monthly: "Monthly",
   transactions_annual: "Annual",
+  transactions_count_single: "{count} transaction",
+  transactions_count_plural: "{count} transactions",
 
   // Common
   loading: "Loading...",
@@ -379,8 +381,14 @@ export default {
   partner_search_label: "Search for a user",
   partner_search_placeholder: "Name or email address...",
   partner_search_results: "Search results",
+  partner_search_minimum: "Enter at least 2 characters to search",
+  partner_search_error: "Unable to search for users",
   partner_no_results: 'No user found for "{query}"',
   partner_send_invitation: "Send invitation",
+  partner_invite_success: "Invitation sent",
+  partner_invite_success_description: "Your partner will receive an invitation email.",
+  partner_invite_error: "Unable to send the invitation",
+  partner_invite_send_error: "An error occurred while sending the invitation",
   partner_invitation_title: "Partnership invitation",
   partner_collaborative_budget: "Collaborative budget",
   partner_wants_to_share:
@@ -407,6 +415,10 @@ export default {
     "Warning: You will no longer see your partner's transactions, but your existing data will remain intact.",
   partner_removing: "Removing...",
   partner_confirm: "Confirm",
+  partner_remove_success: "Partnership removed",
+  partner_remove_success_description: "You are no longer budget partners.",
+  partner_remove_error: "Unable to remove the partnership",
+  partner_remove_generic_error: "An error occurred while removing the partnership",
 
   // Transaction Permissions
   transaction_edit_permission_denied:
@@ -423,6 +435,8 @@ export default {
   lists_empty_title: "No lists yet",
   lists_empty_description:
     "Create your first shopping list to start organizing your potential purchases.",
+  lists_login_required: "Please sign in to view your lists.",
+  lists_loading_error: "Unable to load your lists. Please try again.",
   lists_progress: "Progress",
   lists_remaining: "Remaining",
   lists_estimated: "Estimated",

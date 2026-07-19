@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useParams } from 'next/navigation';
 import { Plus, Calendar, TrendingUp, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -19,16 +18,17 @@ import {
 import { useCategories } from '@/hooks/useCategories';
 import { usePartnerInfo } from '@/hooks/usePartner';
 import { TransactionFormData, TransactionWithCategory, RepeatType } from '@/types';
-import { useI18n } from '@/locales/client';
+import { useCurrentLocale, useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 import { useUserCurrency } from '@/lib/currency-utils';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { downloadMonthExcel, type ExcelRow } from '@/lib/excel-export';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function TransactionsPage() {
   const t = useI18n();
-  const params = useParams();
-  const locale = (params.locale as string) || 'en';
+  const currentLocale = useCurrentLocale();
+  const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const currency = useUserCurrency();
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
@@ -177,35 +177,34 @@ export default function TransactionsPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('transactions_title')}</h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('transactions_subtitle')}</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-2 shrink-0 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            onClick={handleExport}
-            disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
-            className="shrink-0 w-full sm:w-auto cursor-pointer"
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {t('export_button')}
-          </Button>
-          <Button
-            onClick={() => setIsFormOpen(true)}
-            className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto cursor-pointer"
-            disabled={isLoadingCategories || categories.length === 0}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            {t('transactions_add_button')}
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title={t('transactions_title')}
+        description={t('transactions_subtitle')}
+        actions={
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={handleExport}
+              disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
+              className="w-full cursor-pointer sm:w-auto"
+            >
+              <Download className="mr-2 size-4" />
+              {t('export_button')}
+            </Button>
+            <Button
+              onClick={() => setIsFormOpen(true)}
+              className="w-full cursor-pointer shadow-card hover:shadow-lg sm:w-auto"
+              disabled={isLoadingCategories || categories.length === 0}
+            >
+              <Plus className="mr-2 size-4" />
+              {t('transactions_add_button')}
+            </Button>
+          </div>
+        }
+      />
 
       {/* Discrete view toggle */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-1 p-1 bg-muted/50 rounded-lg">
           <button
             onClick={() => setActiveTab('monthly')}
@@ -235,7 +234,7 @@ export default function TransactionsPage() {
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
         {/* Monthly Transactions Tab */}
-        <TabsContent value="monthly" className="space-y-6 md:space-y-8 mt-6">
+        <TabsContent value="monthly" className="mt-0 space-y-6 md:space-y-8">
           {isLoadingTransactions ? (
             <div className="space-y-6 md:space-y-8">
               {[1, 2].map(i => (
@@ -289,7 +288,7 @@ export default function TransactionsPage() {
         </TabsContent>
 
         {/* Annual Transactions Tab */}
-        <TabsContent value="annual" className="space-y-6 md:space-y-8 mt-6">
+        <TabsContent value="annual" className="mt-0 space-y-6 md:space-y-8">
           {isLoadingAnnualTransactions ? (
             <div className="space-y-6 md:space-y-8">
               <div className="rounded-xl border border-border bg-card shadow-card animate-pulse">

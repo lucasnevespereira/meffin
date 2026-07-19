@@ -20,6 +20,7 @@ import { Category, CategoryFormData, CategoryType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { toast } from 'sonner';
+import { PageHeader } from '@/components/shared/PageHeader';
 
 export default function CategoriesPage() {
   const t = useI18n();
@@ -110,20 +111,19 @@ export default function CategoriesPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="min-w-0 flex-1">
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-balance">{t('categories_title')}</h1>
-          <p className="text-muted-foreground mt-1 md:mt-2 text-sm md:text-base">{t('categories_subtitle')}</p>
-        </div>
-        <Button
-          onClick={() => setIsFormOpen(true)}
-          className="shadow-card hover:shadow-lg shrink-0 w-full sm:w-auto"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          {t('categories_add_button')}
-        </Button>
-      </div>
+      <PageHeader
+        title={t('categories_title')}
+        description={t('categories_subtitle')}
+        actions={
+          <Button
+            onClick={() => setIsFormOpen(true)}
+            className="w-full shadow-card hover:shadow-lg sm:w-auto"
+          >
+            <Plus className="mr-2 size-4" />
+            {t('categories_add_button')}
+          </Button>
+        }
+      />
 
       {/* Loading State */}
       {isLoading && (
