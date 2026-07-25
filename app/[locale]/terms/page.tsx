@@ -78,7 +78,7 @@ const content: Record<"en" | "fr", Content> = {
       },
       {
         heading: "Contact",
-        paragraphs: ["Questions? Email support@meffin.app."],
+        paragraphs: ["Questions? Email lnevespereira@proton.me."],
       },
     ],
   },
@@ -145,7 +145,7 @@ const content: Record<"en" | "fr", Content> = {
       },
       {
         heading: "Contact",
-        paragraphs: ["Des questions ? Écrivez à support@meffin.app."],
+        paragraphs: ["Des questions ? Écrivez à lnevespereira@proton.me."],
       },
     ],
   },
