@@ -13,8 +13,8 @@ export default async function AuthLayout({
   children: React.ReactNode;
   params: Promise<{ locale: string }>;
 }) {
-  // Await params to fix Next.js warning
-  await params;
+  const { locale: requestedLocale } = await params;
+  const locale = requestedLocale === 'fr' ? 'fr' : 'en';
   const t = await getI18n();
 
   return (
@@ -51,22 +51,36 @@ export default async function AuthLayout({
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="flex-1 flex items-center justify-center px-4 py-8 lg:px-16 lg:py-12">
-        <div className="w-full max-w-sm mx-auto">
-          {/* Mobile Logo - Only visible on smaller screens */}
-          <div className="lg:hidden flex flex-col items-center space-y-4 mb-8">
-            <Mascot size={56} />
-            <div className="text-center space-y-1">
-              <h1 className="text-xl font-semibold">{t('app_name')}</h1>
-              <p className="text-sm text-muted-foreground">{t('app_tagline')}</p>
+      <div className="flex min-h-screen flex-1 flex-col lg:min-h-0">
+        <div className="flex flex-1 items-center justify-center px-4 py-20 lg:px-16 lg:py-12">
+          <div className="w-full max-w-sm mx-auto">
+            {/* Mobile Logo - Only visible on smaller screens */}
+            <div className="lg:hidden flex flex-col items-center space-y-4 mb-8">
+              <Mascot size={56} />
+              <div className="text-center space-y-1">
+                <h1 className="text-xl font-semibold">{t('app_name')}</h1>
+                <p className="text-sm text-muted-foreground">{t('app_tagline')}</p>
+              </div>
+            </div>
+
+            {/* Auth Form */}
+            <div className="space-y-6">
+              {children}
             </div>
           </div>
-
-          {/* Auth Form */}
-          <div className="space-y-6">
-            {children}
-          </div>
         </div>
+
+        <footer className="flex items-center justify-center gap-5 px-4 pb-6 text-xs text-muted-foreground">
+          <Link href={`/${locale}/support`} className="transition-colors hover:text-foreground">
+            {t('legal_support')}
+          </Link>
+          <Link href={`/${locale}/terms`} className="transition-colors hover:text-foreground">
+            {t('legal_terms')}
+          </Link>
+          <Link href={`/${locale}/privacy`} className="transition-colors hover:text-foreground">
+            {t('legal_privacy')}
+          </Link>
+        </footer>
       </div>
     </div>
   );

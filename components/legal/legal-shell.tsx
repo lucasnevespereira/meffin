@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { LocaleSwitcher } from "@/components/shared/LocaleSwitcher";
+import { ThemeSwitcher } from "@/components/shared/ThemeSwitcher";
 
 export type LegalSection = {
   heading: string;
-  paragraphs?: string[];
-  bullets?: string[];
+  paragraphs?: ReactNode[];
+  bullets?: ReactNode[];
 };
 
 export function LegalShell({
@@ -17,24 +20,30 @@ export function LegalShell({
 }: {
   locale: string;
   title: string;
-  updated: string;
-  intro: string;
+  updated?: string;
+  intro: ReactNode;
   sections: LegalSection[];
   backLabel: string;
 }) {
   return (
     <main className="min-h-screen bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-5 py-12 sm:py-16">
-        <Link
-          href={`/${locale}`}
-          className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
-        >
-          <Image src="/logo.png" alt="" width={28} height={28} />
-          <span className="font-display text-base">Meffin</span>
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link
+            href={`/${locale}`}
+            className="inline-flex items-center gap-2 transition-opacity hover:opacity-80"
+          >
+            <Image src="/logo.png" alt="" width={28} height={28} />
+            <span className="font-display text-base">Meffin</span>
+          </Link>
+          <div className="flex items-center gap-1">
+            <ThemeSwitcher />
+            <LocaleSwitcher showText />
+          </div>
+        </div>
 
         <h1 className="mt-8 font-display text-3xl sm:text-4xl">{title}</h1>
-        <p className="mt-2 text-sm text-muted-foreground">{updated}</p>
+        {updated && <p className="mt-2 text-sm text-muted-foreground">{updated}</p>}
 
         <div className="mt-8 space-y-8 text-[15px] leading-relaxed text-foreground/90">
           <p>{intro}</p>

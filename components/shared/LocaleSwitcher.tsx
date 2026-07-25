@@ -1,7 +1,5 @@
 'use client';
 
-import { HugeiconsIcon } from "@hugeicons/react";
-import { LanguageCircleIcon } from "@hugeicons/core-free-icons";
 import { useCurrentLocale, useChangeLocale } from '@/locales/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,6 +45,7 @@ export function LocaleSwitcher({
         <Button
           variant={variant}
           size={size}
+          aria-label={currentLocaleData?.name}
           className={`h-10 px-3 touch-manipulation active:scale-95 transition-transform ${className}`}
         >
           <div className="flex items-center gap-2">
@@ -56,7 +55,6 @@ export function LocaleSwitcher({
                 {currentLocaleData?.name}
               </span>
             )}
-            <HugeiconsIcon icon={LanguageCircleIcon} className="h-4 w-4" />
           </div>
         </Button>
       </DropdownMenuTrigger>

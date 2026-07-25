@@ -1,7 +1,7 @@
 'use client';
 
 import { HugeiconsIcon, type IconSvgElement } from '@hugeicons/react';
-import { Alert01Icon, AnalyticsUpIcon, ArrowRight01Icon, Coins01Icon, Delete02Icon, FloppyDiskIcon, LanguageCircleIcon, MoonIcon, Tag01Icon } from "@hugeicons/core-free-icons";
+import { Alert01Icon, AnalyticsUpIcon, ArrowRight01Icon, Coins01Icon, CustomerSupportIcon, Delete02Icon, FloppyDiskIcon, LanguageCircleIcon, Legal01Icon, MoonIcon, SecurityCheckIcon, Tag01Icon } from "@hugeicons/core-free-icons";
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
@@ -339,6 +339,32 @@ export default function ProfilePage() {
         <Panel>
           <SettingsRow icon={Tag01Icon} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
           <SettingsRow icon={AnalyticsUpIcon} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+        </Panel>
+      </section>
+
+      {/* Help and legal */}
+      <section className="space-y-3">
+        <SectionLabel>{t('profile_section_help')}</SectionLabel>
+        <Panel>
+          <SettingsRow
+            icon={CustomerSupportIcon}
+            tint="coral"
+            title={t('legal_support')}
+            subtitle={t('profile_support_description')}
+            href={`/${locale}/support`}
+          />
+          <SettingsRow
+            icon={SecurityCheckIcon}
+            tint="green"
+            title={t('legal_privacy')}
+            href={`/${locale}/privacy`}
+          />
+          <SettingsRow
+            icon={Legal01Icon}
+            tint="blue"
+            title={t('legal_terms')}
+            href={`/${locale}/terms`}
+          />
         </Panel>
       </section>
 

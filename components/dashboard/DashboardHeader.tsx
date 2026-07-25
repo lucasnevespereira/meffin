@@ -5,6 +5,7 @@ import { Calendar01Icon } from "@hugeicons/core-free-icons";
 import React from 'react';
 import { usePathname } from 'next/navigation';
 import { useCurrentLocale, useI18n } from '@/locales/client';
+import { useMonthCursor } from '@/hooks/useMonthCursor';
 import { LocaleSwitcher } from '@/components/shared/LocaleSwitcher';
 import { ThemeSwitcher } from '@/components/shared/ThemeSwitcher';
 import {
@@ -23,6 +24,8 @@ export function DashboardHeader() {
   const t = useI18n();
   const currentLocale = useCurrentLocale();
   const locale = currentLocale === 'fr' ? 'fr' : 'en';
+  const { setCursor, isCurrent } = useMonthCursor();
+  const now = new Date();
 
   const getBreadcrumbs = () => {
     const segments = pathname.split('/').filter(Boolean);
@@ -107,12 +110,19 @@ export function DashboardHeader() {
       </div>
 
       <div className="flex items-center gap-3 px-6">
-        <div className="hidden select-none items-center gap-2 text-muted-foreground md:flex">
-          <HugeiconsIcon icon={Calendar01Icon} className="h-3.5 w-3.5 text-muted-foreground" />
+        <button
+          type="button"
+          disabled={isCurrent}
+          onClick={() => setCursor(now.getMonth(), now.getFullYear())}
+          aria-label={t('month_back_to_current')}
+          title={isCurrent ? undefined : t('month_back_to_current')}
+          className="hidden h-8 items-center gap-2 rounded-md px-2 text-muted-foreground transition-colors enabled:cursor-pointer enabled:bg-primary/10 enabled:text-primary enabled:hover:bg-primary/15 md:flex disabled:cursor-default"
+        >
+          <HugeiconsIcon icon={Calendar01Icon} className="h-3.5 w-3.5" />
           <span className="text-xs font-medium">
-            {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(new Date())}
+            {new Intl.DateTimeFormat(locale, { month: 'short', year: 'numeric' }).format(now)}
           </span>
-        </div>
+        </button>
         <Separator orientation="vertical" className="h-6" />
         <ThemeSwitcher />
         <LocaleSwitcher showText />

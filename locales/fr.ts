@@ -65,6 +65,11 @@ export default {
   common_error: "Erreur",
   common_success: "Succès",
 
+  // Mentions légales
+  legal_support: "Assistance",
+  legal_terms: "Conditions",
+  legal_privacy: "Confidentialité",
+
   // Language
   language: "Langue",
   language_en: "English",
@@ -185,7 +190,9 @@ export default {
   profile_edit: "Modifier",
   profile_section_budget: "Budget",
   profile_section_preferences: "Préférences",
+  profile_section_help: "Aide et mentions légales",
   profile_appearance: "Apparence",
+  profile_support_description: "Obtenir de l'aide ou nous contacter",
   profile_name: "Nom complet",
   profile_email: "Email",
   profile_email_readonly: "L'email ne peut pas être modifié",
