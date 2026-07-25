@@ -308,7 +308,30 @@ export default {
   transaction_recurring_annual: "Annuel",
   transaction_month_of_year: "Mois de l'année",
   transaction_select_month: "Sélectionner un mois",
+  transaction_date_hint: "N'importe quelle date, même un mois à venir",
+  transaction_starts_on: "Commence le",
+  transaction_schedule: "Planification",
+  transaction_starting: "à partir de",
+  validation_dateRequired: "Choisissez une date",
+  validation_endDateRequired: "Choisissez une date de fin",
   validation_error: "Erreur de validation",
+
+  // Navigation par mois et mois à venir
+  month_previous: "Mois précédent",
+  month_next: "Mois suivant",
+  month_back_to_current: "Revenir au mois actuel",
+  month_planned: "Prévu",
+  month_planned_note:
+    "Cette estimation couvre les opérations récurrentes et planifiées. Les dépenses variables ne sont pas estimées.",
+  month_edit_in: "Modifier en {month}",
+  month_nothing_planned: "Rien de prévu en {month} pour l'instant",
+  month_nothing_planned_hint: "Ajoutez une transaction ponctuelle avec une date en {month} pour anticiper.",
+  month_export_planned: "Rien à exporter pour un mois à venir",
+  trends_include_planned: "Afficher les 6 prochains mois",
+  trends_forecast_label: "Prévision",
+  trends_forecast_note:
+    "Ajoute six mois après le mois en cours. Inclut uniquement les opérations récurrentes et planifiées. Les dépenses variables ne sont pas estimées.",
+  trends_today: "Aujourd'hui",
 
   // Dashboard
   dashboard_title: "Dashboard",
@@ -317,6 +340,8 @@ export default {
   dashboard_greeting: "Salut, {name}",
   dashboard_month_overview: "Votre mois de {month} en un coup d'œil",
   dashboard_available_balance: "Solde disponible · {month}",
+  dashboard_expected_balance: "Solde prévu · {month}",
+  dashboard_planned_overview: "Voici à quoi {month} devrait ressembler",
   dashboard_balance_description: "Après vos revenus et vos dépenses",
   dashboard_on_track: "Vous êtes dans le vert",
   dashboard_over_budget: "Vous êtes dans le rouge",
@@ -333,7 +358,7 @@ export default {
   transaction_created_by: "Créé par",
   trends_title: "Tendances",
   trends_subtitle: "L'évolution de votre budget dans le temps",
-  trends_balance_title: "Solde au fil du temps",
+  trends_balance_title: "Solde mensuel",
   trends_income_expenses_title: "Revenus et dépenses",
   trends_balance: "Solde",
   trends_income: "Revenus",

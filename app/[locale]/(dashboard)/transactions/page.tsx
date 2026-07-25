@@ -25,6 +25,8 @@ import { useUserCurrency } from '@/lib/currency-utils';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { downloadMonthExcel, type ExcelRow } from '@/lib/excel-export';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { MonthSwitcher } from '@/components/shared/MonthSwitcher';
+import { useMonthCursor } from '@/hooks/useMonthCursor';
 
 export default function TransactionsPage() {
   const t = useI18n();
@@ -35,9 +37,10 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
   const [activeTab, setActiveTab] = useState('monthly');
   const [isExporting, setIsExporting] = useState(false);
+  const { month, year, setCursor, isPlanned } = useMonthCursor();
 
   const { data: session } = useSession();
-  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
+  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions(month, year);
   const { data: annualTransactionsData, isLoading: isLoadingAnnualTransactions } = useAnnualTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
   const { data: partnerInfo } = usePartnerInfo();
@@ -106,7 +109,9 @@ export default function TransactionsPage() {
   };
 
   const handleExport = async () => {
-    const txns = transactionsData?.transactions ?? [];
+    // Forecast rows stay out of the spreadsheet. An export is a record of what happened,
+    // and projected amounts sitting in it unlabelled would read as fact.
+    const txns = (transactionsData?.transactions ?? []).filter((tx) => tx.source !== 'projected');
     const rows: ExcelRow[] = txns
       .filter((tx) => tx.category.type === 'income' || tx.category.type === 'expense')
       .map((tx) => ({
@@ -122,11 +127,11 @@ export default function TransactionsPage() {
 
     setIsExporting(true);
     try {
-      const now = new Date();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const exported = new Date(year, month, 1);
+      const mm = String(month + 1).padStart(2, '0');
       await downloadMonthExcel({
-        filename: `meffin-${now.getFullYear()}-${mm}.xlsx`,
-        sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(now),
+        filename: `meffin-${year}-${mm}.xlsx`,
+        sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(exported),
         rows,
         currencyCode: currency,
         includeCreatedBy: !!partnerInfo?.partner,
@@ -167,6 +172,7 @@ export default function TransactionsPage() {
   const allTransactions = transactionsData?.transactions ?? [];
   const allAnnualTransactions = annualTransactionsData?.transactions ?? [];
   const categories = categoriesData?.categories ?? [];
+  const exportableCount = allTransactions.filter((tx) => tx.source !== 'projected').length;
 
   // Filter transactions based on type
   const monthlyTransactions = allTransactions.filter(transaction =>
@@ -175,6 +181,15 @@ export default function TransactionsPage() {
 
   // Use dedicated annual transactions data for annual tab
   const annualTransactions = allAnnualTransactions;
+
+  const monthName = (target: Date) =>
+    new Intl.DateTimeFormat(locale, { month: 'long' }).format(target);
+  const monthLabel = monthName(new Date(year, month, 1));
+  const currentMonthLabel = monthName(new Date());
+  const goToCurrentMonth = () => {
+    const today = new Date();
+    setCursor(today.getMonth(), today.getFullYear());
+  };
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -186,7 +201,8 @@ export default function TransactionsPage() {
             <Button
               variant="outline"
               onClick={handleExport}
-              disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
+              disabled={isExporting || isLoadingTransactions || exportableCount === 0}
+              title={exportableCount === 0 && isPlanned ? t('month_export_planned') : undefined}
               className="w-full cursor-pointer sm:w-auto"
             >
               <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
@@ -230,12 +246,27 @@ export default function TransactionsPage() {
             {t('transactions_annual') || 'Annual'}
           </button>
         </div>
+
+        {/* Annual transactions have no month context, so the switcher only applies to the
+            monthly view — same split the mobile app uses. */}
+        {activeTab === 'monthly' && (
+          <MonthSwitcher month={month} year={year} onChange={setCursor} />
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
         {/* Monthly Transactions Tab */}
         <TabsContent value="monthly" className="mt-0 space-y-6 md:space-y-8">
+          {isPlanned && !isLoadingTransactions && monthlyTransactions.length > 0 && (
+            <button
+              onClick={goToCurrentMonth}
+              className="cursor-pointer text-xs font-medium text-primary underline-offset-2 hover:underline"
+            >
+              {t('month_edit_in', { month: currentMonthLabel })}
+            </button>
+          )}
+
           {isLoadingTransactions ? (
             <div className="space-y-6 md:space-y-8">
               {[1, 2].map(i => (
@@ -273,6 +304,8 @@ export default function TransactionsPage() {
                 isDeleting={deleteMutation.isPending}
                 hasPartner={!!partnerInfo?.partner}
                 currentUserId={session?.user?.id}
+                isPlanned={isPlanned}
+                monthLabel={monthLabel}
               />
 
               <TransactionList
@@ -283,6 +316,8 @@ export default function TransactionsPage() {
                 isDeleting={deleteMutation.isPending}
                 hasPartner={!!partnerInfo?.partner}
                 currentUserId={session?.user?.id}
+                isPlanned={isPlanned}
+                monthLabel={monthLabel}
               />
             </div>
           )}

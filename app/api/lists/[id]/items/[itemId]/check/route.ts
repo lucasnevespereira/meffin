@@ -78,6 +78,7 @@ export async function POST(
       const amount = validatedData.actualPrice || (item.estimatedPrice ? parseFloat(item.estimatedPrice) : 0);
 
       if (amount > 0) {
+        const date = new Date().toISOString();
         const [newTransaction] = await db.insert(transactions).values({
           id: crypto.randomUUID(),
           userId: list.userId, // Use list owner as transaction owner
@@ -85,7 +86,7 @@ export async function POST(
           categoryId: item.categoryId,
           description: item.name,
           amount: amount.toString(),
-          date: new Date().toISOString(),
+          date,
           isFixed: false,
           isPrivate: false,
           repeatType: 'once',

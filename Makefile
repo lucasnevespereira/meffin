@@ -1,4 +1,4 @@
-.PHONY: dev setup db migrate recurring build clean down help
+.PHONY: dev setup db migrate seed build clean down help
 
 help:
 	@echo "🌟 Meffin Development Commands"
@@ -7,7 +7,7 @@ help:
 	@echo "  migrate    - Generate migration files after schema changes"
 	@echo "  setup      - Manual setup (database, schema, and dependencies)"
 	@echo "  db         - Start PostgreSQL database only"
-	@echo "  recurring  - Generate recurring transactions (for testing/self-hosting)"
+	@echo "  seed       - Fill your local account with example transactions"
 	@echo "  build      - Build for production (with migrations)"
 	@echo "  clean      - Clean build artifacts and stop services"
 	@echo "  down       - Stop all services"
@@ -20,26 +20,24 @@ db:
 # One-time setup for contributors
 setup: db
 	@echo "📦 Installing dependencies..."
-	@npm install
+	@pnpm install --frozen-lockfile
 	@echo "🔄 Setting up database schema..."
-	@npx drizzle-kit push
+	@pnpm exec drizzle-kit migrate
 	@echo "✅ Setup complete!"
 
 # Development server (always runs setup to ensure everything works)
 dev: setup
 	@echo "🚀 Starting Next.js development server..."
-	@npm run dev
+	@pnpm run dev
 
 
-recurring:
-	@echo "🔄 Generating recurring transactions..."
-	@curl -X POST http://localhost:3000/api/cron/recurring-transactions \
-		-H "Content-Type: application/json" \
-		|| echo "⚠️  Make sure the app is running (make dev)"
+seed:
+	@echo "🌱 Seeding example transactions..."
+	@pnpm run seed:demo
 
 build:
 	@echo "🏗️  Building for production..."
-	@npx drizzle-kit migrate && npm run build
+	@pnpm exec drizzle-kit migrate && pnpm run build
 
 clean:
 	@echo "🧹 Cleaning up..."

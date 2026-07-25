@@ -309,7 +309,30 @@ export default {
   transaction_private_category: "Private category",
   transaction_month_of_year: "Month of Year",
   transaction_select_month: "Select month",
+  transaction_date_hint: "Any date, including a future month",
+  transaction_starts_on: "Starts on",
+  transaction_schedule: "Schedule",
+  transaction_starting: "starting",
+  validation_dateRequired: "Pick a date",
+  validation_endDateRequired: "Pick an end date",
   validation_error: "Validation failed",
+
+  // Month navigation and planned months
+  month_previous: "Previous month",
+  month_next: "Next month",
+  month_back_to_current: "Back to this month",
+  month_planned: "Planned",
+  month_planned_note:
+    "This estimate covers recurring and scheduled transactions. Variable spending is not estimated.",
+  month_edit_in: "Edit in {month}",
+  month_nothing_planned: "Nothing planned for {month} yet",
+  month_nothing_planned_hint: "Add a one-time transaction and pick a date in {month} to plan ahead.",
+  month_export_planned: "Planned months have nothing to export yet",
+  trends_include_planned: "Include next 6 months",
+  trends_forecast_label: "Forecast",
+  trends_forecast_note:
+    "Adds six months after the current month. Includes recurring and scheduled transactions only. Variable spending is not estimated.",
+  trends_today: "Today",
 
   // Dashboard
   dashboard_title: "Dashboard",
@@ -318,6 +341,8 @@ export default {
   dashboard_greeting: "Hi, {name}",
   dashboard_month_overview: "Your {month} finances at a glance",
   dashboard_available_balance: "Available balance · {month}",
+  dashboard_expected_balance: "Expected balance · {month}",
+  dashboard_planned_overview: "Here's how {month} is shaping up",
   dashboard_balance_description: "After income and expenses",
   dashboard_on_track: "You're in the green",
   dashboard_over_budget: "You're in the red",
@@ -333,7 +358,7 @@ export default {
   transaction_created_by: "Created by",
   trends_title: "Trends",
   trends_subtitle: "How your budget evolves over time",
-  trends_balance_title: "Balance over time",
+  trends_balance_title: "Monthly balance",
   trends_income_expenses_title: "Income vs expenses",
   trends_balance: "Balance",
   trends_income: "Income",

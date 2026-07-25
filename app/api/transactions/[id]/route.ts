@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories, users } from '@/lib/db/schema';
+import { transactions, categories, users, listItems } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, and, inArray } from 'drizzle-orm';
+import { eq, and, inArray, isNotNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
+import { isProjectedId } from '@/lib/services/budget/project';
+import {
+  monthKeyFromDateString,
+  occurrenceDate,
+  dayOfMonth,
+} from '@/lib/services/budget/keys';
+import {
+  canonicalEndDate,
+  resolveEndMonth,
+  resolveOccurrenceMonth,
+} from '@/lib/services/budget/schedule';
 
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -16,6 +27,10 @@ const updateTransactionSchema = z.object({
   repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']).default('once'),
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
+
+/** Future months have no stored row, so they carry a synthetic id. They're preview-only:
+ *  changing the forecast means editing the current month, which is a real row. */
+const PROJECTED_MESSAGE = 'This month is a forecast. Edit the current month to change it.';
 
 export async function PUT(
   request: NextRequest,
@@ -29,6 +44,10 @@ export async function PUT(
     }
 
     const { id } = await params;
+    if (isProjectedId(id)) {
+      return NextResponse.json({ error: PROJECTED_MESSAGE }, { status: 400 });
+    }
+
     const body = await request.json();
     const validatedData = updateTransactionSchema.parse(body);
 
@@ -49,24 +68,21 @@ export async function PUT(
     // Check if transaction exists and is accessible to user or their partner
     const userIds = user.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
 
-    const existingTransaction = await db.select({
-      id: transactions.id,
-      userId: transactions.userId,
-      createdBy: transactions.createdBy,
-    })
+    const [existing] = await db.select()
       .from(transactions)
       .where(and(
         eq(transactions.id, id),
-        inArray(transactions.userId, userIds)
+        inArray(transactions.userId, userIds),
+        eq(transactions.voided, false)
       ))
       .limit(1);
 
-    if (existingTransaction.length === 0) {
+    if (!existing) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
     // Check if user is the creator of this transaction (creator-only editing)
-    if (existingTransaction[0].createdBy !== session.user.id) {
+    if (existing.createdBy !== session.user.id) {
       return NextResponse.json({
         error: 'You can only edit transactions that you created'
       }, { status: 403 });
@@ -93,16 +109,86 @@ export async function PUT(
       }
     }
 
+    const submittedDate = validatedData.date.toISOString();
+    const submittedMonth = monthKeyFromDateString(submittedDate);
+    const submittedEndDate = validatedData.endDate
+      ? validatedData.endDate.toISOString()
+      : null;
+    const repeatType = validatedData.repeatType;
+    const wantsSeries = repeatType !== 'once';
+
+    // An occurrence belongs to its month; only the day is editable. Letting a submitted
+    // date move it would collide with the row already sitting in the target month — and
+    // clients round-trip whatever date they were handed. One-off rows move freely, which
+    // is what dating a bill into a future month relies on.
+    const occurrenceMonth = resolveOccurrenceMonth(
+      existing,
+      submittedMonth,
+      repeatType
+    );
+    const keepsSubmittedDate =
+      !existing.seriesId ||
+      (existing.repeatType === 'annual' && repeatType === 'annual');
+    const date =
+      keepsSubmittedDate && occurrenceMonth === submittedMonth
+        ? submittedDate
+        : occurrenceDate(occurrenceMonth, dayOfMonth(submittedDate));
+
+    let seriesId = existing.seriesId;
+
+    if (!existing.seriesId && wantsSeries) {
+      // Turning a one-off into a series. A shopping-list transaction can't make the trip:
+      // its list item points at this row, and unchecking the item relies on deleting it.
+      const [linked] = await db
+        .select({ id: listItems.id })
+        .from(listItems)
+        .where(and(eq(listItems.transactionId, id), isNotNull(listItems.transactionId)))
+        .limit(1);
+
+      if (linked) {
+        return NextResponse.json({
+          error: 'This transaction came from a shopping list and cannot be made recurring.'
+        }, { status: 400 });
+      }
+
+      seriesId = id;
+    }
+
+    const endMonth = resolveEndMonth(
+      existing,
+      occurrenceMonth,
+      repeatType,
+      submittedEndDate
+    );
+
+    if (repeatType === 'until' && endMonth === null) {
+      return NextResponse.json({ error: 'End date is required' }, { status: 400 });
+    }
+    if (endMonth !== null && endMonth < occurrenceMonth) {
+      return NextResponse.json({
+        error: 'End date cannot be before the first occurrence'
+      }, { status: 400 });
+    }
+
+    const endDate = canonicalEndDate(
+      endMonth,
+      repeatType,
+      date,
+      submittedEndDate
+    );
+
     const [updatedTransaction] = await db.update(transactions)
       .set({
         description: validatedData.description,
         amount: validatedData.amount.toString(),
         categoryId: validatedData.categoryId,
-        date: validatedData.date.toISOString(),
-        isFixed: validatedData.isFixed,
+        date,
+        isFixed: wantsSeries,
         isPrivate: validatedData.isPrivate || false,
-        repeatType: validatedData.repeatType,
-        endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
+        repeatType,
+        endDate,
+        seriesId,
+        endMonth,
         updatedAt: new Date().toISOString(),
       })
       .where(and(
@@ -134,6 +220,9 @@ export async function DELETE(
     }
 
     const { id } = await params;
+    if (isProjectedId(id)) {
+      return NextResponse.json({ error: PROJECTED_MESSAGE }, { status: 400 });
+    }
 
     // Get current user's partner info to determine access
     const [user] = await db
@@ -152,38 +241,47 @@ export async function DELETE(
     // Check if transaction exists and is accessible to user or their partner
     const userIds = user.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
 
-    const existingTransaction = await db.select({
+    const [existing] = await db.select({
       id: transactions.id,
-      userId: transactions.userId,
       createdBy: transactions.createdBy,
+      seriesId: transactions.seriesId,
     })
       .from(transactions)
       .where(and(
         eq(transactions.id, id),
-        inArray(transactions.userId, userIds)
+        inArray(transactions.userId, userIds),
+        eq(transactions.voided, false)
       ))
       .limit(1);
 
-    if (existingTransaction.length === 0) {
+    if (!existing) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
     // Check if user is the creator of this transaction (creator-only deletion)
-    if (existingTransaction[0].createdBy !== session.user.id) {
+    if (existing.createdBy !== session.user.id) {
       return NextResponse.json({
         error: 'You can only delete transactions that you created'
       }, { status: 403 });
     }
 
-    const result = await db.delete(transactions)
-      .where(and(
-        eq(transactions.id, id),
-        eq(transactions.createdBy, session.user.id)
-      ))
-      .returning();
+    if (existing.seriesId) {
+      // Void rather than delete. A removed row would just be written again by the next
+      // materialization pass, and the tombstone is what keeps the deletion sticky.
+      await db.update(transactions)
+        .set({ voided: true, updatedAt: new Date().toISOString() })
+        .where(and(eq(transactions.id, id), eq(transactions.createdBy, session.user.id)));
+    } else {
+      const result = await db.delete(transactions)
+        .where(and(
+          eq(transactions.id, id),
+          eq(transactions.createdBy, session.user.id)
+        ))
+        .returning();
 
-    if (result.length === 0) {
-      return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+      if (result.length === 0) {
+        return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
+      }
     }
 
     return NextResponse.json({ success: true });

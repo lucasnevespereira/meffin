@@ -1,17 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { transactions, categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, and, gte, lte, or } from 'drizzle-orm';
-import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
+import { resolveViewer, getRange } from '@/lib/services/budget/budget';
+import { currentMonthKey } from '@/lib/services/budget/keys';
 
-type MonthPoint = {
-  month: number; // 0-11
-  year: number;
-  income: number;
-  expenses: number;
-  balance: number;
-};
+const MAX_SPAN = 36;
 
 export async function GET(request: NextRequest) {
   try {
@@ -25,93 +17,20 @@ export async function GET(request: NextRequest) {
     const monthsParam = parseInt(url.searchParams.get('months') ?? '');
     const months = Number.isInteger(monthsParam) && monthsParam >= 1 && monthsParam <= 24 ? monthsParam : 12;
 
-    const now = new Date();
-    // Oldest bucket starts at the 1st of (now - months + 1)
-    const rangeStart = new Date(now.getFullYear(), now.getMonth() - (months - 1), 1, 0, 0, 0, 0);
-    const rangeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+    // Additive: callers that don't ask for a forecast get exactly the range they always did.
+    const futureParam = parseInt(url.searchParams.get('future') ?? '');
+    const requestedFuture = Number.isInteger(futureParam) && futureParam >= 0 ? futureParam : 0;
+    const future = Math.min(requestedFuture, MAX_SPAN - months);
 
-    const [user] = await db
-      .select({ id: users.id, partnerId: users.partnerId })
-      .from(users)
-      .where(eq(users.id, session.user.id))
-      .limit(1);
-
-    if (!user) {
+    const current = currentMonthKey();
+    const viewer = await resolveViewer(session.user.id);
+    if (!viewer) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const userIds = user.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
-    // A partner's private transactions never count toward the other partner's view.
-    const isVisible = (row: { isPrivate: boolean | null; createdBy: string }) =>
-      !(row.isPrivate && row.createdBy !== session.user.id);
+    const history = await getRange(viewer, current - (months - 1), current + future);
 
-    // Non-annual transactions dated within the range
-    const monthlyRows = (await db
-      .select()
-      .from(transactions)
-      .where(and(
-        or(...userIds.map(id => eq(transactions.userId, id))),
-        gte(transactions.date, rangeStart.toISOString()),
-        lte(transactions.date, rangeEnd.toISOString())
-      ))).filter(row => row.repeatType !== 'annual' && isVisible(row));
-
-    // Annual transactions apply to their renewal month in every year of the range
-    const annualRows = (await db
-      .select()
-      .from(transactions)
-      .where(and(
-        or(...userIds.map(id => eq(transactions.userId, id))),
-        eq(transactions.repeatType, 'annual')
-      ))).filter(isVisible);
-
-    // Category type lookup (income vs expense) from defaults + custom
-    const customCategories = await db
-      .select()
-      .from(categories)
-      .where(or(...userIds.map(id => eq(categories.userId, id))));
-
-    const categoryType: Record<string, string> = {};
-    DEFAULT_CATEGORIES.forEach(cat => { categoryType[cat.id] = cat.type; });
-    customCategories.forEach(cat => { categoryType[cat.id] = cat.type; });
-
-    // Seed one bucket per month in the range, oldest first
-    const buckets: MonthPoint[] = [];
-    const indexByKey: Record<string, number> = {};
-    for (let i = 0; i < months; i++) {
-      const d = new Date(now.getFullYear(), now.getMonth() - (months - 1) + i, 1);
-      buckets.push({ month: d.getMonth(), year: d.getFullYear(), income: 0, expenses: 0, balance: 0 });
-      indexByKey[`${d.getFullYear()}-${d.getMonth()}`] = i;
-    }
-
-    const apply = (categoryId: string, amount: number, idx: number) => {
-      const type = categoryType[categoryId];
-      if (type === 'income') buckets[idx].income += amount;
-      else if (type === 'expense') buckets[idx].expenses += amount;
-    };
-
-    for (const row of monthlyRows) {
-      const d = new Date(row.date);
-      const idx = indexByKey[`${d.getFullYear()}-${d.getMonth()}`];
-      if (idx !== undefined) apply(row.categoryId, Number(row.amount), idx);
-    }
-
-    // An annual transaction counts in its renewal month for every year shown,
-    // starting from the transaction's original year/month.
-    for (const row of annualRows) {
-      const renewalDate = new Date(row.date);
-      const renewalMonth = renewalDate.getMonth();
-      const firstRenewalKey = renewalDate.getFullYear() * 12 + renewalMonth;
-      buckets.forEach((bucket, idx) => {
-        const bucketKey = bucket.year * 12 + bucket.month;
-        if (bucket.month === renewalMonth && bucketKey >= firstRenewalKey) {
-          apply(row.categoryId, Number(row.amount), idx);
-        }
-      });
-    }
-
-    buckets.forEach(b => { b.balance = b.income - b.expenses; });
-
-    return NextResponse.json({ history: buckets });
+    return NextResponse.json({ history });
   } catch (error) {
     console.error('Error fetching history:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

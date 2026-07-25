@@ -26,6 +26,10 @@ import { Badge } from '@/components/ui/badge';
 import { TransactionFormData, Category, RepeatType } from '@/types';
 import { useSession } from '@/lib/auth-client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
+import {
+  fixedDurationEndDate,
+  fixedDurationMonths,
+} from '@/lib/services/budget/schedule';
 
 interface TransactionFormProps {
   isOpen: boolean;
@@ -38,15 +42,29 @@ interface TransactionFormProps {
 }
 
 // Form-specific type for the actual form fields (excluding computed fields)
+//
+// Dates are held as `yyyy-MM-dd` strings, the format `<input type="date">` reads and
+// writes. Passing Date objects through the input leaves it blank and drags UTC-midnight
+// conversion into every read.
 type TransactionFormInput = {
   description: string;
   amount: number;
   categoryId: string;
-  dayOfMonth: number;
-  monthOfYear?: number; // For annual transactions
+  /** First occurrence. For a one-off it's simply the date; for anything recurring the day
+   *  sets the day of the month and the month sets when it starts. */
+  startDate: string;
   repeatType: RepeatType;
-  customEndDate?: Date;
+  customEndDate?: string;
   isPrivate?: boolean;
+};
+
+const pad = (value: number) => String(value).padStart(2, '0');
+const toDateInput = (date: Date) =>
+  `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+/** Noon, so no downstream timezone conversion can move it to the neighbouring day. */
+const fromDateInput = (value: string) => {
+  const [year, month, day] = value.split('-').map(Number);
+  return new Date(year, month - 1, day, 12, 0, 0, 0);
 };
 
 export function TransactionForm({
@@ -65,12 +83,15 @@ export function TransactionForm({
     description: z.string().min(1, t('validation_descriptionRequired') || 'Description is required'),
     amount: z.number().positive(t('validation_amountPositive') || 'Amount must be positive'),
     categoryId: z.string().min(1, t('validation_categoryRequired') || 'Category is required'),
-    dayOfMonth: z.number().min(1).max(31),
-    monthOfYear: z.number().min(0).max(11).optional(),
+    startDate: z.string().min(1, t('validation_dateRequired') || 'Date is required'),
     repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']),
-    customEndDate: z.date().optional(),
+    customEndDate: z.string().optional(),
     isPrivate: z.boolean().optional(),
-  }) satisfies z.ZodType<TransactionFormInput>;
+  }).refine(
+    // "Until specific date" without a date used to fall through as never-ending.
+    data => data.repeatType !== 'until' || !!data.customEndDate,
+    { path: ['customEndDate'], message: t('validation_endDateRequired') || 'End date is required' }
+  ) satisfies z.ZodType<TransactionFormInput>;
 
   const {
     register,
@@ -86,26 +107,23 @@ export function TransactionForm({
       description: initialData.description || '',
       amount: initialData.amount || 0,
       categoryId: initialData.categoryId || '',
-      dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
-      monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
+      startDate: toDateInput(initialData.date ? new Date(initialData.date) : new Date()),
       repeatType: initialData.repeatType || 'forever',
-      customEndDate: initialData.customEndDate || new Date(),
+      customEndDate: initialData.customEndDate ? toDateInput(initialData.customEndDate) : '',
       isPrivate: initialData.isPrivate || false,
     } : {
       description: '',
       amount: 0,
       categoryId: '',
-      dayOfMonth: new Date().getDate(),
-      monthOfYear: new Date().getMonth(),
+      startDate: toDateInput(new Date()),
       repeatType: 'forever',
-      customEndDate: new Date(),
+      customEndDate: '',
       isPrivate: false,
     },
   });
 
   const selectedCategoryId = watch('categoryId');
-  const dayOfMonth = watch('dayOfMonth');
-  const monthOfYear = watch('monthOfYear');
+  const startDate = watch('startDate');
   const repeatType = watch('repeatType');
   const customEndDate = watch('customEndDate');
   const isPrivate = watch('isPrivate');
@@ -117,46 +135,45 @@ export function TransactionForm({
         description: initialData.description || '',
         amount: initialData.amount || 0,
         categoryId: initialData.categoryId || '',
-        dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
-        monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
+        startDate: toDateInput(initialData.date ? new Date(initialData.date) : new Date()),
         repeatType: initialData.repeatType || 'forever',
-        customEndDate: initialData.customEndDate || new Date(),
+        customEndDate: initialData.customEndDate ? toDateInput(initialData.customEndDate) : '',
         isPrivate: initialData.isPrivate || false,
       });
     }
   }, [initialData, mode, reset]);
 
+  // Says back, in a sentence, exactly what will be created.
   const getRecurringText = () => {
-    if (repeatType === 'once') {
-      return t('transaction_one_time') || 'One-time transaction';
-    }
+    if (!startDate) return '';
+    const start = fromDateInput(startDate);
+    const day = start.getDate();
+    const longDate = start.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+    const monthAndYear = start.toLocaleDateString(undefined, { month: 'long', year: 'numeric' });
 
-    if (repeatType === 'forever') {
-      return `${t('transaction_monthly_on') || 'Monthly on day'} ${dayOfMonth}`;
+    if (repeatType === 'once') {
+      return `${t('transaction_one_time') || 'One-time transaction'} · ${longDate}`;
     }
 
     if (repeatType === 'annual') {
-      const month = monthOfYear !== undefined ? monthOfYear : new Date().getMonth();
-      return `Annual on ${new Date(2000, month, dayOfMonth).toLocaleDateString('en', { month: 'long', day: 'numeric' })}`;
+      return `${t('transaction_recurring_annual') || 'Annual'} · ${start.toLocaleDateString(undefined, { day: 'numeric', month: 'long' })}`;
     }
 
-    if (repeatType === '3months' || repeatType === '4months' || repeatType === '6months' || repeatType === '12months') {
-      const monthsMap: Record<'3months' | '4months' | '6months' | '12months', number> = {
-        '3months': 3,
-        '4months': 4,
-        '6months': 6,
-        '12months': 12
-      };
+    const onDay = `${t('transaction_monthly_on') || 'Monthly on day'} ${day}`;
+    const from = `${t('transaction_starting') || 'starting'} ${monthAndYear}`;
 
-      const months = monthsMap[repeatType];
-      return `${t('transaction_monthly_for') || 'Monthly for'} ${months} ${t('months') || 'months'} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
+    if (repeatType === 'forever') return `${onDay}, ${from}`;
+
+    const months = fixedDurationMonths(repeatType);
+    if (months) {
+      return `${onDay}, ${from} — ${months} ${t('months') || 'months'}`;
     }
 
     if (repeatType === 'until' && customEndDate) {
-      return `${t('transaction_monthly_until') || 'Monthly until'} ${customEndDate.toLocaleDateString()} (${t('transaction_on_day') || 'on day'} ${dayOfMonth})`;
+      return `${onDay}, ${from} — ${t('transaction_monthly_until') || 'until'} ${fromDateInput(customEndDate).toLocaleDateString()}`;
     }
 
-    return '';
+    return `${onDay}, ${from}`;
   };
 
   const onFormSubmit = (data: TransactionFormInput) => {
@@ -165,41 +182,23 @@ export function TransactionForm({
       return;
     }
 
-    // Convert dayOfMonth to actual date (for annual, use specified month; for others, use current month)
-    // Use noon (12:00) to avoid timezone shifting issues when converting to ISO string
-    const now = new Date();
-    let targetDate: Date;
+    // One date drives everything: for a one-off it is the transaction date, for anything
+    // recurring it is the first occurrence — its day sets the day of the month and its
+    // month sets when the series starts.
+    const targetDate = fromDateInput(data.startDate);
 
-    if (data.repeatType === 'annual') {
-      // For annual transactions, use the specified month and day
-      const month = data.monthOfYear !== undefined ? data.monthOfYear : now.getMonth();
-      targetDate = new Date(now.getFullYear(), month, data.dayOfMonth, 12, 0, 0, 0);
-    } else {
-      // For other recurring transactions, use current month
-      targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth, 12, 0, 0, 0);
-    }
-
-    // Calculate end date based on repeat type
     let endDate: Date | null = null;
-    if (data.repeatType !== 'forever' && data.repeatType !== 'once' && data.repeatType !== 'annual') {
-      if (data.repeatType === '3months' || data.repeatType === '4months' || data.repeatType === '6months' || data.repeatType === '12months') {
-        const monthsMap: Record<'3months' | '4months' | '6months' | '12months', number> = {
-          '3months': 3,
-          '4months': 4,
-          '6months': 6,
-          '12months': 12
-        };
-
-        const months = monthsMap[data.repeatType];
-        endDate = new Date(now.getFullYear(), now.getMonth() + months, data.dayOfMonth, 12, 0, 0, 0);
-      } else if (data.repeatType === 'until' && data.customEndDate) {
-        // Set end date to noon to avoid timezone issues
-        endDate = new Date(data.customEndDate.getFullYear(), data.customEndDate.getMonth(), data.customEndDate.getDate(), 12, 0, 0, 0);
-      }
+    const fixedEndDate = fixedDurationEndDate(targetDate, data.repeatType);
+    if (fixedEndDate) {
+      endDate = fixedEndDate;
+    } else if (data.repeatType === 'until' && data.customEndDate) {
+      endDate = fromDateInput(data.customEndDate);
     }
 
     const formattedData: TransactionFormData = {
       ...data,
+      dayOfMonth: targetDate.getDate(),
+      customEndDate: endDate ?? undefined,
       date: targetDate,
       isFixed: data.repeatType !== 'once',
       repeatType: data.repeatType,
@@ -339,37 +338,25 @@ export function TransactionForm({
           {/* Recurring Schedule */}
           <div className="space-y-4 border-t pt-4">
             <h3 className="text-sm font-medium text-foreground">
-              📅 Recurring Schedule
+              📅 {t('transaction_schedule')}
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Always visible. Every transaction has a date; for a recurring one it is
+                  simply the first occurrence, which is also how you start one next month. */}
               <div className="space-y-2">
-                <Label htmlFor="dayOfMonth" className="text-sm font-medium">
-                  {t('transaction_day_of_month')}
+                <Label htmlFor="startDate" className="text-sm font-medium">
+                  {repeatType === 'once' ? t('transaction_date') : t('transaction_starts_on')}
                 </Label>
-                <Controller
-                  name="dayOfMonth"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value?.toString() || ''}
-                      onValueChange={(value) => field.onChange(parseInt(value))}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder={t('transaction_select_day')} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                          <SelectItem key={day} value={day.toString()}>
-                            {t('day') || 'Day'} {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
+                <Input
+                  id="startDate"
+                  type="date"
+                  className="h-10"
+                  {...register('startDate')}
                 />
-                {errors.dayOfMonth && (
-                  <p className="text-sm text-destructive">{errors.dayOfMonth.message}</p>
+                <p className="text-xs text-muted-foreground">{t('transaction_date_hint')}</p>
+                {errors.startDate && (
+                  <p className="text-sm text-destructive">{errors.startDate.message}</p>
                 )}
               </div>
 
@@ -444,38 +431,6 @@ export function TransactionForm({
               </div>
             </div>
 
-            {repeatType === 'annual' && (
-              <div className="space-y-2">
-                <Label htmlFor="monthOfYear" className="text-sm font-medium">
-                  {t('transaction_month_of_year') || 'Month of Year'}
-                </Label>
-                <Controller
-                  name="monthOfYear"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value?.toString() || ''}
-                      onValueChange={(value) => field.onChange(parseInt(value))}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder={t('transaction_select_month') || 'Select month'} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {Array.from({ length: 12 }, (_, i) => (
-                          <SelectItem key={i} value={i.toString()}>
-                            {new Date(2000, i, 1).toLocaleDateString('en', { month: 'long' })}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                />
-                {errors.monthOfYear && (
-                  <p className="text-sm text-destructive">{errors.monthOfYear.message}</p>
-                )}
-              </div>
-            )}
-
             {repeatType === 'until' && (
               <div className="space-y-2">
                 <Label htmlFor="customEndDate" className="text-sm font-medium">
@@ -485,7 +440,7 @@ export function TransactionForm({
                   id="customEndDate"
                   type="date"
                   className="h-10"
-                  {...register('customEndDate', { valueAsDate: true })}
+                  {...register('customEndDate')}
                 />
                 {errors.customEndDate && (
                   <p className="text-sm text-destructive">{errors.customEndDate.message}</p>

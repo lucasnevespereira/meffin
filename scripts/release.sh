@@ -11,7 +11,7 @@ NC='\033[0m' # No Color
 
 # Usage function
 usage() {
-    echo "Usage: npm run release <patch|minor|major> [--retry]"
+    echo "Usage: pnpm run release <patch|minor|major> [--retry]"
     echo ""
     echo "This will:"
     echo "1. Create a git tag based on current version"
@@ -22,10 +22,10 @@ usage() {
     echo "  --retry    Force retry by deleting existing remote tag and GitHub release"
     echo ""
     echo "Examples:"
-    echo "  npm run release patch        # 0.1.0 -> 0.1.1"
-    echo "  npm run release minor        # 0.1.0 -> 0.2.0"
-    echo "  npm run release major        # 0.1.0 -> 1.0.0"
-    echo "  npm run release patch --retry # Retry failed v0.1.1 release"
+    echo "  pnpm run release patch        # 0.1.0 -> 0.1.1"
+    echo "  pnpm run release minor        # 0.1.0 -> 0.2.0"
+    echo "  pnpm run release major        # 0.1.0 -> 1.0.0"
+    echo "  pnpm run release patch --retry # Retry failed v0.1.1 release"
     exit 1
 }
 
@@ -108,7 +108,7 @@ if git ls-remote --tags origin | grep -q "refs/tags/v$NEW_VERSION$"; then
     else
         echo -e "${RED}❌ Tag v$NEW_VERSION already exists on remote!${NC}"
         echo -e "${YELLOW}If you want to retry this release, use:${NC}"
-        echo "   npm run release $TYPE --retry"
+        echo "   pnpm run release $TYPE --retry"
         exit 1
     fi
 fi

@@ -35,6 +35,9 @@ export type TransactionWithCategory = Transaction & {
     id: string;
     name: string;
   };
+  /** `projected` rows are forecast occurrences of a recurring series in a month that
+   *  hasn't happened yet. They have no stored row, so they can't be edited or deleted. */
+  source?: 'actual' | 'projected';
 };
 
 

@@ -4,18 +4,21 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
+import { MonthSwitcher } from '@/components/shared/MonthSwitcher';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useMonthCursor } from '@/hooks/useMonthCursor';
 import { useCurrentLocale, useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 
 export default function DashboardPage() {
-  const { data, isLoading, error } = useDashboard();
+  const { month, year, setCursor, isPlanned } = useMonthCursor();
+  const { data, isLoading, error } = useDashboard(month, year);
   const { data: session } = useSession();
   const t = useI18n();
   const currentLocale = useCurrentLocale();
   const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const firstName = session?.user?.name?.trim().split(/\s+/)[0] || t('dashboard_default_name');
-  const dashboardDate = data ? new Date(data.year, data.month, 1) : new Date();
+  const dashboardDate = new Date(year, month, 1);
   const monthLabel = new Intl.DateTimeFormat(locale, { month: 'long' }).format(dashboardDate);
 
   if (error) {
@@ -37,13 +40,18 @@ export default function DashboardPage() {
     <div>
       {/* Header */}
       <div className="mb-6 md:mb-8">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-balance md:text-4xl">
-            {t('dashboard_greeting', { name: firstName })} <span aria-hidden="true">👋</span>
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground md:text-base">
-            {t('dashboard_month_overview', { month: monthLabel })}
-          </p>
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-balance md:text-4xl">
+              {t('dashboard_greeting', { name: firstName })} <span aria-hidden="true">👋</span>
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground md:text-base">
+              {isPlanned
+                ? t('dashboard_planned_overview', { month: monthLabel })
+                : t('dashboard_month_overview', { month: monthLabel })}
+            </p>
+          </div>
+          <MonthSwitcher month={month} year={year} onChange={setCursor} />
         </div>
       </div>
 
@@ -70,6 +78,7 @@ export default function DashboardPage() {
           balance={data.balance}
           monthLabel={monthLabel}
           trendsHref={`/${locale}/trends`}
+          isPlanned={isPlanned}
         />
       ) : null}
 
@@ -93,8 +102,8 @@ export default function DashboardPage() {
       ) : data ? (
         <CategoryBreakdown
           categories={data.categoryBreakdown}
-          month={data.month}
-          year={data.year}
+          month={month}
+          year={year}
           currentUserId={session?.user?.id}
           transactionsHref={`/${locale}/transactions`}
         />

@@ -77,5 +77,6 @@ export function useRefreshPartnerInfo() {
     queryClient.invalidateQueries({ queryKey: ['sent-partner-invitations'] });
     queryClient.invalidateQueries({ queryKey: ['transactions'] });
     queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+    queryClient.invalidateQueries({ queryKey: ['history'] });
   };
 }

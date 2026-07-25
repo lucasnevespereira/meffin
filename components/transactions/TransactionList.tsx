@@ -30,6 +30,10 @@ interface TransactionListProps {
   isDeleting?: boolean;
   hasPartner?: boolean;
   currentUserId?: string;
+  /** Viewing a month that hasn't happened yet. */
+  isPlanned?: boolean;
+  /** Name of the month being viewed, for the empty state. */
+  monthLabel?: string;
 }
 
 export function TransactionList({
@@ -40,6 +44,8 @@ export function TransactionList({
   isDeleting = false,
   hasPartner = false,
   currentUserId,
+  isPlanned = false,
+  monthLabel,
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -117,7 +123,18 @@ export function TransactionList({
             <div className="w-10 h-10 md:w-12 md:h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
               <span className="text-lg md:text-xl">{type === 'income' ? '💰' : '💳'}</span>
             </div>
+            {isPlanned ? (
+              <>
+                <p className="text-xs md:text-sm text-muted-foreground font-medium">
+                  {t('month_nothing_planned', { month: monthLabel ?? '' })}
+                </p>
+                <p className="mx-auto mt-2 max-w-sm text-xs text-muted-foreground/80">
+                  {t('month_nothing_planned_hint', { month: monthLabel ?? '' })}
+                </p>
+              </>
+            ) : (
             <p className="text-xs md:text-sm text-muted-foreground font-medium">{emptyMessage}</p>
+            )}
           </div>
         </div>
       </div>
@@ -145,7 +162,11 @@ export function TransactionList({
             {filteredTransactions.map((transaction) => (
               <div
                 key={transaction.id}
-                className="group flex items-center justify-between p-3 md:p-4 rounded-lg bg-muted/20 hover:bg-muted/40 border border-transparent hover:border-border transition-all duration-200 touch-manipulation active:scale-[0.98]"
+                className={`group flex items-center justify-between p-3 md:p-4 rounded-lg border transition-all duration-200 touch-manipulation ${
+                  transaction.source === 'projected'
+                    ? 'border-dashed border-border/70 bg-transparent'
+                    : 'bg-muted/20 hover:bg-muted/40 border-transparent hover:border-border active:scale-[0.98]'
+                }`}
               >
                 <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
                   <div className="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 rounded-lg shrink-0" style={{ backgroundColor: `${transaction.category.color}20` }}>
@@ -178,7 +199,18 @@ export function TransactionList({
                       </>
                     ) : (
                       <>
-                        <div className="font-semibold text-sm md:text-base truncate">{transaction.description}</div>
+                        <div className="flex items-center gap-2">
+                          <div className={`font-semibold text-sm md:text-base truncate ${
+                            transaction.source === 'projected' ? 'text-muted-foreground' : ''
+                          }`}>
+                            {transaction.description}
+                          </div>
+                          {transaction.source === 'projected' && (
+                            <span className="shrink-0 rounded-full border border-border px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                              {t('month_planned')}
+                            </span>
+                          )}
+                        </div>
                         <div className="flex flex-col gap-1 mt-1 text-xs text-muted-foreground">
                           <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3">
                             <span className="truncate">{getCategoryDisplayName(transaction.category, t)}</span>
@@ -217,8 +249,10 @@ export function TransactionList({
                     {type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
                   </div>
 
-                  {/* Only show edit/delete buttons for transactions created by current user */}
-                  {(!currentUserId || !transaction.createdBy || transaction.createdBy.id === currentUserId) && (
+                  {/* Planned rows have no stored transaction behind them, so there is
+                      nothing to edit here. The list explains where to do it instead. */}
+                  {transaction.source !== 'projected' &&
+                    (!currentUserId || !transaction.createdBy || transaction.createdBy.id === currentUserId) && (
                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                       <Button
                         size="sm"

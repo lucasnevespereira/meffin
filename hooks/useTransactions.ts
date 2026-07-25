@@ -152,6 +152,7 @@ export function useCreateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
       toast.success(t('transaction_created_success'));
     },
     onError: (error: Error) => {
@@ -172,6 +173,7 @@ export function useUpdateTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
       toast.success(t('transaction_updated_success'));
     },
     onError: (error: Error) => {
@@ -191,6 +193,7 @@ export function useDeleteTransaction() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      queryClient.invalidateQueries({ queryKey: ['history'] });
       toast.success(t('transaction_deleted_success'));
     },
     onError: (error: Error) => {

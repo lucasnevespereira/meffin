@@ -11,9 +11,11 @@ interface BalanceCardsProps {
   balance: MonthlyBalance;
   monthLabel: string;
   trendsHref: string;
+  /** A month that hasn't happened yet: the figures are expectations, not a record. */
+  isPlanned?: boolean;
 }
 
-export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsProps) {
+export function BalanceCards({ balance, monthLabel, trendsHref, isPlanned = false }: BalanceCardsProps) {
   const t = useI18n();
   const formatCurrency = useFormatCurrency();
   const positive = balance.balance >= 0;
@@ -31,10 +33,12 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-semibold text-muted-foreground">
-                {t('dashboard_available_balance', { month: monthLabel })}
+                {isPlanned
+                  ? t('dashboard_expected_balance', { month: monthLabel })
+                  : t('dashboard_available_balance', { month: monthLabel })}
               </p>
               <p className="mt-1 text-xs text-muted-foreground/80">
-                {t('dashboard_balance_description')}
+                {isPlanned ? t('month_planned_note') : t('dashboard_balance_description')}
               </p>
             </div>
             <Link
@@ -50,10 +54,14 @@ export function BalanceCards({ balance, monthLabel, trendsHref }: BalanceCardsPr
             <p className={`font-display text-4xl font-semibold tracking-tight sm:text-5xl ${positive ? 'text-foreground' : 'text-rose-400'}`}>
               {formatCurrency(balance.balance)}
             </p>
-            <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${positive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-400'}`}>
-              <HugeiconsIcon icon={CircleIcon} className="size-2 fill-current" />
-              {positive ? t('dashboard_on_track') : t('dashboard_over_budget')}
-            </div>
+            {/* No green/red verdict on a month that hasn't happened. The number and its
+                one-line caption above are enough. */}
+            {!isPlanned && (
+              <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${positive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-400'}`}>
+                <HugeiconsIcon icon={CircleIcon} className="size-2 fill-current" />
+                {positive ? t('dashboard_on_track') : t('dashboard_over_budget')}
+              </div>
+            )}
           </div>
 
           <div className="mt-auto pt-5">
