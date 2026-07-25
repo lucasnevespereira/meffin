@@ -11,15 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-        with:
-          version: "11.14.0"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.19"
           cache: "pnpm"
 
       - name: Install dependencies
@@ -32,15 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-        with:
-          version: "11.14.0"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.19"
           cache: "pnpm"
 
       - name: Install dependencies
@@ -53,15 +45,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-        with:
-          version: "11.14.0"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.19"
           cache: "pnpm"
 
       - name: Install dependencies
@@ -74,15 +62,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-        with:
-          version: "22.19"
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22.19"
           cache: "pnpm"
 
       - name: Install dependencies
