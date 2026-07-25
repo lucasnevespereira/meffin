@@ -309,7 +309,18 @@ export default {
   transaction_private_category: "Private category",
   transaction_month_of_year: "Month of Year",
   transaction_select_month: "Select month",
+  transaction_date_hint: "Pick any date, including a future month",
   validation_error: "Validation failed",
+
+  // Month navigation and forecasting
+  month_previous: "Previous month",
+  month_next: "Next month",
+  month_back_to_current: "Back to this month",
+  month_forecast: "Forecast",
+  month_planned: "Planned",
+  month_forecast_note:
+    "This month hasn't happened yet. Recurring amounts come from your latest month.",
+  trends_include_forecast: "Show next 6 months",
 
   // Dashboard
   dashboard_title: "Dashboard",

@@ -4,6 +4,7 @@ import { lists, listItems, users, transactions } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { monthKeyFromDateString } from '@/lib/services/budget/keys';
 
 const checkItemSchema = z.object({
   actualPrice: z.number().positive().optional(),
@@ -78,6 +79,7 @@ export async function POST(
       const amount = validatedData.actualPrice || (item.estimatedPrice ? parseFloat(item.estimatedPrice) : 0);
 
       if (amount > 0) {
+        const date = new Date().toISOString();
         const [newTransaction] = await db.insert(transactions).values({
           id: crypto.randomUUID(),
           userId: list.userId, // Use list owner as transaction owner
@@ -85,7 +87,8 @@ export async function POST(
           categoryId: item.categoryId,
           description: item.name,
           amount: amount.toString(),
-          date: new Date().toISOString(),
+          date,
+          monthKey: monthKeyFromDateString(date),
           isFixed: false,
           isPrivate: false,
           repeatType: 'once',

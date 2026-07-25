@@ -25,6 +25,7 @@ import { useUserCurrency } from '@/lib/currency-utils';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { downloadMonthExcel, type ExcelRow } from '@/lib/excel-export';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { MonthSwitcher } from '@/components/shared/MonthSwitcher';
 
 export default function TransactionsPage() {
   const t = useI18n();
@@ -35,9 +36,13 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
   const [activeTab, setActiveTab] = useState('monthly');
   const [isExporting, setIsExporting] = useState(false);
+  const [cursor, setCursor] = useState(() => {
+    const now = new Date();
+    return { month: now.getMonth(), year: now.getFullYear() };
+  });
 
   const { data: session } = useSession();
-  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions();
+  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions(cursor.month, cursor.year);
   const { data: annualTransactionsData, isLoading: isLoadingAnnualTransactions } = useAnnualTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
   const { data: partnerInfo } = usePartnerInfo();
@@ -106,7 +111,9 @@ export default function TransactionsPage() {
   };
 
   const handleExport = async () => {
-    const txns = transactionsData?.transactions ?? [];
+    // Forecast rows stay out of the spreadsheet. An export is a record of what happened,
+    // and projected amounts sitting in it unlabelled would read as fact.
+    const txns = (transactionsData?.transactions ?? []).filter((tx) => tx.source !== 'projected');
     const rows: ExcelRow[] = txns
       .filter((tx) => tx.category.type === 'income' || tx.category.type === 'expense')
       .map((tx) => ({
@@ -122,11 +129,11 @@ export default function TransactionsPage() {
 
     setIsExporting(true);
     try {
-      const now = new Date();
-      const mm = String(now.getMonth() + 1).padStart(2, '0');
+      const exported = new Date(cursor.year, cursor.month, 1);
+      const mm = String(cursor.month + 1).padStart(2, '0');
       await downloadMonthExcel({
-        filename: `meffin-${now.getFullYear()}-${mm}.xlsx`,
-        sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(now),
+        filename: `meffin-${cursor.year}-${mm}.xlsx`,
+        sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(exported),
         rows,
         currencyCode: currency,
         includeCreatedBy: !!partnerInfo?.partner,
@@ -167,6 +174,7 @@ export default function TransactionsPage() {
   const allTransactions = transactionsData?.transactions ?? [];
   const allAnnualTransactions = annualTransactionsData?.transactions ?? [];
   const categories = categoriesData?.categories ?? [];
+  const exportableCount = allTransactions.filter((tx) => tx.source !== 'projected').length;
 
   // Filter transactions based on type
   const monthlyTransactions = allTransactions.filter(transaction =>
@@ -186,7 +194,7 @@ export default function TransactionsPage() {
             <Button
               variant="outline"
               onClick={handleExport}
-              disabled={isExporting || isLoadingTransactions || (transactionsData?.transactions?.length ?? 0) === 0}
+              disabled={isExporting || isLoadingTransactions || exportableCount === 0}
               className="w-full cursor-pointer sm:w-auto"
             >
               <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
@@ -230,6 +238,16 @@ export default function TransactionsPage() {
             {t('transactions_annual') || 'Annual'}
           </button>
         </div>
+
+        {/* Annual transactions have no month context, so the switcher only applies to the
+            monthly view — same split the mobile app uses. */}
+        {activeTab === 'monthly' && (
+          <MonthSwitcher
+            month={cursor.month}
+            year={cursor.year}
+            onChange={(month, year) => setCursor({ month, year })}
+          />
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">

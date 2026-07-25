@@ -1,0 +1,193 @@
+import { describe, it, expect } from 'vitest';
+import { monthKey, clampDay, occurrenceDate, monthKeyFromDateString, dayOfMonth } from './keys';
+import { projectSeries, missingMonths, occupiedKey, SeriesHead } from './project';
+
+const JUL_2026 = monthKey(2026, 6);
+
+function head(overrides: Partial<SeriesHead> = {}): SeriesHead {
+  return {
+    seriesId: 'series-1',
+    monthKey: JUL_2026,
+    endMonth: null,
+    cadence: 'monthly',
+    id: 'row-1',
+    userId: 'user-1',
+    createdBy: 'user-1',
+    categoryId: 'default_housing',
+    description: 'Rent',
+    amount: 800,
+    date: '2026-07-05T12:00:00.000Z',
+    isPrivate: false,
+    repeatType: 'forever',
+    endDate: null,
+    ...overrides,
+  };
+}
+
+const occupy = (...keys: number[]) => new Set(keys.map(key => occupiedKey('series-1', key)));
+
+describe('month keys', () => {
+  it('reads the month from either timestamp format', () => {
+    expect(monthKeyFromDateString('2026-07-15T12:00:00.000Z')).toBe(JUL_2026);
+    expect(monthKeyFromDateString('2026-07-15 12:00:00')).toBe(JUL_2026);
+  });
+
+  it('rejects a date it cannot parse rather than guessing', () => {
+    expect(() => monthKeyFromDateString('not-a-date')).toThrow();
+  });
+
+  it('keeps a day-31 transaction inside the month', () => {
+    expect(clampDay(31, 2026, 1)).toBe(28); // February 2026
+    expect(clampDay(31, 2028, 1)).toBe(29); // leap year
+    expect(clampDay(31, 2026, 3)).toBe(30); // April
+    expect(clampDay(15, 2026, 6)).toBe(15);
+  });
+
+  it('never rolls an occurrence into the following month', () => {
+    // new Date(2026, 1, 31) silently becomes March 3rd — the bug that made the old cron
+    // materialize into the wrong month and then duplicate.
+    expect(occurrenceDate(monthKey(2026, 1), 31)).toBe('2026-02-28T12:00:00.000Z');
+    expect(occurrenceDate(monthKey(2028, 1), 31)).toBe('2028-02-29T12:00:00.000Z');
+  });
+
+  it('round-trips the day of month', () => {
+    expect(dayOfMonth(occurrenceDate(monthKey(2026, 8), 5))).toBe(5);
+  });
+});
+
+describe('projectSeries — monthly', () => {
+  it('fills every month after the head', () => {
+    const entries = projectSeries([head()], JUL_2026, JUL_2026 + 3, occupy(JUL_2026));
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1, JUL_2026 + 2, JUL_2026 + 3]);
+    expect(entries.every(e => e.source === 'projected')).toBe(true);
+    expect(entries.every(e => e.amount === 800)).toBe(true);
+  });
+
+  it('never emits where a stored row already sits', () => {
+    const entries = projectSeries([head()], JUL_2026, JUL_2026 + 2, occupy(JUL_2026, JUL_2026 + 1));
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 2]);
+  });
+
+  it('treats a voided occurrence as occupied, so a deletion stays deleted', () => {
+    // Voided rows are excluded from totals but still hold their slot.
+    const entries = projectSeries([head()], JUL_2026, JUL_2026 + 2, occupy(JUL_2026, JUL_2026 + 2));
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1]);
+  });
+
+  it('stops at endMonth, inclusive', () => {
+    const bounded = head({ endMonth: JUL_2026 + 2 });
+    const entries = projectSeries([bounded], JUL_2026, JUL_2026 + 6, occupy(JUL_2026));
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1, JUL_2026 + 2]);
+  });
+
+  it('emits nothing once the series has ended', () => {
+    const ended = head({ endMonth: JUL_2026 - 1 });
+    expect(projectSeries([ended], JUL_2026, JUL_2026 + 6, new Set())).toEqual([]);
+  });
+
+  it('never emits before the series started', () => {
+    const entries = projectSeries([head()], JUL_2026 - 6, JUL_2026, new Set());
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026]);
+  });
+
+  it('clamps the day when projecting into a short month', () => {
+    const endOfMonth = head({ monthKey: monthKey(2026, 0), date: '2026-01-31T12:00:00.000Z' });
+    const entries = projectSeries([endOfMonth], monthKey(2026, 1), monthKey(2026, 1), new Set());
+
+    expect(entries[0].date).toBe('2026-02-28T12:00:00.000Z');
+  });
+
+  it('gives projected months a synthetic id that survives a URL', () => {
+    const [entry] = projectSeries([head()], JUL_2026 + 1, JUL_2026 + 1, new Set());
+
+    expect(entry.id).toBe(`p_series-1_${JUL_2026 + 1}`);
+    expect(entry.id).not.toContain(':');
+  });
+});
+
+describe('projectSeries — annual', () => {
+  const annual = () =>
+    head({
+      cadence: 'annual',
+      repeatType: 'annual',
+      monthKey: monthKey(2026, 10), // November 2026
+      date: '2026-11-03T12:00:00.000Z',
+      description: 'Insurance',
+    });
+
+  it('lands only in its renewal month, every year', () => {
+    const entries = projectSeries([annual()], monthKey(2026, 0), monthKey(2028, 11), new Set());
+
+    expect(entries.map(e => e.monthKey)).toEqual([
+      monthKey(2026, 10),
+      monthKey(2027, 10),
+      monthKey(2028, 10),
+    ]);
+  });
+
+  it('does not appear in years before it started', () => {
+    // The dashboard used to match on month while ignoring the year, so an annual bill
+    // showed up in Novembers that predated it.
+    const entries = projectSeries([annual()], monthKey(2024, 0), monthKey(2026, 9), new Set());
+
+    expect(entries).toEqual([]);
+  });
+
+  it('keeps the real row id so it stays editable in any year', () => {
+    const entries = projectSeries([annual()], monthKey(2027, 10), monthKey(2027, 10), new Set());
+
+    expect(entries[0].id).toBe('row-1');
+    expect(entries[0].source).toBe('actual');
+  });
+
+  it('ignores occupancy — one row stands in for every renewal', () => {
+    const entries = projectSeries([annual()], monthKey(2026, 10), monthKey(2026, 10), occupy(monthKey(2026, 10)));
+
+    expect(entries).toHaveLength(1);
+  });
+});
+
+describe('missingMonths', () => {
+  it('lists the months a series still owes rows for', () => {
+    expect(missingMonths(head(), JUL_2026 + 3, occupy(JUL_2026))).toEqual([
+      JUL_2026 + 1,
+      JUL_2026 + 2,
+      JUL_2026 + 3,
+    ]);
+  });
+
+  it('skips months that already have a row', () => {
+    expect(missingMonths(head(), JUL_2026 + 3, occupy(JUL_2026, JUL_2026 + 2))).toEqual([
+      JUL_2026 + 1,
+      JUL_2026 + 3,
+    ]);
+  });
+
+  it('stops at endMonth', () => {
+    const bounded = head({ endMonth: JUL_2026 + 1 });
+    expect(missingMonths(bounded, JUL_2026 + 5, occupy(JUL_2026))).toEqual([JUL_2026 + 1]);
+  });
+
+  it('never materializes an annual series', () => {
+    expect(missingMonths(head({ cadence: 'annual' }), JUL_2026 + 12, new Set())).toEqual([]);
+  });
+
+  it('returns nothing when the series is already current', () => {
+    expect(missingMonths(head(), JUL_2026, occupy(JUL_2026))).toEqual([]);
+  });
+});
+
+describe('projectSeries — nothing to do', () => {
+  it('handles an empty series list', () => {
+    expect(projectSeries([], JUL_2026, JUL_2026 + 6, new Set())).toEqual([]);
+  });
+
+  it('handles an inverted range', () => {
+    expect(projectSeries([head()], JUL_2026 + 3, JUL_2026, new Set())).toEqual([]);
+  });
+});

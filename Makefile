@@ -1,4 +1,4 @@
-.PHONY: dev setup db migrate recurring build clean down help
+.PHONY: dev setup db migrate build clean down help
 
 help:
 	@echo "🌟 Meffin Development Commands"
@@ -7,7 +7,6 @@ help:
 	@echo "  migrate    - Generate migration files after schema changes"
 	@echo "  setup      - Manual setup (database, schema, and dependencies)"
 	@echo "  db         - Start PostgreSQL database only"
-	@echo "  recurring  - Generate recurring transactions (for testing/self-hosting)"
 	@echo "  build      - Build for production (with migrations)"
 	@echo "  clean      - Clean build artifacts and stop services"
 	@echo "  down       - Stop all services"
@@ -30,12 +29,6 @@ dev: setup
 	@echo "🚀 Starting Next.js development server..."
 	@npm run dev
 
-
-recurring:
-	@echo "🔄 Generating recurring transactions..."
-	@curl -X POST http://localhost:3000/api/cron/recurring-transactions \
-		-H "Content-Type: application/json" \
-		|| echo "⚠️  Make sure the app is running (make dev)"
 
 build:
 	@echo "🏗️  Building for production..."

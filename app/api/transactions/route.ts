@@ -2,10 +2,18 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { transactions, categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, desc, or, and, gte, lte } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
+import {
+  resolveViewer,
+  getEntries,
+  getCategoryLookup,
+  getCreators,
+  getAnnualSeries,
+} from '@/lib/services/budget/budget';
+import { monthKey, monthKeyFromDateString, currentMonthKey, occurrenceDate, dayOfMonth } from '@/lib/services/budget/keys';
 
 const createTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -18,12 +26,27 @@ const createTransactionSchema = z.object({
   endDate: z.string().pipe(z.coerce.date()).optional().nullable(),
 });
 
+const UNKNOWN_CATEGORY: Category = {
+  id: '',
+  name: 'Unknown',
+  type: 'expense',
+  color: '#6B7280',
+  isCustom: false,
+  userId: null,
+  createdAt: undefined,
+};
+
 export async function GET(request: NextRequest) {
   try {
     const session = await auth.api.getSession({ headers: request.headers });
 
     if (!session) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const viewer = await resolveViewer(session.user.id);
+    if (!viewer) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const url = new URL(request.url);
@@ -34,160 +57,28 @@ export async function GET(request: NextRequest) {
     const year = Number.isInteger(yearParam) && yearParam >= 1970 && yearParam <= 9999 ? yearParam : now.getFullYear();
     const isAnnualQuery = url.searchParams.get('annual') === 'true';
 
-    const startDate = new Date(year, month, 1, 0, 0, 0, 0);
-    const endDate = new Date(year, month + 1, 0, 23, 59, 59, 999);
+    const [lookup, creators] = await Promise.all([
+      getCategoryLookup(viewer.userIds),
+      getCreators(viewer.userIds),
+    ]);
 
+    const rows = isAnnualQuery
+      ? (await getAnnualSeries(viewer)).map(row => ({
+          ...row,
+          amount: row.amount,
+          source: 'actual' as const,
+        }))
+      : (await getEntries(viewer, monthKey(year, month), monthKey(year, month))).map(entry => ({
+          ...entry,
+          amount: entry.amount.toString(),
+        }));
 
-    // Get user and partner info
-    const user = await db.select({
-      id: users.id,
-      partnerId: users.partnerId,
-    })
-    .from(users)
-    .where(eq(users.id, session.user.id))
-    .limit(1);
-
-    if (!user.length) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Get transactions from user and partner
-    const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
-
-    type TransactionWithCreator = {
-      transaction: typeof transactions.$inferSelect;
-      creator: {
-        id: string;
-        name: string;
-      } | null;
-    };
-    
-    let userTransactions: TransactionWithCreator[] = [];
-
-    if (isAnnualQuery) {
-      // For annual query, return ALL annual transactions regardless of month
-      userTransactions = await db.select({
-        transaction: transactions,
-        creator: {
-          id: users.id,
-          name: users.name,
-        }
-      })
-        .from(transactions)
-        .leftJoin(users, eq(transactions.createdBy, users.id))
-        .where(and(
-          or(...userIds.map(id => eq(transactions.userId, id))),
-          eq(transactions.repeatType, 'annual')
-        ))
-        .orderBy(desc(transactions.date));
-    } else {
-      // Get regular transactions for this month (EXCLUDING annual transactions)
-      const monthlyTransactions = await db.select({
-        transaction: transactions,
-        creator: {
-          id: users.id,
-          name: users.name,
-        }
-      })
-        .from(transactions)
-        .leftJoin(users, eq(transactions.createdBy, users.id))
-        .where(and(
-          or(...userIds.map(id => eq(transactions.userId, id))),
-          gte(transactions.date, startDate.toISOString()),
-          lte(transactions.date, endDate.toISOString()),
-          // Exclude annual transactions from monthly query to prevent duplication
-          or(
-            eq(transactions.repeatType, 'once'),
-            eq(transactions.repeatType, 'forever'),
-            eq(transactions.repeatType, '3months'),
-            eq(transactions.repeatType, '4months'),
-            eq(transactions.repeatType, '6months'),
-            eq(transactions.repeatType, '12months'),
-            eq(transactions.repeatType, 'until')
-          )
-        ))
-        .orderBy(desc(transactions.date));
-
-      // Get annual transactions that should appear in this month
-      const annualTransactions = await db.select({
-        transaction: transactions,
-        creator: {
-          id: users.id,
-          name: users.name,
-        }
-      })
-        .from(transactions)
-        .leftJoin(users, eq(transactions.createdBy, users.id))
-        .where(and(
-          or(...userIds.map(id => eq(transactions.userId, id))),
-          eq(transactions.repeatType, 'annual')
-        ));
-
-      // Filter annual transactions to only include ones that renew in current month
-      const currentMonthAnnuals = annualTransactions.filter(({ transaction }) => {
-        const annualDate = new Date(transaction.date);
-        return annualDate.getMonth() === month;
-      });
-
-      // Combine monthly and applicable annual transactions
-      userTransactions = [...monthlyTransactions, ...currentMonthAnnuals];
-    }
-
-    // A partner's private transactions are invisible to the other partner.
-    userTransactions = userTransactions.filter(
-      ({ transaction }) => !(transaction.isPrivate && transaction.createdBy !== session.user.id)
-    );
-
-    // Get custom categories from user and partner
-    const customCategories = await db.select()
-      .from(categories)
-      .where(or(...userIds.map(id => eq(categories.userId, id))));
-
-    // Create category lookup with default categories
-    const categoryLookup: Record<string, Category> = {};
-
-    // Add default categories
-    DEFAULT_CATEGORIES.forEach(cat => {
-      categoryLookup[cat.id] = {
-        id: cat.id,
-        name: cat.name, // This is the i18n key
-        type: cat.type,
-        color: cat.color,
-        isCustom: false,
-        userId: null,
-        createdAt: undefined,
-      };
-    });
-
-    // Add custom categories
-    customCategories.forEach(cat => {
-      categoryLookup[cat.id] = {
-        id: cat.id,
-        name: cat.name,
-        type: cat.type,
-        color: cat.color,
-        isCustom: true,
-        userId: cat.userId,
-        createdAt: cat.createdAt,
-      };
-    });
-
-    // Map transactions with category info
-    const transactionsWithCategories = userTransactions.map(({ transaction, creator }) => ({
-      ...transaction,
-      categoryId: transaction.categoryId,
-      createdBy: creator,
-      category: categoryLookup[transaction.categoryId] || {
-        id: transaction.categoryId,
-        name: 'Unknown',
-        type: 'expense' as const,
-        color: '#6B7280',
-        isCustom: false,
-        userId: null,
-        createdAt: undefined,
-      }
+    const transactionsWithCategories = rows.map(row => ({
+      ...row,
+      categoryId: row.categoryId,
+      createdBy: creators[row.createdBy] ?? null,
+      category: lookup[row.categoryId] ?? { ...UNKNOWN_CATEGORY, id: row.categoryId },
     }));
-
 
     return NextResponse.json({ transactions: transactionsWithCategories });
   } catch (error) {
@@ -235,21 +126,42 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const transactionData = {
-      id: crypto.randomUUID(),
+    const id = crypto.randomUUID();
+    const requestedDate = validatedData.date.toISOString();
+    // `repeatType` is the discriminator, not `isFixed` — the latter has no constraint and
+    // legacy rows disagree with it.
+    const isSeries = validatedData.repeatType !== 'once';
+    const isAnnual = validatedData.repeatType === 'annual';
+
+    // A monthly series backdated to last year would otherwise project into every month
+    // since, rewriting months the user already reconciled. Annual keeps its date: the
+    // renewal month is the whole point, and annuals never materialize.
+    const requestedKey = monthKeyFromDateString(requestedDate);
+    const startKey = isSeries && !isAnnual
+      ? Math.max(requestedKey, currentMonthKey())
+      : requestedKey;
+    const date = startKey === requestedKey
+      ? requestedDate
+      : occurrenceDate(startKey, dayOfMonth(requestedDate));
+
+    const endDate = validatedData.endDate ? validatedData.endDate.toISOString() : null;
+
+    const [newTransaction] = await db.insert(transactions).values({
+      id,
       userId: session.user.id,
       createdBy: session.user.id,
       categoryId: validatedData.categoryId,
       description: validatedData.description,
       amount: validatedData.amount.toString(),
-      date: validatedData.date.toISOString(),
-      isFixed: validatedData.isFixed,
+      date,
+      monthKey: startKey,
+      isFixed: isSeries,
       isPrivate: validatedData.isPrivate || false,
-      repeatType: validatedData.repeatType || 'once',
-      endDate: validatedData.endDate ? validatedData.endDate.toISOString() : null,
-    };
-
-    const [newTransaction] = await db.insert(transactions).values(transactionData).returning();
+      repeatType: validatedData.repeatType,
+      endDate,
+      seriesId: isSeries ? id : null,
+      endMonth: isSeries && endDate ? monthKeyFromDateString(endDate) : null,
+    }).returning();
 
     return NextResponse.json({ transaction: newTransaction });
   } catch (error) {

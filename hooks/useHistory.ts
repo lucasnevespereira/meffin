@@ -10,8 +10,8 @@ export type HistoryPoint = {
   balance: number;
 };
 
-async function fetchHistory(months: number): Promise<{ history: HistoryPoint[] }> {
-  const response = await fetch(`/api/history?months=${months}`, {
+async function fetchHistory(months: number, future: number): Promise<{ history: HistoryPoint[] }> {
+  const response = await fetch(`/api/history?months=${months}&future=${future}`, {
     credentials: 'include',
   });
 
@@ -22,10 +22,10 @@ async function fetchHistory(months: number): Promise<{ history: HistoryPoint[] }
   return response.json();
 }
 
-export function useHistory(months: number) {
+export function useHistory(months: number, future = 0) {
   return useQuery({
-    queryKey: ['history', months],
-    queryFn: () => fetchHistory(months),
+    queryKey: ['history', months, future],
+    queryFn: () => fetchHistory(months, future),
     staleTime: 5 * 60 * 1000,
   }) as UseQueryResult<{ history: HistoryPoint[] }>;
 }

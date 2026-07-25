@@ -43,6 +43,13 @@
       "when": 1757859960998,
       "tag": "0005_busy_black_tarantula",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1784985214200,
+      "tag": "0006_giant_hydra",
+      "breakpoints": true
     }
   ]
 }

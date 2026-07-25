@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceLine,
   XAxis,
   YAxis,
 } from 'recharts';
@@ -34,11 +35,13 @@ export default function TrendsPage() {
   const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const formatCurrency = useFormatCurrency();
   const [period, setPeriod] = useState<Period>('12');
+  const [showForecast, setShowForecast] = useState(false);
 
   const now = new Date();
   const months = period === 'ytd' ? now.getMonth() + 1 : Number(period);
+  const forecastMonths = showForecast ? 6 : 0;
 
-  const { data, isLoading } = useHistory(months);
+  const { data, isLoading } = useHistory(months, forecastMonths);
 
   const chartConfig = {
     balance: { label: t('trends_balance'), color: 'var(--primary)' },
@@ -48,14 +51,27 @@ export default function TrendsPage() {
 
   const chartData = useMemo(() => {
     const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'short' });
+    const today = new Date();
+    const currentKey = today.getFullYear() * 12 + today.getMonth();
     return (data?.history ?? []).map((point) => {
       const date = new Date(point.year, point.month, 1);
       const label = point.month === 0
         ? `${monthFormatter.format(date)} ${String(point.year).slice(2)}`
         : monthFormatter.format(date);
-      return { label, income: point.income, expenses: point.expenses, balance: point.balance };
+      return {
+        label,
+        income: point.income,
+        expenses: point.expenses,
+        balance: point.balance,
+        isFuture: point.year * 12 + point.month > currentKey,
+      };
     });
   }, [data, locale]);
+
+  // The marker sits on the current month, so everything to its right is projected.
+  const todayLabel = chartData.find((p) => p.isFuture)
+    ? chartData[chartData.findIndex((p) => p.isFuture) - 1]?.label
+    : undefined;
 
   const activeMonths = chartData.filter((p) => p.income > 0 || p.expenses > 0).length;
   const compactNumber = (value: number) =>
@@ -73,6 +89,17 @@ export default function TrendsPage() {
         title={t('trends_title')}
         description={t('trends_subtitle')}
         actions={
+          <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <button
+            onClick={() => setShowForecast((on) => !on)}
+            className={`cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
+              showForecast
+                ? 'border-primary/30 bg-primary/10 text-primary'
+                : 'border-border text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {t('trends_include_forecast')}
+          </button>
           <div className="flex w-full items-center gap-1 rounded-lg bg-muted/50 p-1 sm:w-auto">
             {periods.map((p) => (
               <button
@@ -87,6 +114,7 @@ export default function TrendsPage() {
                 {p.label}
               </button>
             ))}
+          </div>
           </div>
         }
       />
@@ -146,6 +174,14 @@ export default function TrendsPage() {
                       />
                     }
                   />
+                  {todayLabel && (
+                    <ReferenceLine
+                      x={todayLabel}
+                      stroke="var(--muted-foreground)"
+                      strokeDasharray="4 4"
+                      strokeOpacity={0.6}
+                    />
+                  )}
                   <Area
                     dataKey="balance"
                     type="monotone"
@@ -184,6 +220,14 @@ export default function TrendsPage() {
                       />
                     }
                   />
+                  {todayLabel && (
+                    <ReferenceLine
+                      x={todayLabel}
+                      stroke="var(--muted-foreground)"
+                      strokeDasharray="4 4"
+                      strokeOpacity={0.6}
+                    />
+                  )}
                   <ChartLegend content={<ChartLegendContent />} />
                   <Line dataKey="income" type="monotone" stroke="var(--color-income)" strokeWidth={2} dot={false} />
                   <Line dataKey="expenses" type="monotone" stroke="var(--color-expenses)" strokeWidth={2} dot={false} />

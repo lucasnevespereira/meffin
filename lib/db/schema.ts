@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, decimal, boolean, text, check } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, decimal, boolean, integer, text, check, index, uniqueIndex } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
@@ -79,6 +79,11 @@ export const categories = pgTable('categories', {
 }));
 
 // Transactions table
+//
+// A recurring transaction is a *series*: every occurrence is a real row sharing a
+// `seriesId`, and the row with the highest `monthKey` (the head) is what gets
+// projected into future months. Past months are therefore always real data, which
+// is what lets already-shipped mobile builds keep editing every row they can reach.
 export const transactions = pgTable('transactions', {
   id: text('id').primaryKey(),
   userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
@@ -91,9 +96,30 @@ export const transactions = pgTable('transactions', {
   isPrivate: boolean('is_private').default(false),
   repeatType: varchar('repeat_type', { length: 20 }).default('once'), // Store the original repeat type
   endDate: timestamp('end_date', { mode: 'string' }), // For recurring transactions with end date
+  // year * 12 + month (UTC), derived from `date`. Month maths runs on this and never
+  // on a parsed Date, so timezone and DST drift can't move a row between months.
+  monthKey: integer('month_key').notNull(),
+  // Null for one-off transactions. The first occurrence of a series points at itself.
+  seriesId: text('series_id'),
+  // Inclusive last month of a series. Null means forever. Authoritative on the head.
+  endMonth: integer('end_month'),
+  // Soft-delete for a series occurrence: keeps the deletion from being undone by the
+  // next materialization pass. One-off transactions are still deleted outright.
+  voided: boolean('voided').default(false).notNull(),
   createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
-});
+}, (table) => ({
+  repeatTypeCheck: check(
+    'repeat_type_check',
+    sql`${table.repeatType} IS NULL OR ${table.repeatType} IN ('once', 'forever', '3months', '4months', '6months', '12months', 'until', 'annual')`
+  ),
+  // One occurrence per series per month. Also makes materialization idempotent under
+  // concurrent reads via ON CONFLICT DO NOTHING.
+  seriesMonthUnique: uniqueIndex('transactions_series_month_unique')
+    .on(table.seriesId, table.monthKey)
+    .where(sql`${table.seriesId} IS NOT NULL`),
+  userMonthIdx: index('transactions_user_month_idx').on(table.userId, table.monthKey),
+}));
 
 
 // Shopping lists table

@@ -308,7 +308,18 @@ export default {
   transaction_recurring_annual: "Annuel",
   transaction_month_of_year: "Mois de l'année",
   transaction_select_month: "Sélectionner un mois",
+  transaction_date_hint: "Choisissez n'importe quelle date, même un mois à venir",
   validation_error: "Erreur de validation",
+
+  // Navigation par mois et prévisions
+  month_previous: "Mois précédent",
+  month_next: "Mois suivant",
+  month_back_to_current: "Revenir au mois actuel",
+  month_forecast: "Prévision",
+  month_planned: "Prévu",
+  month_forecast_note:
+    "Ce mois n'est pas encore arrivé. Les montants récurrents viennent de votre dernier mois.",
+  trends_include_forecast: "Afficher les 6 prochains mois",
 
   // Dashboard
   dashboard_title: "Dashboard",

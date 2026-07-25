@@ -44,6 +44,8 @@ type TransactionFormInput = {
   categoryId: string;
   dayOfMonth: number;
   monthOfYear?: number; // For annual transactions
+  /** Full date for one-off transactions, so a bill can be filed against a future month. */
+  onceDate?: Date;
   repeatType: RepeatType;
   customEndDate?: Date;
   isPrivate?: boolean;
@@ -67,6 +69,7 @@ export function TransactionForm({
     categoryId: z.string().min(1, t('validation_categoryRequired') || 'Category is required'),
     dayOfMonth: z.number().min(1).max(31),
     monthOfYear: z.number().min(0).max(11).optional(),
+    onceDate: z.date().optional(),
     repeatType: z.enum(['forever', '3months', '4months', '6months', '12months', 'annual', 'until', 'once']),
     customEndDate: z.date().optional(),
     isPrivate: z.boolean().optional(),
@@ -88,6 +91,7 @@ export function TransactionForm({
       categoryId: initialData.categoryId || '',
       dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
       monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
+      onceDate: initialData.date ? new Date(initialData.date) : new Date(),
       repeatType: initialData.repeatType || 'forever',
       customEndDate: initialData.customEndDate || new Date(),
       isPrivate: initialData.isPrivate || false,
@@ -97,6 +101,7 @@ export function TransactionForm({
       categoryId: '',
       dayOfMonth: new Date().getDate(),
       monthOfYear: new Date().getMonth(),
+      onceDate: new Date(),
       repeatType: 'forever',
       customEndDate: new Date(),
       isPrivate: false,
@@ -119,6 +124,7 @@ export function TransactionForm({
         categoryId: initialData.categoryId || '',
         dayOfMonth: initialData.dayOfMonth || new Date().getDate(),
         monthOfYear: initialData.date ? new Date(initialData.date).getMonth() : new Date().getMonth(),
+        onceDate: initialData.date ? new Date(initialData.date) : new Date(),
         repeatType: initialData.repeatType || 'forever',
         customEndDate: initialData.customEndDate || new Date(),
         isPrivate: initialData.isPrivate || false,
@@ -174,6 +180,11 @@ export function TransactionForm({
       // For annual transactions, use the specified month and day
       const month = data.monthOfYear !== undefined ? data.monthOfYear : now.getMonth();
       targetDate = new Date(now.getFullYear(), month, data.dayOfMonth, 12, 0, 0, 0);
+    } else if (data.repeatType === 'once') {
+      // A one-off carries a real date, so it can be filed against any month — including
+      // a bill that lands three months from now.
+      const picked = data.onceDate ?? now;
+      targetDate = new Date(picked.getFullYear(), picked.getMonth(), picked.getDate(), 12, 0, 0, 0);
     } else {
       // For other recurring transactions, use current month
       targetDate = new Date(now.getFullYear(), now.getMonth(), data.dayOfMonth, 12, 0, 0, 0);
@@ -343,35 +354,53 @@ export function TransactionForm({
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="dayOfMonth" className="text-sm font-medium">
-                  {t('transaction_day_of_month')}
-                </Label>
-                <Controller
-                  name="dayOfMonth"
-                  control={control}
-                  render={({ field }) => (
-                    <Select
-                      value={field.value?.toString() || ''}
-                      onValueChange={(value) => field.onChange(parseInt(value))}
-                    >
-                      <SelectTrigger className="h-10">
-                        <SelectValue placeholder={t('transaction_select_day')} />
-                      </SelectTrigger>
-                      <SelectContent className="max-h-60">
-                        {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
-                          <SelectItem key={day} value={day.toString()}>
-                            {t('day') || 'Day'} {day}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+              {repeatType === 'once' ? (
+                <div className="space-y-2">
+                  <Label htmlFor="onceDate" className="text-sm font-medium">
+                    {t('transaction_date')}
+                  </Label>
+                  <Input
+                    id="onceDate"
+                    type="date"
+                    className="h-10"
+                    {...register('onceDate', { valueAsDate: true })}
+                  />
+                  <p className="text-xs text-muted-foreground">{t('transaction_date_hint')}</p>
+                  {errors.onceDate && (
+                    <p className="text-sm text-destructive">{errors.onceDate.message}</p>
                   )}
-                />
-                {errors.dayOfMonth && (
-                  <p className="text-sm text-destructive">{errors.dayOfMonth.message}</p>
-                )}
-              </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="dayOfMonth" className="text-sm font-medium">
+                    {t('transaction_day_of_month')}
+                  </Label>
+                  <Controller
+                    name="dayOfMonth"
+                    control={control}
+                    render={({ field }) => (
+                      <Select
+                        value={field.value?.toString() || ''}
+                        onValueChange={(value) => field.onChange(parseInt(value))}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder={t('transaction_select_day')} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                            <SelectItem key={day} value={day.toString()}>
+                              {t('day') || 'Day'} {day}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
+                  />
+                  {errors.dayOfMonth && (
+                    <p className="text-sm text-destructive">{errors.dayOfMonth.message}</p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <Label htmlFor="repeatType" className="text-sm font-medium">
