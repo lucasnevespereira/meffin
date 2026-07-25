@@ -6,12 +6,16 @@ recurring transactions.
 
 ## Planning a transaction
 
-**A bill you know is coming.** Add a transaction, set Repeats to *One-time*, and pick the
-date. The date field accepts any day in any month, so a water bill due 14 October goes in
-today. Navigate to October and it's there, alongside your rent and salary.
+Every transaction has a **Date**, whatever its repeat setting, and it accepts any day in
+any month.
 
-**Something recurring.** Pick any repeat other than *One-time* and choose the day of the
-month. It shows up in every month from now on, up to its end date if it has one.
+**A bill you know is coming.** Set the date to 14 October and leave Repeats on *One-time*.
+Navigate to October and it's there, beside your rent and salary.
+
+**Something recurring.** Pick a repeat other than *One-time*. The date becomes the first
+occurrence: its day sets the day of the month, its month sets when the series begins. A
+gym membership starting in September, dated 2 September and set to *For 6 months*, shows
+nothing in July or August, starts in September and stops after March.
 
 **Changing what a recurring transaction costs.** Edit it in the *current* month. Rent
 going from 800 to 950 means opening this month's rent and changing the amount — every

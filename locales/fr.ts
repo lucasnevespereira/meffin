@@ -308,7 +308,12 @@ export default {
   transaction_recurring_annual: "Annuel",
   transaction_month_of_year: "Mois de l'année",
   transaction_select_month: "Sélectionner un mois",
-  transaction_date_hint: "Choisissez n'importe quelle date, même un mois à venir",
+  transaction_date_hint: "N'importe quelle date, même un mois à venir",
+  transaction_starts_on: "Commence le",
+  transaction_schedule: "Planification",
+  transaction_starting: "à partir de",
+  validation_dateRequired: "Choisissez une date",
+  validation_endDateRequired: "Choisissez une date de fin",
   validation_error: "Erreur de validation",
 
   // Navigation par mois et mois à venir

@@ -309,7 +309,12 @@ export default {
   transaction_private_category: "Private category",
   transaction_month_of_year: "Month of Year",
   transaction_select_month: "Select month",
-  transaction_date_hint: "Pick any date, including a future month",
+  transaction_date_hint: "Any date, including a future month",
+  transaction_starts_on: "Starts on",
+  transaction_schedule: "Schedule",
+  transaction_starting: "starting",
+  validation_dateRequired: "Pick a date",
+  validation_endDateRequired: "Pick an end date",
   validation_error: "Validation failed",
 
   // Month navigation and planned months
