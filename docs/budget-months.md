@@ -26,14 +26,16 @@ ends the series at the month you're editing.
 
 ## Reading a future month
 
-Future months mark themselves. The month switcher shows a **Forecast** chip, and each
-projected row is dashed and tagged **Planned**. Planned rows have no edit or delete
-button — there's nothing stored behind them yet. To change one, edit the current month.
+Future months mark themselves. The month switcher shows a **Planned** chip, and each
+projected row is dashed and tagged **Planned** — one word, one meaning: this hasn't
+happened yet. Planned rows have no edit or delete button, because there's nothing stored
+behind them. A single **Edit in {current month}** link above the list takes you where the
+change actually works.
 
 Anything real in a future month — that October water bill — looks and behaves normally,
 because it *is* a normal transaction that happens to be dated ahead.
 
-Trends has a **Show next 6 months** toggle. A dashed vertical line marks today, so
+Trends has an **Include next 6 months** toggle. A dashed vertical line marks today, so
 everything to its right is projection.
 
 Excel exports skip planned rows. An export is a record of what happened, and forecast
