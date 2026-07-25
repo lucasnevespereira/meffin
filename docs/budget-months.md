@@ -168,6 +168,22 @@ Routes are thin wrappers:
 
 Every change is additive, so mobile builds already in the App Store keep working.
 
+## Trying it locally
+
+Sign in once so the account exists, then:
+
+```bash
+make seed        # or: npm run seed:demo -- you@example.com
+```
+
+That writes nine months of history plus a few things dated ahead: an annual insurance
+renewal, a gym membership that runs out, flights two months out and a water bill three.
+Expenses drop by about 250 a month the moment you step past today — that gap is the
+everyday spending the forecast can't know about, and it's the clearest way to see why the
+estimate reads high.
+
+It replaces that account's transactions, so point it at a local database only.
+
 ## Verification
 
 ```bash

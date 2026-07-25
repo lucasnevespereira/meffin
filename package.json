@@ -16,6 +16,7 @@
     "db:push": "drizzle-kit push",
     "db:dev": "drizzle-kit push --force",
     "db:studio": "drizzle-kit studio",
+    "seed:demo": "tsx --env-file=.env.local scripts/seed-demo.ts",
     "db:check": "drizzle-kit check",
     "release": "bash scripts/release.sh"
   },

@@ -1,4 +1,4 @@
-.PHONY: dev setup db migrate build clean down help
+.PHONY: dev setup db migrate seed build clean down help
 
 help:
 	@echo "🌟 Meffin Development Commands"
@@ -7,6 +7,7 @@ help:
 	@echo "  migrate    - Generate migration files after schema changes"
 	@echo "  setup      - Manual setup (database, schema, and dependencies)"
 	@echo "  db         - Start PostgreSQL database only"
+	@echo "  seed       - Fill your local account with example transactions"
 	@echo "  build      - Build for production (with migrations)"
 	@echo "  clean      - Clean build artifacts and stop services"
 	@echo "  down       - Stop all services"
@@ -29,6 +30,10 @@ dev: setup
 	@echo "🚀 Starting Next.js development server..."
 	@npm run dev
 
+
+seed:
+	@echo "🌱 Seeding example transactions..."
+	@npm run seed:demo
 
 build:
 	@echo "🏗️  Building for production..."
