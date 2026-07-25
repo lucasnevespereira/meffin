@@ -188,6 +188,9 @@ export async function materializeThrough(
 ): Promise<number> {
   const pending = heads.flatMap(head =>
     missingMonths(head, through, occupied).map(key => ({
+      key,
+      seriesKey: occupiedKey(head.seriesId, key),
+      row: {
       id: crypto.randomUUID(),
       userId: head.userId,
       createdBy: head.createdBy,
@@ -199,18 +202,18 @@ export async function materializeThrough(
       isPrivate: head.isPrivate,
       repeatType: head.repeatType ?? 'forever',
       endDate: head.endDate,
-      monthKey: key,
       seriesId: head.seriesId,
       endMonth: head.endMonth,
       voided: false,
+      },
     }))
   );
 
   if (pending.length === 0) return 0;
 
-  await db.insert(transactions).values(pending).onConflictDoNothing();
+  await db.insert(transactions).values(pending.map(p => p.row)).onConflictDoNothing();
 
-  for (const row of pending) occupied.add(occupiedKey(row.seriesId, row.monthKey));
+  for (const item of pending) occupied.add(item.seriesKey);
   return pending.length;
 }
 

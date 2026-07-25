@@ -1,5 +1,5 @@
 {
-  "id": "2bd756c9-cb13-4fe6-9879-ce1ad10ba58d",
+  "id": "bd82c9ef-b2ec-4862-a1a2-6d38f82cb393",
   "prevId": "aef97af9-f9d3-4f86-a9bc-8aa271e61910",
   "version": "7",
   "dialect": "postgresql",
@@ -682,7 +682,11 @@
           "name": "month_key",
           "type": "integer",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "generated": {
+            "as": "EXTRACT(YEAR FROM \"date\")::int * 12 + EXTRACT(MONTH FROM \"date\")::int - 1",
+            "type": "stored"
+          }
         },
         "series_id": {
           "name": "series_id",

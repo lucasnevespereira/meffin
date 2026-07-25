@@ -1,30 +1,24 @@
--- Recurring transactions become addressable series so future months can be projected.
--- Every step is additive; nothing is deleted and no existing row changes meaning.
+-- Recurring transactions become addressable series, so any month can be read.
+-- Purely additive: four columns are added and filled. No row is deleted or reinterpreted,
+-- so rolling back is dropping the columns.
 
--- Safety net. Drop this once the release has been stable for a few weeks.
-CREATE TABLE IF NOT EXISTS "transactions_pre_series_backup" AS SELECT * FROM "transactions";--> statement-breakpoint
-
--- month_key: added nullable, backfilled, then locked down. Derived from the stored
--- wall-clock timestamp so it matches how the existing range queries already bucket rows.
-ALTER TABLE "transactions" ADD COLUMN "month_key" integer;--> statement-breakpoint
-UPDATE "transactions"
-  SET "month_key" = EXTRACT(YEAR FROM "date")::int * 12 + EXTRACT(MONTH FROM "date")::int - 1;--> statement-breakpoint
-ALTER TABLE "transactions" ALTER COLUMN "month_key" SET NOT NULL;--> statement-breakpoint
-
+-- month_key is derived from `date`, so Postgres owns it. Two columns holding one fact,
+-- kept in step by convention at each insert site, is how they drift apart.
+ALTER TABLE "transactions" ADD COLUMN "month_key" integer GENERATED ALWAYS AS (EXTRACT(YEAR FROM "date")::int * 12 + EXTRACT(MONTH FROM "date")::int - 1) STORED NOT NULL;--> statement-breakpoint
 ALTER TABLE "transactions" ADD COLUMN "series_id" text;--> statement-breakpoint
 ALTER TABLE "transactions" ADD COLUMN "end_month" integer;--> statement-breakpoint
 ALTER TABLE "transactions" ADD COLUMN "voided" boolean DEFAULT false NOT NULL;--> statement-breakpoint
 
--- Monthly recurring rows collapse into series, grouped by the same key the cron used to
--- dedupe on (user, category, description). The earliest occurrence lends its id.
+-- Monthly recurring rows collapse into series, grouped by the same key the cron deduped
+-- on (user, category, description). The earliest occurrence lends its id to the rest.
 --
--- Two exclusions: rows whose descriptions carry the legacy "(Monthly Budget)" /
--- "(Annual Renewal)" markers are left as one-offs, because the dashboard already filters
--- those strings and turning them into series would make them reappear in totals.
+-- Rows carrying the legacy "(Monthly Budget)" / "(Annual Renewal)" markers stay one-offs:
+-- the dashboard already excludes those strings from its totals, and making them series
+-- would put them back into everyone's balance.
 --
--- Where a group somehow holds two rows in the same month (the cron deduped, but manual
--- entry never did), only the earliest joins the series. The other stays a standalone row:
--- still visible, still counted, just not projected.
+-- Where a group holds two rows in the same month (the cron deduped, manual entry never
+-- did), only the earliest joins the series. The other stays standalone — still listed,
+-- still counted, just not projected — which is what keeps the unique index below valid.
 WITH candidates AS (
   SELECT
     "id", "user_id", "category_id", "description", "month_key", "created_at",
@@ -56,8 +50,8 @@ JOIN heads h
  AND h."description" = k."description"
 WHERE t."id" = k."id";--> statement-breakpoint
 
--- The cron never copied end_date onto the monthly duplicates it created, so the bound
--- survives on whichever rows predate it. Take the furthest one for the whole series.
+-- The cron never copied end_date onto the months it generated, so the bound only survives
+-- on rows that predate it. Take the furthest one for the whole series.
 WITH bounds AS (
   SELECT
     "series_id",
@@ -78,6 +72,4 @@ UPDATE "transactions" SET "series_id" = "id"
 CREATE UNIQUE INDEX "transactions_series_month_unique" ON "transactions" USING btree ("series_id","month_key") WHERE "transactions"."series_id" IS NOT NULL;--> statement-breakpoint
 CREATE INDEX "transactions_user_month_idx" ON "transactions" USING btree ("user_id","month_key");--> statement-breakpoint
 
--- NOT VALID: applies to every future write without scanning existing rows, so an
--- unexpected legacy value can't fail the deploy. Validate separately once counted.
-ALTER TABLE "transactions" ADD CONSTRAINT "repeat_type_check" CHECK ("transactions"."repeat_type" IS NULL OR "transactions"."repeat_type" IN ('once', 'forever', '3months', '4months', '6months', '12months', 'until', 'annual')) NOT VALID;
+ALTER TABLE "transactions" ADD CONSTRAINT "repeat_type_check" CHECK ("transactions"."repeat_type" IS NULL OR "transactions"."repeat_type" IN ('once', 'forever', '3months', '4months', '6months', '12months', 'until', 'annual'));

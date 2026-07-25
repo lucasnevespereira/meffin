@@ -154,7 +154,6 @@ export async function POST(request: NextRequest) {
       description: validatedData.description,
       amount: validatedData.amount.toString(),
       date,
-      monthKey: startKey,
       isFixed: isSeries,
       isPrivate: validatedData.isPrivate || false,
       repeatType: validatedData.repeatType,

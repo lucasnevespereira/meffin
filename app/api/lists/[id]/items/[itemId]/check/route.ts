@@ -4,7 +4,6 @@ import { lists, listItems, users, transactions } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
-import { monthKeyFromDateString } from '@/lib/services/budget/keys';
 
 const checkItemSchema = z.object({
   actualPrice: z.number().positive().optional(),
@@ -88,7 +87,6 @@ export async function POST(
           description: item.name,
           amount: amount.toString(),
           date,
-          monthKey: monthKeyFromDateString(date),
           isFixed: false,
           isPrivate: false,
           repeatType: 'once',

@@ -155,7 +155,6 @@ export async function PUT(
         amount: validatedData.amount.toString(),
         categoryId: validatedData.categoryId,
         date,
-        monthKey,
         isFixed: wantsSeries,
         isPrivate: validatedData.isPrivate || false,
         repeatType: validatedData.repeatType,

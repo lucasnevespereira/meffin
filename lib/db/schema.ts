@@ -96,9 +96,18 @@ export const transactions = pgTable('transactions', {
   isPrivate: boolean('is_private').default(false),
   repeatType: varchar('repeat_type', { length: 20 }).default('once'), // Store the original repeat type
   endDate: timestamp('end_date', { mode: 'string' }), // For recurring transactions with end date
-  // year * 12 + month (UTC), derived from `date`. Month maths runs on this and never
-  // on a parsed Date, so timezone and DST drift can't move a row between months.
-  monthKey: integer('month_key').notNull(),
+  // year * 12 + month, derived from `date`. Month maths runs on this and never on a
+  // parsed Date, so timezone and DST drift can't move a row between months.
+  //
+  // Postgres computes it, for three reasons: it can never drift out of step with `date`;
+  // nothing has to remember to set it on insert; and because migrations run at build time
+  // while the previous deployment is still serving, a column the old code doesn't know
+  // about would otherwise fail every insert until the new code went live.
+  monthKey: integer('month_key')
+    .generatedAlwaysAs(
+      sql`EXTRACT(YEAR FROM "date")::int * 12 + EXTRACT(MONTH FROM "date")::int - 1`
+    )
+    .notNull(),
   // Null for one-off transactions. The first occurrence of a series points at itself.
   seriesId: text('series_id'),
   // Inclusive last month of a series. Null means forever. Authoritative on the head.
