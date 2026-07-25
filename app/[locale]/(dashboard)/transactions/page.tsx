@@ -258,6 +258,15 @@ export default function TransactionsPage() {
 
         {/* Monthly Transactions Tab */}
         <TabsContent value="monthly" className="mt-0 space-y-6 md:space-y-8">
+          {isPlanned && !isLoadingTransactions && monthlyTransactions.length > 0 && (
+            <button
+              onClick={goToCurrentMonth}
+              className="cursor-pointer text-xs font-medium text-primary underline-offset-2 hover:underline"
+            >
+              {t('month_edit_in', { month: currentMonthLabel })}
+            </button>
+          )}
+
           {isLoadingTransactions ? (
             <div className="space-y-6 md:space-y-8">
               {[1, 2].map(i => (
@@ -297,8 +306,6 @@ export default function TransactionsPage() {
                 currentUserId={session?.user?.id}
                 isPlanned={isPlanned}
                 monthLabel={monthLabel}
-                currentMonthLabel={currentMonthLabel}
-                onGoToCurrentMonth={goToCurrentMonth}
               />
 
               <TransactionList
@@ -311,8 +318,6 @@ export default function TransactionsPage() {
                 currentUserId={session?.user?.id}
                 isPlanned={isPlanned}
                 monthLabel={monthLabel}
-                currentMonthLabel={currentMonthLabel}
-                onGoToCurrentMonth={goToCurrentMonth}
               />
             </div>
           )}

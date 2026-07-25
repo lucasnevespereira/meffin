@@ -21,7 +21,7 @@ setup: db
 	@echo "📦 Installing dependencies..."
 	@npm install
 	@echo "🔄 Setting up database schema..."
-	@npx drizzle-kit push
+	@npx drizzle-kit migrate
 	@echo "✅ Setup complete!"
 
 # Development server (always runs setup to ensure everything works)

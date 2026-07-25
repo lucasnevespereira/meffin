@@ -34,9 +34,6 @@ interface TransactionListProps {
   isPlanned?: boolean;
   /** Name of the month being viewed, for the empty state. */
   monthLabel?: string;
-  /** Takes the user to the month where a recurring transaction can actually be changed. */
-  onGoToCurrentMonth?: () => void;
-  currentMonthLabel?: string;
 }
 
 export function TransactionList({
@@ -49,8 +46,6 @@ export function TransactionList({
   currentUserId,
   isPlanned = false,
   monthLabel,
-  onGoToCurrentMonth,
-  currentMonthLabel,
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -254,23 +249,8 @@ export function TransactionList({
                     {type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
                   </div>
 
-                  {/* A planned row has no stored transaction behind it, so there's nothing
-                      to edit here. Point at the month where there is, rather than showing
-                      an empty space and leaving the user to guess. */}
-                  {transaction.source === 'projected' && onGoToCurrentMonth && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={onGoToCurrentMonth}
-                      className="h-7 gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3" />
-                      <span className="hidden sm:inline">
-                        {t('month_edit_in', { month: currentMonthLabel ?? '' })}
-                      </span>
-                    </Button>
-                  )}
-
+                  {/* Planned rows have no stored transaction behind them, so there is
+                      nothing to edit here. The list explains where to do it instead. */}
                   {transaction.source !== 'projected' &&
                     (!currentUserId || !transaction.createdBy || transaction.createdBy.id === currentUserId) && (
                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">

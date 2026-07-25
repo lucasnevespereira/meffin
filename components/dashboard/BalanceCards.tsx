@@ -38,9 +38,7 @@ export function BalanceCards({ balance, monthLabel, trendsHref, isPlanned = fals
                   : t('dashboard_available_balance', { month: monthLabel })}
               </p>
               <p className="mt-1 text-xs text-muted-foreground/80">
-                {isPlanned
-                  ? t('dashboard_balance_planned_description')
-                  : t('dashboard_balance_description')}
+                {isPlanned ? t('month_planned_note') : t('dashboard_balance_description')}
               </p>
             </div>
             <Link
@@ -56,11 +54,9 @@ export function BalanceCards({ balance, monthLabel, trendsHref, isPlanned = fals
             <p className={`font-display text-4xl font-semibold tracking-tight sm:text-5xl ${positive ? 'text-foreground' : 'text-rose-400'}`}>
               {formatCurrency(balance.balance)}
             </p>
-            {isPlanned ? (
-              <p className="mt-3 max-w-md text-xs leading-relaxed text-muted-foreground">
-                {t('month_planned_note')}
-              </p>
-            ) : (
+            {/* No green/red verdict on a month that hasn't happened. The number and its
+                one-line caption above are enough. */}
+            {!isPlanned && (
               <div className={`mt-3 inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-semibold ${positive ? 'bg-emerald-500/15 text-emerald-500' : 'bg-rose-500/15 text-rose-400'}`}>
                 <HugeiconsIcon icon={CircleIcon} className="size-2 fill-current" />
                 {positive ? t('dashboard_on_track') : t('dashboard_over_budget')}
