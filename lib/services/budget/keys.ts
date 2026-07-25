@@ -48,11 +48,18 @@ export function clampDay(day: number, year: number, month: number): number {
   return Math.min(Math.max(day, 1), daysInMonth(year, month));
 }
 
-/** Noon UTC, so nothing downstream can shift the date across a day boundary. */
+/**
+ * Noon, so nothing downstream can shift the date across a day boundary.
+ *
+ * Formatted the way Postgres hands timestamps back (`2026-08-05 12:00:00`) rather than as
+ * an ISO string, so a projected occurrence and a stored one are byte-identical in shape.
+ * Clients compare and slice these strings; two formats in one response would sort wrong.
+ */
 export function occurrenceDate(key: MonthKey, day: number): string {
   const { year, month } = fromKey(key);
   const safeDay = clampDay(day, year, month);
-  return new Date(Date.UTC(year, month, safeDay, 12, 0, 0)).toISOString();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${year}-${pad(month + 1)}-${pad(safeDay)} 12:00:00`;
 }
 
 export function dayOfMonth(date: string): number {

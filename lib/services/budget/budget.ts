@@ -144,18 +144,29 @@ export async function getAnnualSeries(viewer: Viewer) {
   return rows.filter(isVisibleTo(viewer.userId));
 }
 
-async function loadHeads(userIds: string[]): Promise<SeriesHead[]> {
-  // One row per series: the latest occurrence. That row's amount, description and day
-  // are what carry into future months, so editing this month's rent updates the forecast
-  // while past months keep the amounts they were actually charged.
+async function loadHeads(
+  userIds: string[],
+  lastOccupied: Map<string, number>
+): Promise<SeriesHead[]> {
+  // One row per series: the latest occurrence that hasn't been deleted. Its amount,
+  // description and day are what carry into future months, so editing this month's rent
+  // updates the forecast while past months keep the amounts actually charged.
+  //
+  // Voided rows are excluded here on purpose. Delete every occurrence of a series and it
+  // has no live row left, so nothing projects — which is how deleting a recurring
+  // transaction outright, or an annual one, ends it.
   const rows = await db
     .selectDistinctOn([transactions.seriesId])
     .from(transactions)
-    .where(and(inArray(transactions.userId, userIds), isNotNull(transactions.seriesId)))
+    .where(and(
+      inArray(transactions.userId, userIds),
+      isNotNull(transactions.seriesId),
+      eq(transactions.voided, false)
+    ))
     .orderBy(transactions.seriesId, desc(transactions.monthKey));
 
   return rows
-    .map(toSeriesHead)
+    .map(row => toSeriesHead(row, lastOccupied.get(row.seriesId as string)))
     .filter((head): head is SeriesHead => head !== null);
 }
 
@@ -220,7 +231,6 @@ export async function getEntries(
   to: MonthKey,
   options: EntryOptions = {}
 ): Promise<Entry[]> {
-  const heads = await loadHeads(viewer.userIds);
   const current = currentMonthKey();
 
   // Series rows outside the requested window still matter: they tell us which months are
@@ -233,9 +243,15 @@ export async function getEntries(
     .from(transactions)
     .where(and(inArray(transactions.userId, viewer.userIds), isNotNull(transactions.seriesId)));
 
-  const occupied = new Set(
-    seriesRows.map(row => occupiedKey(row.seriesId as string, row.monthKey))
-  );
+  const occupied = new Set<string>();
+  const lastOccupied = new Map<string, number>();
+  for (const row of seriesRows) {
+    const seriesId = row.seriesId as string;
+    occupied.add(occupiedKey(seriesId, row.monthKey));
+    lastOccupied.set(seriesId, Math.max(lastOccupied.get(seriesId) ?? row.monthKey, row.monthKey));
+  }
+
+  const heads = await loadHeads(viewer.userIds, lastOccupied);
 
   if (!options.readOnly) {
     const catchUpTo = Math.min(to, current);

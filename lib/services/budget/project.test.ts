@@ -5,9 +5,12 @@ import { projectSeries, missingMonths, occupiedKey, SeriesHead } from './project
 const JUL_2026 = monthKey(2026, 6);
 
 function head(overrides: Partial<SeriesHead> = {}): SeriesHead {
+  const monthKey = overrides.monthKey ?? JUL_2026;
   return {
     seriesId: 'series-1',
-    monthKey: JUL_2026,
+    monthKey,
+    // Defaults to the template's own month: a series whose newest row is also its head.
+    lastOccupied: monthKey,
     endMonth: null,
     cadence: 'monthly',
     id: 'row-1',
@@ -46,12 +49,16 @@ describe('month keys', () => {
   it('never rolls an occurrence into the following month', () => {
     // new Date(2026, 1, 31) silently becomes March 3rd — the bug that made the old cron
     // materialize into the wrong month and then duplicate.
-    expect(occurrenceDate(monthKey(2026, 1), 31)).toBe('2026-02-28T12:00:00.000Z');
-    expect(occurrenceDate(monthKey(2028, 1), 31)).toBe('2028-02-29T12:00:00.000Z');
+    expect(occurrenceDate(monthKey(2026, 1), 31)).toBe('2026-02-28 12:00:00');
+    expect(occurrenceDate(monthKey(2028, 1), 31)).toBe('2028-02-29 12:00:00');
   });
 
   it('round-trips the day of month', () => {
     expect(dayOfMonth(occurrenceDate(monthKey(2026, 8), 5))).toBe(5);
+  });
+
+  it('matches the shape Postgres returns, so entries sort consistently', () => {
+    expect(occurrenceDate(monthKey(2026, 7), 5)).toBe('2026-08-05 12:00:00');
   });
 });
 
@@ -65,7 +72,8 @@ describe('projectSeries — monthly', () => {
   });
 
   it('never emits where a stored row already sits', () => {
-    const entries = projectSeries([head()], JUL_2026, JUL_2026 + 2, occupy(JUL_2026, JUL_2026 + 1));
+    const withRows = head({ lastOccupied: JUL_2026 });
+    const entries = projectSeries([withRows], JUL_2026, JUL_2026 + 2, occupy(JUL_2026, JUL_2026 + 1));
 
     expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 2]);
   });
@@ -75,6 +83,12 @@ describe('projectSeries — monthly', () => {
     const entries = projectSeries([head()], JUL_2026, JUL_2026 + 2, occupy(JUL_2026, JUL_2026 + 2));
 
     expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1]);
+  });
+
+  it('emits nothing when the newest row is also the last one', () => {
+    // Deleting the only occurrence leaves no live row, so the caller passes no head at
+    // all and the series is over.
+    expect(projectSeries([], JUL_2026, JUL_2026 + 6, occupy(JUL_2026))).toEqual([]);
   });
 
   it('stops at endMonth, inclusive', () => {
@@ -92,14 +106,23 @@ describe('projectSeries — monthly', () => {
   it('never emits before the series started', () => {
     const entries = projectSeries([head()], JUL_2026 - 6, JUL_2026, new Set());
 
-    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026]);
+    expect(entries).toEqual([]);
+  });
+
+  it('resumes after the last month with a row, not after the template', () => {
+    // Gym ran Feb, Mar, then July — and July was deleted. The template is March's row
+    // (the newest live one), but April through July must stay empty.
+    const gappy = head({ monthKey: JUL_2026 - 4, lastOccupied: JUL_2026 });
+    const entries = projectSeries([gappy], JUL_2026 - 5, JUL_2026 + 2, occupy(JUL_2026 - 5, JUL_2026 - 4, JUL_2026));
+
+    expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1, JUL_2026 + 2]);
   });
 
   it('clamps the day when projecting into a short month', () => {
     const endOfMonth = head({ monthKey: monthKey(2026, 0), date: '2026-01-31T12:00:00.000Z' });
     const entries = projectSeries([endOfMonth], monthKey(2026, 1), monthKey(2026, 1), new Set());
 
-    expect(entries[0].date).toBe('2026-02-28T12:00:00.000Z');
+    expect(entries[0].date).toBe('2026-02-28 12:00:00');
   });
 
   it('gives projected months a synthetic id that survives a URL', () => {
@@ -165,6 +188,14 @@ describe('missingMonths', () => {
     expect(missingMonths(head(), JUL_2026 + 3, occupy(JUL_2026, JUL_2026 + 2))).toEqual([
       JUL_2026 + 1,
       JUL_2026 + 3,
+    ]);
+  });
+
+  it('never backfills a gap left by a deleted occurrence', () => {
+    const gappy = head({ monthKey: JUL_2026 - 4, lastOccupied: JUL_2026 });
+    expect(missingMonths(gappy, JUL_2026 + 2, occupy(JUL_2026 - 4, JUL_2026))).toEqual([
+      JUL_2026 + 1,
+      JUL_2026 + 2,
     ]);
   });
 
