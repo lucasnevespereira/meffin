@@ -1,6 +1,7 @@
 -- Recurring transactions become addressable series, so any month can be read.
--- Purely additive: four columns are added and filled. No row is deleted or reinterpreted,
--- so rolling back is dropping the columns.
+-- Keep an unconstrained copy of the pre-migration rows for production reconciliation and
+-- emergency recovery. Drop it manually after the release has been stable.
+CREATE TABLE "transactions_pre_series_backup" AS TABLE "transactions";--> statement-breakpoint
 
 -- month_key is derived from `date`, so Postgres owns it. Two columns holding one fact,
 -- kept in step by convention at each insert site, is how they drift apart.
@@ -51,17 +52,33 @@ JOIN heads h
 WHERE t."id" = k."id";--> statement-breakpoint
 
 -- The cron never copied end_date onto the months it generated, so the bound only survives
--- on rows that predate it. Take the furthest one for the whole series.
+-- on rows that predate it. Fixed durations count their starting month as occurrence one:
+-- "3 months" starting in July ends in September, not October. Custom "until" schedules
+-- retain their explicitly selected final month.
 WITH bounds AS (
   SELECT
     "series_id",
-    MAX(EXTRACT(YEAR FROM "end_date")::int * 12 + EXTRACT(MONTH FROM "end_date")::int - 1) AS end_month
+    CASE
+      WHEN BOOL_OR("repeat_type" = '3months') THEN MIN("month_key") + 2
+      WHEN BOOL_OR("repeat_type" = '4months') THEN MIN("month_key") + 3
+      WHEN BOOL_OR("repeat_type" = '6months') THEN MIN("month_key") + 5
+      WHEN BOOL_OR("repeat_type" = '12months') THEN MIN("month_key") + 11
+      ELSE MAX(EXTRACT(YEAR FROM "end_date")::int * 12 + EXTRACT(MONTH FROM "end_date")::int - 1)
+    END AS end_month,
+    MAX("end_date") AS canonical_end_date
   FROM "transactions"
   WHERE "series_id" IS NOT NULL AND "end_date" IS NOT NULL
   GROUP BY "series_id"
 )
 UPDATE "transactions" t
-SET "end_month" = b.end_month
+SET
+  "end_month" = b.end_month,
+  -- Preserve a custom until-date on every occurrence. Fixed schedules derive their
+  -- display date from end_month in the application so legacy off-by-one dates disappear.
+  "end_date" = CASE
+    WHEN t."repeat_type" IN ('3months', '4months', '6months', '12months') THEN NULL
+    ELSE COALESCE(t."end_date", b.canonical_end_date)
+  END
 FROM bounds b
 WHERE t."series_id" = b."series_id";--> statement-breakpoint
 

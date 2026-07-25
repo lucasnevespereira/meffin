@@ -9,6 +9,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceArea,
   ReferenceLine,
   XAxis,
   YAxis,
@@ -38,40 +39,63 @@ export default function TrendsPage() {
   const [showForecast, setShowForecast] = useState(false);
 
   const now = new Date();
+  const currentMonthKey = now.getFullYear() * 12 + now.getMonth();
   const months = period === 'ytd' ? now.getMonth() + 1 : Number(period);
   const forecastMonths = showForecast ? 6 : 0;
 
   const { data, isLoading } = useHistory(months, forecastMonths);
 
   const chartConfig = {
-    balance: { label: t('trends_balance'), color: 'var(--primary)' },
-    income: { label: t('trends_income'), color: '#16a34a' },
-    expenses: { label: t('trends_expenses'), color: 'var(--destructive)' },
+    balanceActual: { label: t('trends_balance'), color: 'var(--primary)' },
+    balanceForecast: { label: t('trends_balance'), color: 'var(--primary)' },
+    incomeActual: { label: t('trends_income'), color: '#16a34a' },
+    incomeForecast: { label: t('trends_income'), color: '#16a34a' },
+    expensesActual: { label: t('trends_expenses'), color: 'var(--destructive)' },
+    expensesForecast: { label: t('trends_expenses'), color: 'var(--destructive)' },
   } satisfies ChartConfig;
 
   const chartData = useMemo(() => {
     const monthFormatter = new Intl.DateTimeFormat(locale, { month: 'short' });
-    const today = new Date();
-    const currentKey = today.getFullYear() * 12 + today.getMonth();
-    return (data?.history ?? []).map((point) => {
+    const fullMonthFormatter = new Intl.DateTimeFormat(locale, {
+      month: 'long',
+      year: 'numeric',
+    });
+    const points = data?.history ?? [];
+    const hasForecast = points.some(
+      (point) => point.year * 12 + point.month > currentMonthKey
+    );
+
+    return points.map((point) => {
       const date = new Date(point.year, point.month, 1);
-      const label = point.month === 0
+      const key = point.year * 12 + point.month;
+      const tickLabel = point.month === 0
         ? `${monthFormatter.format(date)} ${String(point.year).slice(2)}`
         : monthFormatter.format(date);
+      const isFuture = key > currentMonthKey;
+      const connectsToForecast = key === currentMonthKey && hasForecast;
+
       return {
-        label,
+        key,
+        tickLabel,
+        fullLabel: fullMonthFormatter.format(date),
         income: point.income,
         expenses: point.expenses,
         balance: point.balance,
-        isFuture: point.year * 12 + point.month > currentKey,
+        isFuture,
+        balanceActual: isFuture ? null : point.balance,
+        balanceForecast: isFuture || connectsToForecast ? point.balance : null,
+        incomeActual: isFuture ? null : point.income,
+        incomeForecast: isFuture || connectsToForecast ? point.income : null,
+        expensesActual: isFuture ? null : point.expenses,
+        expensesForecast: isFuture || connectsToForecast ? point.expenses : null,
       };
     });
-  }, [data, locale]);
+  }, [currentMonthKey, data, locale]);
 
-  // The marker sits on the current month, so everything to its right is projected.
-  const todayLabel = chartData.find((p) => p.isFuture)
-    ? chartData[chartData.findIndex((p) => p.isFuture) - 1]?.label
-    : undefined;
+  const firstFutureKey = chartData.find(point => point.isFuture)?.key;
+  const lastKey = chartData.at(-1)?.key;
+  const currentKey = firstFutureKey === undefined ? undefined : currentMonthKey;
+  const tickLabels = new Map(chartData.map(point => [point.key, point.tickLabel]));
 
   const activeMonths = chartData.filter((p) => p.income > 0 || p.expenses > 0).length;
   const compactNumber = (value: number) =>
@@ -83,6 +107,42 @@ export default function TrendsPage() {
     { value: 'ytd', label: t('trends_period_ytd') },
   ];
 
+  const tooltipContent = (
+    <ChartTooltipContent
+      labelFormatter={(_, payload) => {
+        const point = payload[0]?.payload;
+        if (!point) return null;
+
+        return (
+          <div className="flex items-center gap-2">
+            <span className="capitalize">{point.fullLabel}</span>
+            {point.isFuture && (
+              <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                {t('trends_forecast_label')}
+              </span>
+            )}
+          </div>
+        );
+      }}
+      formatter={(value, name, _item, _index, payload) => {
+        if (!payload.isFuture && String(name).endsWith('Forecast')) {
+          return null;
+        }
+
+        return (
+          <div className="flex w-full items-center justify-between gap-3">
+            <span className="text-muted-foreground">
+              {chartConfig[name as keyof typeof chartConfig]?.label ?? name}
+            </span>
+            <span className="font-mono font-medium tabular-nums">
+              {formatCurrency(Number(value))}
+            </span>
+          </div>
+        );
+      }}
+    />
+  );
+
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeader
@@ -90,31 +150,34 @@ export default function TrendsPage() {
         description={t('trends_subtitle')}
         actions={
           <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-          <button
-            onClick={() => setShowForecast((on) => !on)}
-            className={`cursor-pointer rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
-              showForecast
-                ? 'border-primary/30 bg-primary/10 text-primary'
-                : 'border-border text-muted-foreground hover:text-foreground'
-            }`}
-          >
-            {t('trends_include_planned')}
-          </button>
-          <div className="flex w-full items-center gap-1 rounded-lg bg-muted/50 p-1 sm:w-auto">
-            {periods.map((p) => (
-              <button
-                key={p.value}
-                onClick={() => setPeriod(p.value)}
-                className={`flex-1 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-all sm:flex-none ${
-                  period === p.value
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {p.label}
-              </button>
-            ))}
-          </div>
+            <button
+              onClick={() => setShowForecast((on) => !on)}
+              aria-pressed={showForecast}
+              title={t('trends_forecast_note')}
+              className={`cursor-pointer whitespace-nowrap rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
+                showForecast
+                  ? 'border-primary/30 bg-primary/10 text-primary'
+                  : 'border-border text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {t('trends_include_planned')}
+            </button>
+            <div className="flex w-full items-center gap-1 rounded-lg bg-muted/50 p-1 sm:w-auto">
+              {periods.map((p) => (
+                <button
+                  key={p.value}
+                  onClick={() => setPeriod(p.value)}
+                  aria-pressed={period === p.value}
+                  className={`flex-1 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-all sm:flex-none ${
+                    period === p.value
+                      ? 'bg-background text-foreground shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
           </div>
         }
       />
@@ -155,40 +218,60 @@ export default function TrendsPage() {
                 <AreaChart data={chartData} margin={{ left: 4, right: 8, top: 8 }}>
                   <defs>
                     <linearGradient id="fillBalance" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="var(--color-balance)" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="var(--color-balance)" stopOpacity={0.02} />
+                      <stop offset="5%" stopColor="var(--color-balanceActual)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--color-balanceActual)" stopOpacity={0.02} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={compactNumber} />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value, name) => (
-                          <div className="flex items-center justify-between gap-3 w-full">
-                            <span className="text-muted-foreground">{chartConfig[name as keyof typeof chartConfig]?.label ?? name}</span>
-                            <span className="font-mono font-medium tabular-nums">{formatCurrency(Number(value))}</span>
-                          </div>
-                        )}
-                      />
-                    }
+                  <XAxis
+                    dataKey="key"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => tickLabels.get(Number(value)) ?? ''}
                   />
-                  {todayLabel && (
-                    <ReferenceLine
-                      x={todayLabel}
-                      stroke="var(--muted-foreground)"
-                      strokeDasharray="4 4"
-                      strokeOpacity={0.6}
+                  <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={compactNumber} />
+                  <ChartTooltip content={tooltipContent} />
+                  {firstFutureKey !== undefined && lastKey !== undefined && (
+                    <ReferenceArea
+                      x1={firstFutureKey}
+                      x2={lastKey}
+                      fill="var(--primary)"
+                      fillOpacity={0.04}
+                      strokeOpacity={0}
                     />
                   )}
                   <Area
-                    dataKey="balance"
+                    dataKey="balanceActual"
                     type="monotone"
-                    stroke="var(--color-balance)"
+                    stroke="var(--color-balanceActual)"
                     fill="url(#fillBalance)"
                     strokeWidth={2}
                   />
+                  <Area
+                    dataKey="balanceForecast"
+                    type="monotone"
+                    stroke="var(--color-balanceForecast)"
+                    fill="url(#fillBalance)"
+                    fillOpacity={0.55}
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    legendType="none"
+                  />
+                  {currentKey !== undefined && (
+                    <ReferenceLine
+                      x={currentKey}
+                      stroke="var(--primary)"
+                      strokeDasharray="4 4"
+                      strokeOpacity={0.8}
+                      label={{
+                        value: t('trends_today'),
+                        position: 'insideTopRight',
+                        fill: 'var(--muted-foreground)',
+                        fontSize: 11,
+                      }}
+                    />
+                  )}
                 </AreaChart>
               </ChartContainer>
             </CardContent>
@@ -206,31 +289,71 @@ export default function TrendsPage() {
               <ChartContainer config={chartConfig} className="h-[240px] w-full">
                 <LineChart data={chartData} margin={{ left: 4, right: 8, top: 8 }}>
                   <CartesianGrid vertical={false} />
-                  <XAxis dataKey="label" tickLine={false} axisLine={false} tickMargin={8} />
-                  <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={compactNumber} />
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        formatter={(value, name) => (
-                          <div className="flex items-center justify-between gap-3 w-full">
-                            <span className="text-muted-foreground">{chartConfig[name as keyof typeof chartConfig]?.label ?? name}</span>
-                            <span className="font-mono font-medium tabular-nums">{formatCurrency(Number(value))}</span>
-                          </div>
-                        )}
-                      />
-                    }
+                  <XAxis
+                    dataKey="key"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    tickFormatter={(value) => tickLabels.get(Number(value)) ?? ''}
                   />
-                  {todayLabel && (
-                    <ReferenceLine
-                      x={todayLabel}
-                      stroke="var(--muted-foreground)"
-                      strokeDasharray="4 4"
-                      strokeOpacity={0.6}
+                  <YAxis tickLine={false} axisLine={false} width={44} tickFormatter={compactNumber} />
+                  <ChartTooltip content={tooltipContent} />
+                  {firstFutureKey !== undefined && lastKey !== undefined && (
+                    <ReferenceArea
+                      x1={firstFutureKey}
+                      x2={lastKey}
+                      fill="var(--primary)"
+                      fillOpacity={0.04}
+                      strokeOpacity={0}
                     />
                   )}
                   <ChartLegend content={<ChartLegendContent />} />
-                  <Line dataKey="income" type="monotone" stroke="var(--color-income)" strokeWidth={2} dot={false} />
-                  <Line dataKey="expenses" type="monotone" stroke="var(--color-expenses)" strokeWidth={2} dot={false} />
+                  <Line
+                    dataKey="incomeActual"
+                    type="monotone"
+                    stroke="var(--color-incomeActual)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line
+                    dataKey="expensesActual"
+                    type="monotone"
+                    stroke="var(--color-expensesActual)"
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                  <Line
+                    dataKey="incomeForecast"
+                    type="monotone"
+                    stroke="var(--color-incomeForecast)"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                    legendType="none"
+                  />
+                  <Line
+                    dataKey="expensesForecast"
+                    type="monotone"
+                    stroke="var(--color-expensesForecast)"
+                    strokeWidth={2}
+                    strokeDasharray="6 4"
+                    dot={false}
+                    legendType="none"
+                  />
+                  {currentKey !== undefined && (
+                    <ReferenceLine
+                      x={currentKey}
+                      stroke="var(--primary)"
+                      strokeDasharray="4 4"
+                      strokeOpacity={0.8}
+                      label={{
+                        value: t('trends_today'),
+                        position: 'insideTopRight',
+                        fill: 'var(--muted-foreground)',
+                        fontSize: 11,
+                      }}
+                    />
+                  )}
                 </LineChart>
               </ChartContainer>
             </CardContent>

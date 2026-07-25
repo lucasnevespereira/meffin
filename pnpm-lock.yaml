@@ -107,6 +107,9 @@ importers:
       resend:
         specifier: ^6.0.3
         version: 6.17.2
+      rimraf:
+        specifier: 2.7.1
+        version: 2.7.1
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.1.0(react@19.1.0))(react@19.1.0)

@@ -15,7 +15,8 @@ Navigate to October and it's there, beside your rent and salary.
 **Something recurring.** Pick a repeat other than *One-time*. The date becomes the first
 occurrence: its day sets the day of the month, its month sets when the series begins. A
 gym membership starting in September, dated 2 September and set to *For 6 months*, shows
-nothing in July or August, starts in September and stops after March.
+nothing in July or August, starts in September and runs through February: six occurrences
+including the starting month.
 
 **Changing what a recurring transaction costs.** Edit it in the *current* month. Rent
 going from 800 to 950 means opening this month's rent and changing the amount — every
@@ -39,8 +40,8 @@ change actually works.
 Anything real in a future month — that October water bill — looks and behaves normally,
 because it *is* a normal transaction that happens to be dated ahead.
 
-Trends has an **Include next 6 months** toggle. A dashed vertical line marks today, so
-everything to its right is projection.
+Trends has a **Show 6-month forecast** toggle. A labelled line marks today; future months
+are shaded and use dashed series, and their tooltips carry a **Forecast** badge.
 
 Excel exports skip planned rows. An export is a record of what happened, and forecast
 numbers sitting in a spreadsheet unlabelled would read as fact.
@@ -153,7 +154,7 @@ lib/services/budget/
 ```
 
 `project.ts` is where the recurrence rules live and it takes everything as an argument,
-so the awkward cases are cheap to test — `npm test` covers day-31 in February and leap
+so the awkward cases are cheap to test — `pnpm test` covers day-31 in February and leap
 years, inclusive end bounds, annual renewals, void suppression, and gap preservation.
 
 `budget.ts` is the only module that reads transaction rows for display. **The
@@ -170,14 +171,15 @@ Routes are thin wrappers:
 | `GET /api/history?months=N&future=M` | `future` is optional and defaults to 0. |
 | `POST /api/transactions` | Routes on `repeatType`: `once` writes a plain row, anything else starts a series. |
 
-Every change is additive, so mobile builds already in the App Store keep working.
+The API changes are backward compatible, so mobile builds already in the App Store keep
+working while newer clients can use projected months and recurrence metadata.
 
 ## Trying it locally
 
 Sign in once so the account exists, then:
 
 ```bash
-make seed        # or: npm run seed:demo -- you@example.com
+make seed        # or: pnpm run seed:demo -- you@example.com
 ```
 
 That writes nine months of history plus a few things dated ahead: an annual insurance
@@ -191,8 +193,8 @@ It replaces that account's transactions, so point it at a local database only.
 ## Verification
 
 ```bash
-npm test                                              # projection unit tests
-npx tsx --env-file=.env.local scripts/verify-projection.ts
+pnpm test                                              # projection unit tests
+pnpm exec tsx --env-file=.env.local scripts/verify-projection.ts
 ```
 
 `verify-projection.ts` recomputes every past `(user, month)` both ways and reports any
@@ -205,5 +207,6 @@ mismatch are expected, and both are bugs the migration fixes:
   like transactions disappearing. Worth a line in the release notes.
 - **Annual transactions shown before they started**, per the dashboard fix above.
 
-The `0006` migration writes a `transactions_pre_series_backup` table before touching
-anything. Drop it once the release has been stable for a few weeks.
+The `0006` migration writes an unconstrained `transactions_pre_series_backup` table before
+touching anything. Restrict access to it like the source table and drop it once the release
+has been stable for a few weeks.

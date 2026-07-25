@@ -8,10 +8,14 @@ import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { isProjectedId } from '@/lib/services/budget/project';
 import {
   monthKeyFromDateString,
-  currentMonthKey,
   occurrenceDate,
   dayOfMonth,
 } from '@/lib/services/budget/keys';
+import {
+  canonicalEndDate,
+  resolveEndMonth,
+  resolveOccurrenceMonth,
+} from '@/lib/services/budget/schedule';
 
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -106,31 +110,33 @@ export async function PUT(
     }
 
     const submittedDate = validatedData.date.toISOString();
-    const endDate = validatedData.endDate ? validatedData.endDate.toISOString() : null;
-    const endMonthFromDate = endDate ? monthKeyFromDateString(endDate) : null;
-    const wantsSeries = validatedData.repeatType !== 'once';
+    const submittedMonth = monthKeyFromDateString(submittedDate);
+    const submittedEndDate = validatedData.endDate
+      ? validatedData.endDate.toISOString()
+      : null;
+    const repeatType = validatedData.repeatType;
+    const wantsSeries = repeatType !== 'once';
 
     // An occurrence belongs to its month; only the day is editable. Letting a submitted
     // date move it would collide with the row already sitting in the target month — and
     // clients round-trip whatever date they were handed. One-off rows move freely, which
     // is what dating a bill into a future month relies on.
-    const monthKey = existing.seriesId
-      ? existing.monthKey
-      : (wantsSeries
-          ? Math.max(monthKeyFromDateString(submittedDate), currentMonthKey())
-          : monthKeyFromDateString(submittedDate));
-
-    const date = existing.seriesId || monthKey !== monthKeyFromDateString(submittedDate)
-      ? occurrenceDate(monthKey, dayOfMonth(submittedDate))
-      : submittedDate;
+    const occurrenceMonth = resolveOccurrenceMonth(
+      existing,
+      submittedMonth,
+      repeatType
+    );
+    const keepsSubmittedDate =
+      !existing.seriesId ||
+      (existing.repeatType === 'annual' && repeatType === 'annual');
+    const date =
+      keepsSubmittedDate && occurrenceMonth === submittedMonth
+        ? submittedDate
+        : occurrenceDate(occurrenceMonth, dayOfMonth(submittedDate));
 
     let seriesId = existing.seriesId;
-    let endMonth = existing.endMonth;
 
-    if (existing.seriesId) {
-      // Switching a series to one-off stops it here rather than deleting its history.
-      endMonth = wantsSeries ? endMonthFromDate : existing.monthKey;
-    } else if (wantsSeries) {
+    if (!existing.seriesId && wantsSeries) {
       // Turning a one-off into a series. A shopping-list transaction can't make the trip:
       // its list item points at this row, and unchecking the item relies on deleting it.
       const [linked] = await db
@@ -146,8 +152,30 @@ export async function PUT(
       }
 
       seriesId = id;
-      endMonth = endMonthFromDate;
     }
+
+    const endMonth = resolveEndMonth(
+      existing,
+      occurrenceMonth,
+      repeatType,
+      submittedEndDate
+    );
+
+    if (repeatType === 'until' && endMonth === null) {
+      return NextResponse.json({ error: 'End date is required' }, { status: 400 });
+    }
+    if (endMonth !== null && endMonth < occurrenceMonth) {
+      return NextResponse.json({
+        error: 'End date cannot be before the first occurrence'
+      }, { status: 400 });
+    }
+
+    const endDate = canonicalEndDate(
+      endMonth,
+      repeatType,
+      date,
+      submittedEndDate
+    );
 
     const [updatedTransaction] = await db.update(transactions)
       .set({
@@ -157,7 +185,7 @@ export async function PUT(
         date,
         isFixed: wantsSeries,
         isPrivate: validatedData.isPrivate || false,
-        repeatType: validatedData.repeatType,
+        repeatType,
         endDate,
         seriesId,
         endMonth,

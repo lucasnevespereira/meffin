@@ -20,24 +20,24 @@ db:
 # One-time setup for contributors
 setup: db
 	@echo "📦 Installing dependencies..."
-	@npm install
+	@pnpm install --frozen-lockfile
 	@echo "🔄 Setting up database schema..."
-	@npx drizzle-kit migrate
+	@pnpm exec drizzle-kit migrate
 	@echo "✅ Setup complete!"
 
 # Development server (always runs setup to ensure everything works)
 dev: setup
 	@echo "🚀 Starting Next.js development server..."
-	@npm run dev
+	@pnpm run dev
 
 
 seed:
 	@echo "🌱 Seeding example transactions..."
-	@npm run seed:demo
+	@pnpm run seed:demo
 
 build:
 	@echo "🏗️  Building for production..."
-	@npx drizzle-kit migrate && npm run build
+	@pnpm exec drizzle-kit migrate && pnpm run build
 
 clean:
 	@echo "🧹 Cleaning up..."

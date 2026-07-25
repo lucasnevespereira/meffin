@@ -3,8 +3,8 @@
  *
  * Sign in (or sign up) first so the account exists, then:
  *
- *   npm run seed:demo                    # the only account, or the oldest one
- *   npm run seed:demo -- you@example.com # a specific account
+ *   pnpm run seed:demo                    # the only account, or the oldest one
+ *   pnpm run seed:demo -- you@example.com # a specific account
  *
  * Replaces that account's transactions — never run it against production.
  */
@@ -60,12 +60,12 @@ const SERIES: SeriesSpec[] = [
   {
     description: 'Gym',
     categoryId: 'default_healthcare',
-    // Signed up four months ago for six months, so it stops two months out — the
+    // Signed up four months ago for six months, so it stops one month out — the
     // month where a bounded series visibly drops off the forecast.
     amounts: Array(5).fill(39),
     day: 2,
     repeatType: '6months',
-    endsInMonths: 2,
+    endsInMonths: 1,
   },
 ];
 
@@ -191,7 +191,7 @@ async function main() {
   console.log(`  history      ${label(firstMonth)} → ${label(current)}`);
   console.log(`  planned      ${label(current + 2)} flights, ${label(current + 3)} water bill`);
   console.log(`  annual       renews ${label(renewal)}`);
-  console.log(`  gym ends     ${label(current + 2)}`);
+  console.log(`  gym ends     ${label(current + 1)}`);
   console.log('\nOpen the dashboard and step forward with the month switcher.');
   process.exit(0);
 }

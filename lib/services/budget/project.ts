@@ -1,4 +1,5 @@
 import { MonthKey, fromKey, occurrenceDate, dayOfMonth, monthKeyFromDateString } from './keys';
+import { canonicalEndDate, repeatTypeOf } from './schedule';
 
 /**
  * Pure projection. No database, no session, no clock — everything it needs is an
@@ -165,6 +166,7 @@ export function toSeriesHead(row: {
 }, lastOccupied?: number): SeriesHead | null {
   if (!row.seriesId) return null;
   const monthKey = row.monthKey ?? monthKeyFromDateString(row.date);
+  const repeatType = repeatTypeOf(row.repeatType);
   return {
     seriesId: row.seriesId,
     monthKey,
@@ -180,6 +182,11 @@ export function toSeriesHead(row: {
     date: row.date,
     isPrivate: row.isPrivate ?? false,
     repeatType: row.repeatType,
-    endDate: row.endDate,
+    endDate: canonicalEndDate(
+      row.endMonth,
+      repeatType,
+      row.date,
+      row.endDate
+    ),
   };
 }

@@ -12,6 +12,7 @@ import {
   occupiedKey,
   toSeriesHead,
 } from './project';
+import { canonicalEndDate, repeatTypeOf } from './schedule';
 
 /**
  * The only place that reads transaction rows for display.
@@ -296,7 +297,12 @@ export async function getEntries(
       isFixed: row.isFixed,
       isPrivate: row.isPrivate ?? false,
       repeatType: row.repeatType,
-      endDate: row.endDate,
+      endDate: canonicalEndDate(
+        row.endMonth,
+        repeatTypeOf(row.repeatType),
+        row.date,
+        row.endDate
+      ),
     }));
 
   const projected = projectSeries(heads, from, to, occupied).filter(visible);

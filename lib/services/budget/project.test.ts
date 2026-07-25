@@ -1,6 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { monthKey, clampDay, occurrenceDate, monthKeyFromDateString, dayOfMonth } from './keys';
 import { projectSeries, missingMonths, occupiedKey, SeriesHead } from './project';
+import {
+  canonicalEndDate,
+  fixedDurationEndDate,
+  fixedDurationEndMonth,
+  resolveEndMonth,
+  resolveOccurrenceMonth,
+} from './schedule';
 
 const JUL_2026 = monthKey(2026, 6);
 
@@ -59,6 +66,72 @@ describe('month keys', () => {
 
   it('matches the shape Postgres returns, so entries sort consistently', () => {
     expect(occurrenceDate(monthKey(2026, 7), 5)).toBe('2026-08-05 12:00:00');
+  });
+});
+
+describe('schedule contracts', () => {
+  it('counts the starting month as the first fixed-duration occurrence', () => {
+    expect(fixedDurationEndMonth(JUL_2026, '3months')).toBe(JUL_2026 + 2);
+    expect(fixedDurationEndMonth(JUL_2026, '6months')).toBe(JUL_2026 + 5);
+    expect(fixedDurationEndMonth(JUL_2026, '12months')).toBe(JUL_2026 + 11);
+  });
+
+  it('keeps a day-31 fixed duration inside its final month', () => {
+    const end = fixedDurationEndDate(new Date(2026, 0, 31, 12), '4months');
+    expect(end).not.toBeNull();
+    expect(end?.getFullYear()).toBe(2026);
+    expect(end?.getMonth()).toBe(3);
+    expect(end?.getDate()).toBe(30);
+  });
+
+  it('lets an annual series move its renewal month', () => {
+    const existing = {
+      seriesId: 'annual-1',
+      monthKey: monthKey(2026, 10),
+      repeatType: 'annual',
+      endMonth: null,
+    };
+
+    expect(
+      resolveOccurrenceMonth(existing, monthKey(2026, 11), 'annual', JUL_2026)
+    ).toBe(monthKey(2026, 11));
+  });
+
+  it('does not let a monthly occurrence collide with another month', () => {
+    const existing = {
+      seriesId: 'series-1',
+      monthKey: JUL_2026,
+      repeatType: 'forever',
+      endMonth: null,
+    };
+
+    expect(
+      resolveOccurrenceMonth(existing, JUL_2026 + 1, 'forever', JUL_2026)
+    ).toBe(JUL_2026);
+  });
+
+  it('does not extend an unchanged bounded series during an edit', () => {
+    const existing = {
+      seriesId: 'series-1',
+      monthKey: JUL_2026,
+      repeatType: '6months',
+      endMonth: JUL_2026 + 2,
+    };
+
+    expect(resolveEndMonth(existing, JUL_2026, '6months', null)).toBe(
+      JUL_2026 + 2
+    );
+  });
+
+  it('normalizes a fixed end date to the inclusive end month', () => {
+    expect(
+      canonicalEndDate(
+        monthKey(2026, 8),
+        '3months',
+        '2026-07-30T12:00:00.000Z',
+        '2026-10-30T12:00:00.000Z'
+      )
+    ).toBe('2026-09-30 12:00:00');
   });
 });
 

@@ -2,9 +2,10 @@
   "name": "meffin",
   "version": "0.4.0",
   "private": true,
+  "packageManager": "pnpm@11.14.0",
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "npm run db:migrate && next build --turbopack",
+    "build": "pnpm run db:migrate && next build --turbopack",
     "build:local": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",
@@ -54,6 +55,7 @@
     "react-hook-form": "^7.62.0",
     "recharts": "^3.8.1",
     "resend": "^6.0.3",
+    "rimraf": "2.7.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
     "zod": "^4.1.5"

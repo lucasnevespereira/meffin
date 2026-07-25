@@ -5,8 +5,8 @@
  * month should come out identical to the cent; the only differences that are allowed to
  * survive are the two bugs the migration fixes, and each one gets looked at by hand.
  *
- *   npx tsx --env-file=.env.local scripts/verify-projection.ts
- *   npx tsx --env-file=.env.local scripts/verify-projection.ts --months 24
+ *   pnpm exec tsx --env-file=.env.local scripts/verify-projection.ts
+ *   pnpm exec tsx --env-file=.env.local scripts/verify-projection.ts --months 24
  */
 import { db } from '@/lib/db';
 import { transactions, categories, users } from '@/lib/db/schema';

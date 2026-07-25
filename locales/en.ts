@@ -322,12 +322,17 @@ export default {
   month_next: "Next month",
   month_back_to_current: "Back to this month",
   month_planned: "Planned",
-  month_planned_note: "This estimate only covers your recurring transactions.",
+  month_planned_note:
+    "This estimate covers recurring and scheduled transactions. Variable spending is not estimated.",
   month_edit_in: "Edit in {month}",
   month_nothing_planned: "Nothing planned for {month} yet",
   month_nothing_planned_hint: "Add a one-time transaction and pick a date in {month} to plan ahead.",
   month_export_planned: "Planned months have nothing to export yet",
   trends_include_planned: "Include next 6 months",
+  trends_forecast_label: "Forecast",
+  trends_forecast_note:
+    "Adds six months after the current month. Includes recurring and scheduled transactions only. Variable spending is not estimated.",
+  trends_today: "Today",
 
   // Dashboard
   dashboard_title: "Dashboard",
@@ -353,7 +358,7 @@ export default {
   transaction_created_by: "Created by",
   trends_title: "Trends",
   trends_subtitle: "How your budget evolves over time",
-  trends_balance_title: "Balance over time",
+  trends_balance_title: "Monthly balance",
   trends_income_expenses_title: "Income vs expenses",
   trends_balance: "Balance",
   trends_income: "Income",

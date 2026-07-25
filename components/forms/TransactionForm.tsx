@@ -26,6 +26,10 @@ import { Badge } from '@/components/ui/badge';
 import { TransactionFormData, Category, RepeatType } from '@/types';
 import { useSession } from '@/lib/auth-client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
+import {
+  fixedDurationEndDate,
+  fixedDurationMonths,
+} from '@/lib/services/budget/schedule';
 
 interface TransactionFormProps {
   isOpen: boolean;
@@ -139,9 +143,6 @@ export function TransactionForm({
     }
   }, [initialData, mode, reset]);
 
-  const monthsFor = (repeat: RepeatType) =>
-    ({ '3months': 3, '4months': 4, '6months': 6, '12months': 12 } as Record<string, number>)[repeat];
-
   // Says back, in a sentence, exactly what will be created.
   const getRecurringText = () => {
     if (!startDate) return '';
@@ -163,7 +164,7 @@ export function TransactionForm({
 
     if (repeatType === 'forever') return `${onDay}, ${from}`;
 
-    const months = monthsFor(repeatType);
+    const months = fixedDurationMonths(repeatType);
     if (months) {
       return `${onDay}, ${from} — ${months} ${t('months') || 'months'}`;
     }
@@ -187,16 +188,9 @@ export function TransactionForm({
     const targetDate = fromDateInput(data.startDate);
 
     let endDate: Date | null = null;
-    const months = monthsFor(data.repeatType);
-    if (months) {
-      // Counted from the start, not from today, so a six-month subscription beginning in
-      // September ends in March rather than six months from now.
-      endDate = new Date(
-        targetDate.getFullYear(),
-        targetDate.getMonth() + months,
-        targetDate.getDate(),
-        12, 0, 0, 0
-      );
+    const fixedEndDate = fixedDurationEndDate(targetDate, data.repeatType);
+    if (fixedEndDate) {
+      endDate = fixedEndDate;
     } else if (data.repeatType === 'until' && data.customEndDate) {
       endDate = fromDateInput(data.customEndDate);
     }

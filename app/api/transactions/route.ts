@@ -13,7 +13,12 @@ import {
   getCreators,
   getAnnualSeries,
 } from '@/lib/services/budget/budget';
-import { monthKey, monthKeyFromDateString, currentMonthKey, occurrenceDate, dayOfMonth } from '@/lib/services/budget/keys';
+import { monthKey, monthKeyFromDateString, occurrenceDate, dayOfMonth } from '@/lib/services/budget/keys';
+import {
+  canonicalEndDate,
+  resolveEndMonth,
+  resolveOccurrenceMonth,
+} from '@/lib/services/budget/schedule';
 
 const createTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -131,20 +136,41 @@ export async function POST(request: NextRequest) {
     // `repeatType` is the discriminator, not `isFixed` — the latter has no constraint and
     // legacy rows disagree with it.
     const isSeries = validatedData.repeatType !== 'once';
-    const isAnnual = validatedData.repeatType === 'annual';
-
     // A monthly series backdated to last year would otherwise project into every month
     // since, rewriting months the user already reconciled. Annual keeps its date: the
     // renewal month is the whole point, and annuals never materialize.
     const requestedKey = monthKeyFromDateString(requestedDate);
-    const startKey = isSeries && !isAnnual
-      ? Math.max(requestedKey, currentMonthKey())
-      : requestedKey;
+    const repeatType = validatedData.repeatType;
+    const startKey = resolveOccurrenceMonth(null, requestedKey, repeatType);
     const date = startKey === requestedKey
       ? requestedDate
       : occurrenceDate(startKey, dayOfMonth(requestedDate));
 
-    const endDate = validatedData.endDate ? validatedData.endDate.toISOString() : null;
+    const submittedEndDate = validatedData.endDate
+      ? validatedData.endDate.toISOString()
+      : null;
+    const endMonth = resolveEndMonth(
+      null,
+      startKey,
+      repeatType,
+      submittedEndDate
+    );
+
+    if (repeatType === 'until' && endMonth === null) {
+      return NextResponse.json({ error: 'End date is required' }, { status: 400 });
+    }
+    if (endMonth !== null && endMonth < startKey) {
+      return NextResponse.json({
+        error: 'End date cannot be before the first occurrence'
+      }, { status: 400 });
+    }
+
+    const endDate = canonicalEndDate(
+      endMonth,
+      repeatType,
+      date,
+      submittedEndDate
+    );
 
     const [newTransaction] = await db.insert(transactions).values({
       id,
@@ -156,10 +182,10 @@ export async function POST(request: NextRequest) {
       date,
       isFixed: isSeries,
       isPrivate: validatedData.isPrivate || false,
-      repeatType: validatedData.repeatType,
+      repeatType,
       endDate,
       seriesId: isSeries ? id : null,
-      endMonth: isSeries && endDate ? monthKeyFromDateString(endDate) : null,
+      endMonth,
     }).returning();
 
     return NextResponse.json({ transaction: newTransaction });
