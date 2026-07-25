@@ -57,12 +57,13 @@ jobs:
 
       - name: Update version files
         run: |
+          # pnpm version requires a clean working tree, so run it before
+          # modifying lib/version.ts.
+          pnpm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
+
           # Update lib/version.ts
           echo "// This file is automatically updated by GitHub Actions on release" > lib/version.ts
           echo "export const APP_VERSION = '${{ steps.version.outputs.VERSION }}';" >> lib/version.ts
-
-          # Update package.json version
-          pnpm version ${{ steps.version.outputs.VERSION }} --no-git-tag-version
 
       - name: Commit version update
         run: |
