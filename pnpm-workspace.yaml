@@ -1,6 +1,3 @@
-packageManagerStrictVersion: true
-enableGlobalVirtualStore: false
-
 allowBuilds:
   esbuild: true
   sharp: true
