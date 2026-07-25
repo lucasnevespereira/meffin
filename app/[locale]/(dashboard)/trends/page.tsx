@@ -98,7 +98,7 @@ export default function TrendsPage() {
                 : 'border-border text-muted-foreground hover:text-foreground'
             }`}
           >
-            {t('trends_include_forecast')}
+            {t('trends_include_planned')}
           </button>
           <div className="flex w-full items-center gap-1 rounded-lg bg-muted/50 p-1 sm:w-auto">
             {periods.map((p) => (

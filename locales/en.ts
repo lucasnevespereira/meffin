@@ -312,15 +312,17 @@ export default {
   transaction_date_hint: "Pick any date, including a future month",
   validation_error: "Validation failed",
 
-  // Month navigation and forecasting
+  // Month navigation and planned months
   month_previous: "Previous month",
   month_next: "Next month",
   month_back_to_current: "Back to this month",
-  month_forecast: "Forecast",
   month_planned: "Planned",
-  month_forecast_note:
-    "This month hasn't happened yet. Recurring amounts come from your latest month.",
-  trends_include_forecast: "Show next 6 months",
+  month_planned_note: "From your recurring transactions. Everyday spending isn't included.",
+  month_edit_in: "Edit in {month}",
+  month_nothing_planned: "Nothing planned for {month} yet",
+  month_nothing_planned_hint: "Recurring transactions show up here on their own. Add a one-time transaction and pick a date in {month} to plan ahead.",
+  month_export_planned: "Planned months have nothing to export yet",
+  trends_include_planned: "Include next 6 months",
 
   // Dashboard
   dashboard_title: "Dashboard",
@@ -329,6 +331,9 @@ export default {
   dashboard_greeting: "Hi, {name}",
   dashboard_month_overview: "Your {month} finances at a glance",
   dashboard_available_balance: "Available balance · {month}",
+  dashboard_expected_balance: "Expected balance · {month}",
+  dashboard_planned_overview: "What {month} is shaping up to look like",
+  dashboard_balance_planned_description: "If your recurring transactions stay the same",
   dashboard_balance_description: "After income and expenses",
   dashboard_on_track: "You're in the green",
   dashboard_over_budget: "You're in the red",

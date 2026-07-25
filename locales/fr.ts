@@ -311,15 +311,17 @@ export default {
   transaction_date_hint: "Choisissez n'importe quelle date, même un mois à venir",
   validation_error: "Erreur de validation",
 
-  // Navigation par mois et prévisions
+  // Navigation par mois et mois à venir
   month_previous: "Mois précédent",
   month_next: "Mois suivant",
   month_back_to_current: "Revenir au mois actuel",
-  month_forecast: "Prévision",
   month_planned: "Prévu",
-  month_forecast_note:
-    "Ce mois n'est pas encore arrivé. Les montants récurrents viennent de votre dernier mois.",
-  trends_include_forecast: "Afficher les 6 prochains mois",
+  month_planned_note: "D'après vos transactions récurrentes. Les dépenses du quotidien ne sont pas comptées.",
+  month_edit_in: "Modifier dans {month}",
+  month_nothing_planned: "Rien de prévu en {month} pour l'instant",
+  month_nothing_planned_hint: "Les transactions récurrentes apparaissent ici toutes seules. Ajoutez une transaction ponctuelle avec une date en {month} pour anticiper.",
+  month_export_planned: "Rien à exporter pour un mois à venir",
+  trends_include_planned: "Inclure les 6 prochains mois",
 
   // Dashboard
   dashboard_title: "Dashboard",
@@ -328,6 +330,9 @@ export default {
   dashboard_greeting: "Salut, {name}",
   dashboard_month_overview: "Votre mois de {month} en un coup d'œil",
   dashboard_available_balance: "Solde disponible · {month}",
+  dashboard_expected_balance: "Solde prévu · {month}",
+  dashboard_planned_overview: "À quoi ressemble {month} pour l'instant",
+  dashboard_balance_planned_description: "Si vos transactions récurrentes ne changent pas",
   dashboard_balance_description: "Après vos revenus et vos dépenses",
   dashboard_on_track: "Vous êtes dans le vert",
   dashboard_over_budget: "Vous êtes dans le rouge",

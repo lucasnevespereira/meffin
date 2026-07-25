@@ -30,6 +30,13 @@ interface TransactionListProps {
   isDeleting?: boolean;
   hasPartner?: boolean;
   currentUserId?: string;
+  /** Viewing a month that hasn't happened yet. */
+  isPlanned?: boolean;
+  /** Name of the month being viewed, for the empty state. */
+  monthLabel?: string;
+  /** Takes the user to the month where a recurring transaction can actually be changed. */
+  onGoToCurrentMonth?: () => void;
+  currentMonthLabel?: string;
 }
 
 export function TransactionList({
@@ -40,6 +47,10 @@ export function TransactionList({
   isDeleting = false,
   hasPartner = false,
   currentUserId,
+  isPlanned = false,
+  monthLabel,
+  onGoToCurrentMonth,
+  currentMonthLabel,
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
@@ -117,7 +128,18 @@ export function TransactionList({
             <div className="w-10 h-10 md:w-12 md:h-12 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-2 md:mb-3">
               <span className="text-lg md:text-xl">{type === 'income' ? '💰' : '💳'}</span>
             </div>
+            {isPlanned ? (
+              <>
+                <p className="text-xs md:text-sm text-muted-foreground font-medium">
+                  {t('month_nothing_planned', { month: monthLabel ?? '' })}
+                </p>
+                <p className="mx-auto mt-2 max-w-sm text-xs text-muted-foreground/80">
+                  {t('month_nothing_planned_hint', { month: monthLabel ?? '' })}
+                </p>
+              </>
+            ) : (
             <p className="text-xs md:text-sm text-muted-foreground font-medium">{emptyMessage}</p>
+            )}
           </div>
         </div>
       </div>
@@ -232,8 +254,23 @@ export function TransactionList({
                     {type === 'income' ? '+' : '-'}{formatCurrency(Number(transaction.amount))}
                   </div>
 
-                  {/* Only for rows the current user created — and never for forecast rows,
-                      which have no stored transaction behind them. */}
+                  {/* A planned row has no stored transaction behind it, so there's nothing
+                      to edit here. Point at the month where there is, rather than showing
+                      an empty space and leaving the user to guess. */}
+                  {transaction.source === 'projected' && onGoToCurrentMonth && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={onGoToCurrentMonth}
+                      className="h-7 gap-1.5 px-2 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                    >
+                      <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3" />
+                      <span className="hidden sm:inline">
+                        {t('month_edit_in', { month: currentMonthLabel ?? '' })}
+                      </span>
+                    </Button>
+                  )}
+
                   {transaction.source !== 'projected' &&
                     (!currentUserId || !transaction.createdBy || transaction.createdBy.id === currentUserId) && (
                     <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">

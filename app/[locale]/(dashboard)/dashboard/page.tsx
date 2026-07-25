@@ -1,30 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { BalanceCards } from '@/components/dashboard/BalanceCards';
 import { CategoryBreakdown } from '@/components/dashboard/CategoryBreakdown';
 import { MonthSwitcher } from '@/components/shared/MonthSwitcher';
 import { useDashboard } from '@/hooks/useDashboard';
+import { useMonthCursor } from '@/hooks/useMonthCursor';
 import { useCurrentLocale, useI18n } from '@/locales/client';
 import { useSession } from '@/lib/auth-client';
 
 export default function DashboardPage() {
-  const [cursor, setCursor] = useState(() => {
-    const now = new Date();
-    return { month: now.getMonth(), year: now.getFullYear() };
-  });
-  const { data, isLoading, error } = useDashboard(cursor.month, cursor.year);
+  const { month, year, setCursor, isPlanned } = useMonthCursor();
+  const { data, isLoading, error } = useDashboard(month, year);
   const { data: session } = useSession();
   const t = useI18n();
   const currentLocale = useCurrentLocale();
   const locale = currentLocale === 'fr' ? 'fr' : 'en';
   const firstName = session?.user?.name?.trim().split(/\s+/)[0] || t('dashboard_default_name');
-  const dashboardDate = new Date(cursor.year, cursor.month, 1);
+  const dashboardDate = new Date(year, month, 1);
   const monthLabel = new Intl.DateTimeFormat(locale, { month: 'long' }).format(dashboardDate);
-
-  const now = new Date();
-  const isFuture = cursor.year * 12 + cursor.month > now.getFullYear() * 12 + now.getMonth();
 
   if (error) {
     return (
@@ -51,20 +46,13 @@ export default function DashboardPage() {
               {t('dashboard_greeting', { name: firstName })} <span aria-hidden="true">👋</span>
             </h1>
             <p className="mt-2 text-sm text-muted-foreground md:text-base">
-              {t('dashboard_month_overview', { month: monthLabel })}
+              {isPlanned
+                ? t('dashboard_planned_overview', { month: monthLabel })
+                : t('dashboard_month_overview', { month: monthLabel })}
             </p>
           </div>
-          <MonthSwitcher
-            month={cursor.month}
-            year={cursor.year}
-            onChange={(month, year) => setCursor({ month, year })}
-          />
+          <MonthSwitcher month={month} year={year} onChange={setCursor} />
         </div>
-        {isFuture && (
-          <p className="mt-3 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
-            {t('month_forecast_note')}
-          </p>
-        )}
       </div>
 
       {/* Balance Cards */}
@@ -90,6 +78,7 @@ export default function DashboardPage() {
           balance={data.balance}
           monthLabel={monthLabel}
           trendsHref={`/${locale}/trends`}
+          isPlanned={isPlanned}
         />
       ) : null}
 
@@ -113,8 +102,8 @@ export default function DashboardPage() {
       ) : data ? (
         <CategoryBreakdown
           categories={data.categoryBreakdown}
-          month={cursor.month}
-          year={cursor.year}
+          month={month}
+          year={year}
           currentUserId={session?.user?.id}
           transactionsHref={`/${locale}/transactions`}
         />

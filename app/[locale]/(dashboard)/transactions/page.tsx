@@ -26,6 +26,7 @@ import { getCategoryDisplayName } from '@/lib/category-utils';
 import { downloadMonthExcel, type ExcelRow } from '@/lib/excel-export';
 import { PageHeader } from '@/components/shared/PageHeader';
 import { MonthSwitcher } from '@/components/shared/MonthSwitcher';
+import { useMonthCursor } from '@/hooks/useMonthCursor';
 
 export default function TransactionsPage() {
   const t = useI18n();
@@ -36,13 +37,10 @@ export default function TransactionsPage() {
   const [editingTransaction, setEditingTransaction] = useState<TransactionWithCategory | null>(null);
   const [activeTab, setActiveTab] = useState('monthly');
   const [isExporting, setIsExporting] = useState(false);
-  const [cursor, setCursor] = useState(() => {
-    const now = new Date();
-    return { month: now.getMonth(), year: now.getFullYear() };
-  });
+  const { month, year, setCursor, isPlanned } = useMonthCursor();
 
   const { data: session } = useSession();
-  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions(cursor.month, cursor.year);
+  const { data: transactionsData, isLoading: isLoadingTransactions, error } = useTransactions(month, year);
   const { data: annualTransactionsData, isLoading: isLoadingAnnualTransactions } = useAnnualTransactions();
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories();
   const { data: partnerInfo } = usePartnerInfo();
@@ -129,10 +127,10 @@ export default function TransactionsPage() {
 
     setIsExporting(true);
     try {
-      const exported = new Date(cursor.year, cursor.month, 1);
-      const mm = String(cursor.month + 1).padStart(2, '0');
+      const exported = new Date(year, month, 1);
+      const mm = String(month + 1).padStart(2, '0');
       await downloadMonthExcel({
-        filename: `meffin-${cursor.year}-${mm}.xlsx`,
+        filename: `meffin-${year}-${mm}.xlsx`,
         sheetName: new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(exported),
         rows,
         currencyCode: currency,
@@ -184,6 +182,15 @@ export default function TransactionsPage() {
   // Use dedicated annual transactions data for annual tab
   const annualTransactions = allAnnualTransactions;
 
+  const monthName = (target: Date) =>
+    new Intl.DateTimeFormat(locale, { month: 'long' }).format(target);
+  const monthLabel = monthName(new Date(year, month, 1));
+  const currentMonthLabel = monthName(new Date());
+  const goToCurrentMonth = () => {
+    const today = new Date();
+    setCursor(today.getMonth(), today.getFullYear());
+  };
+
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeader
@@ -195,6 +202,7 @@ export default function TransactionsPage() {
               variant="outline"
               onClick={handleExport}
               disabled={isExporting || isLoadingTransactions || exportableCount === 0}
+              title={exportableCount === 0 && isPlanned ? t('month_export_planned') : undefined}
               className="w-full cursor-pointer sm:w-auto"
             >
               <HugeiconsIcon icon={Download01Icon} className="mr-2 size-4" />
@@ -242,11 +250,7 @@ export default function TransactionsPage() {
         {/* Annual transactions have no month context, so the switcher only applies to the
             monthly view — same split the mobile app uses. */}
         {activeTab === 'monthly' && (
-          <MonthSwitcher
-            month={cursor.month}
-            year={cursor.year}
-            onChange={(month, year) => setCursor({ month, year })}
-          />
+          <MonthSwitcher month={month} year={year} onChange={setCursor} />
         )}
       </div>
 
@@ -291,6 +295,10 @@ export default function TransactionsPage() {
                 isDeleting={deleteMutation.isPending}
                 hasPartner={!!partnerInfo?.partner}
                 currentUserId={session?.user?.id}
+                isPlanned={isPlanned}
+                monthLabel={monthLabel}
+                currentMonthLabel={currentMonthLabel}
+                onGoToCurrentMonth={goToCurrentMonth}
               />
 
               <TransactionList
@@ -301,6 +309,10 @@ export default function TransactionsPage() {
                 isDeleting={deleteMutation.isPending}
                 hasPartner={!!partnerInfo?.partner}
                 currentUserId={session?.user?.id}
+                isPlanned={isPlanned}
+                monthLabel={monthLabel}
+                currentMonthLabel={currentMonthLabel}
+                onGoToCurrentMonth={goToCurrentMonth}
               />
             </div>
           )}

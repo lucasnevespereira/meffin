@@ -25,7 +25,7 @@ export function MonthSwitcher({ month, year, onChange }: MonthSwitcherProps) {
   const selectedKey = year * 12 + month;
 
   const isCurrent = selectedKey === currentKey;
-  const isFuture = selectedKey > currentKey;
+  const isPlanned = selectedKey > currentKey;
   const atLimit = selectedKey >= currentKey + MAX_MONTHS_AHEAD;
 
   const shift = (delta: number) => {
@@ -73,9 +73,9 @@ export function MonthSwitcher({ month, year, onChange }: MonthSwitcherProps) {
         <HugeiconsIcon icon={ArrowRight01Icon} className="h-3.5 w-3.5" />
       </Button>
 
-      {isFuture && (
+      {isPlanned && (
         <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-          {t('month_forecast')}
+          {t('month_planned')}
         </span>
       )}
     </div>
