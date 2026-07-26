@@ -113,8 +113,19 @@ async function updateTransaction(id: string, data: TransactionFormData): Promise
   return response.json();
 }
 
-async function deleteTransaction(id: string): Promise<{ success: boolean }> {
-  const response = await fetch(`/api/transactions/${id}`, {
+export type TransactionDeleteScope = 'occurrence' | 'future';
+
+export type TransactionDeleteRequest = {
+  id: string;
+  scope?: TransactionDeleteScope;
+};
+
+async function deleteTransaction({
+  id,
+  scope,
+}: TransactionDeleteRequest): Promise<{ success: boolean }> {
+  const query = scope ? `?scope=${scope}` : '';
+  const response = await fetch(`/api/transactions/${id}${query}`, {
     method: 'DELETE',
     credentials: 'include',
   });

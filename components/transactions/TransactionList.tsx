@@ -6,27 +6,19 @@ import { useState } from 'react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { TransactionWithCategory } from '@/types';
 import { useI18n } from '@/locales/client';
+import type { TransactionDeleteRequest } from '@/hooks/useTransactions';
 
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { useFormatCurrency } from '@/lib/currency-utils';
+import { TransactionDeleteDialog } from './TransactionDeleteDialog';
 
 interface TransactionListProps {
   transactions: TransactionWithCategory[];
   type: 'income' | 'expense';
   onEdit: (transaction: TransactionWithCategory) => void;
-  onDelete: (id: string) => void;
+  onDelete: (request: TransactionDeleteRequest) => void;
   isDeleting?: boolean;
   hasPartner?: boolean;
   currentUserId?: string;
@@ -48,7 +40,8 @@ export function TransactionList({
   monthLabel,
 }: TransactionListProps) {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [transactionToDelete, setTransactionToDelete] = useState<string | null>(null);
+  const [transactionToDelete, setTransactionToDelete] =
+    useState<TransactionWithCategory | null>(null);
   const t = useI18n();
 
   const formatCurrency = useFormatCurrency();
@@ -94,15 +87,14 @@ export function TransactionList({
     transaction => transaction.category.type === type
   );
 
-  const handleDeleteClick = (id: string) => {
-    setTransactionToDelete(id);
+  const handleDeleteClick = (transaction: TransactionWithCategory) => {
+    setTransactionToDelete(transaction);
     setDeleteDialogOpen(true);
   };
 
-  const handleConfirmDelete = () => {
-    if (transactionToDelete) {
-      onDelete(transactionToDelete);
-      setDeleteDialogOpen(false);
+  const handleDeleteDialogChange = (open: boolean) => {
+    setDeleteDialogOpen(open);
+    if (!open) {
       setTransactionToDelete(null);
     }
   };
@@ -265,7 +257,7 @@ export function TransactionList({
                       <Button
                         size="sm"
                         variant="ghost"
-                        onClick={() => handleDeleteClick(transaction.id)}
+                        onClick={() => handleDeleteClick(transaction)}
                         disabled={isDeleting}
                         className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive cursor-pointer"
                       >
@@ -280,26 +272,13 @@ export function TransactionList({
         </div>
       </div>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>{t('transaction_delete_title') || 'Delete Transaction'}</AlertDialogTitle>
-            <AlertDialogDescription>
-              {t('transaction_delete_confirmation') || 'Are you sure you want to delete this transaction? This action cannot be undone.'}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="cursor-pointer">{t('common_cancel') || 'Cancel'}</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleConfirmDelete}
-              disabled={isDeleting}
-              className="bg-destructive hover:bg-destructive/90 cursor-pointer disabled:cursor-not-allowed"
-            >
-              {isDeleting ? (t('transaction_deleting') || 'Deleting...') : (t('common_delete') || 'Delete')}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <TransactionDeleteDialog
+        transaction={transactionToDelete}
+        open={deleteDialogOpen}
+        onOpenChange={handleDeleteDialogChange}
+        onDelete={onDelete}
+        isDeleting={isDeleting}
+      />
     </>
   );
 }
