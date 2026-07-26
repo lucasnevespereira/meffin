@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { ListItemWithCategory, Category } from '@/types';
 import { getCategoryDisplayName } from '@/lib/category-utils';
+import { optionalNumberInput } from '@/lib/forms/number-input';
 
 interface ListItemFormProps {
   isOpen: boolean;
@@ -150,8 +151,8 @@ export function ListItemForm({
               id="estimatedPrice"
               type="number"
               step="0.01"
-              min="0"
-              {...register('estimatedPrice', { valueAsNumber: true })}
+              min="0.01"
+              {...register('estimatedPrice', { setValueAs: optionalNumberInput })}
               placeholder="0.00"
               className={errors.estimatedPrice ? 'border-red-500' : ''}
             />

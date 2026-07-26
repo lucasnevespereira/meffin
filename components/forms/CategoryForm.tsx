@@ -75,9 +75,6 @@ export function CategoryForm({
 
   const onFormSubmit = (data: CategoryFormData) => {
     onSubmit(data);
-    if (mode === 'create') {
-      reset();
-    }
   };
 
   const handleClose = () => {

@@ -5,6 +5,7 @@ import { auth } from '@/lib/auth';
 import { eq, and, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
+import { isDefaultCategoryId } from '@/lib/default-category-identity';
 const createItemSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   estimatedPrice: z.number().positive().optional(),
@@ -62,7 +63,7 @@ export async function POST(
     }
 
     // Validate category exists
-    const isDefaultCategory = validatedData.categoryId.startsWith('default_');
+    const isDefaultCategory = isDefaultCategoryId(validatedData.categoryId);
 
     if (!isDefaultCategory) {
       const customCategory = await db.select()

@@ -267,6 +267,11 @@ export default {
   categories_count_plural: "catégories",
   categories_custom_single: "catégorie personnalisée",
   categories_custom_plural: "catégories personnalisées",
+  categories_default_name_conflict:
+    "Ce nom correspond à une catégorie intégrée. Utilisez plutôt la catégorie existante.",
+  categories_custom_name_conflict:
+    "Une catégorie portant ce nom existe déjà.",
+  categories_save_error: "Impossible d’enregistrer cette catégorie.",
 
   // Category form
   category_form_add_title: "Ajouter une catégorie",

@@ -4,9 +4,11 @@ import { categories, transactions } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { isDefaultCategoryId } from '@/lib/default-category-identity';
+import { findCategoryNameConflict } from '@/lib/services/categories/category-name';
 
 const updateCategorySchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  name: z.string().trim().min(1, 'Name is required').max(100, 'Name too long'),
   type: z.enum(['income', 'expense']),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
 });
@@ -27,7 +29,7 @@ export async function PUT(
     const validatedData = updateCategorySchema.parse(body);
 
     // Check if it's a default category (cannot be edited)
-    if (id.startsWith('default_')) {
+    if (isDefaultCategoryId(id)) {
       return NextResponse.json({ error: 'Cannot edit default categories' }, { status: 403 });
     }
 
@@ -42,6 +44,30 @@ export async function PUT(
 
     if (existingCategory.length === 0) {
       return NextResponse.json({ error: 'Category not found' }, { status: 404 });
+    }
+
+    const conflict = await findCategoryNameConflict({
+      userId: session.user.id,
+      name: validatedData.name,
+      type: validatedData.type,
+      excludeCategoryId: id,
+    });
+
+    if (conflict?.kind === 'default') {
+      return NextResponse.json({
+        error: 'A built-in category already uses this name.',
+        code: 'DEFAULT_CATEGORY_NAME_CONFLICT',
+        categoryId: conflict.categoryId,
+        categoryNameKey: conflict.categoryNameKey,
+      }, { status: 409 });
+    }
+
+    if (conflict?.kind === 'custom') {
+      return NextResponse.json({
+        error: 'A custom category already uses this name.',
+        code: 'CUSTOM_CATEGORY_NAME_CONFLICT',
+        categoryId: conflict.categoryId,
+      }, { status: 409 });
     }
 
     const [updatedCategory] = await db.update(categories)
@@ -92,7 +118,7 @@ export async function DELETE(
     const { id } = await params;
 
     // Check if it's a default category (cannot be deleted)
-    if (id.startsWith('default_')) {
+    if (isDefaultCategoryId(id)) {
       return NextResponse.json({ error: 'Cannot delete default categories' }, { status: 403 });
     }
 

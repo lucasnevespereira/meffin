@@ -50,6 +50,13 @@
       "when": 1784987822880,
       "tag": "0006_parched_randall",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1785081180021,
+      "tag": "0007_canonical_category_identity",
+      "breakpoints": true
     }
   ]
 }
