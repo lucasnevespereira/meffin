@@ -3,6 +3,26 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Category, CategoryFormData } from '@/types';
 
+export class CategoryMutationError extends Error {
+  constructor(
+    message: string,
+    readonly code?: string,
+    readonly categoryId?: string
+  ) {
+    super(message);
+    this.name = 'CategoryMutationError';
+  }
+}
+
+async function readMutationError(response: Response, fallback: string) {
+  const body = await response.json().catch(() => null);
+  return new CategoryMutationError(
+    body?.error || fallback,
+    body?.code,
+    body?.categoryId
+  );
+}
+
 async function fetchCategories(): Promise<{ categories: Category[] }> {
   const response = await fetch('/api/categories', {
     credentials: 'include',
@@ -26,10 +46,11 @@ async function createCategory(data: CategoryFormData): Promise<Category> {
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create category');
+    throw await readMutationError(response, 'Failed to create category');
   }
 
-  return response.json();
+  const body = await response.json();
+  return body.category;
 }
 
 async function updateCategory(id: string, data: CategoryFormData): Promise<Category> {
@@ -43,10 +64,11 @@ async function updateCategory(id: string, data: CategoryFormData): Promise<Categ
   });
 
   if (!response.ok) {
-    throw new Error('Failed to update category');
+    throw await readMutationError(response, 'Failed to update category');
   }
 
-  return response.json();
+  const body = await response.json();
+  return body.category;
 }
 
 async function deleteCategory(id: string): Promise<{ success: boolean }> {
@@ -109,4 +131,3 @@ export function useDeleteCategory() {
     },
   });
 }
-

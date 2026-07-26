@@ -6,9 +6,10 @@ import { eq, or } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
+import { findCategoryNameConflict } from '@/lib/services/categories/category-name';
 
 const createCategorySchema = z.object({
-  name: z.string().min(1, 'Name is required').max(100, 'Name too long'),
+  name: z.string().trim().min(1, 'Name is required').max(100, 'Name too long'),
   type: z.enum(['income', 'expense']),
   color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
 });
@@ -84,6 +85,28 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const validatedData = createCategorySchema.parse(body);
+    const conflict = await findCategoryNameConflict({
+      userId: session.user.id,
+      name: validatedData.name,
+      type: validatedData.type,
+    });
+
+    if (conflict?.kind === 'default') {
+      return NextResponse.json({
+        error: 'A built-in category already uses this name.',
+        code: 'DEFAULT_CATEGORY_NAME_CONFLICT',
+        categoryId: conflict.categoryId,
+        categoryNameKey: conflict.categoryNameKey,
+      }, { status: 409 });
+    }
+
+    if (conflict?.kind === 'custom') {
+      return NextResponse.json({
+        error: 'A custom category already uses this name.',
+        code: 'CUSTOM_CATEGORY_NAME_CONFLICT',
+        categoryId: conflict.categoryId,
+      }, { status: 409 });
+    }
 
     const [newCategory] = await db.insert(categories).values({
       id: crypto.randomUUID(),

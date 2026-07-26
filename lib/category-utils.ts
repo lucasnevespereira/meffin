@@ -1,5 +1,6 @@
 import { Category } from '@/types';
 import { DEFAULT_CATEGORIES } from './default-categories';
+import { isDefaultCategoryId } from './default-category-identity';
 
 /**
  * Get the display name for a category, handling translation for default categories
@@ -26,7 +27,7 @@ export function getCategoryDisplayName(
  * @returns True if it's a default category
  */
 export function isDefaultCategory(categoryId: string): boolean {
-  return categoryId.startsWith('default_');
+  return isDefaultCategoryId(categoryId);
 }
 
 /**

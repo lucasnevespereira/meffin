@@ -16,7 +16,13 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { CategoryForm } from '@/components/forms/CategoryForm';
-import { useCategories, useCreateCategory, useUpdateCategory, useDeleteCategory } from '@/hooks/useCategories';
+import {
+  CategoryMutationError,
+  useCategories,
+  useCreateCategory,
+  useUpdateCategory,
+  useDeleteCategory,
+} from '@/hooks/useCategories';
 import { Category, CategoryFormData, CategoryType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
@@ -35,11 +41,27 @@ export default function CategoriesPage() {
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
 
+  const showMutationError = (error: Error) => {
+    if (error instanceof CategoryMutationError) {
+      if (error.code === 'DEFAULT_CATEGORY_NAME_CONFLICT') {
+        toast.error(t('categories_default_name_conflict'));
+        return;
+      }
+      if (error.code === 'CUSTOM_CATEGORY_NAME_CONFLICT') {
+        toast.error(t('categories_custom_name_conflict'));
+        return;
+      }
+    }
+
+    toast.error(t('categories_save_error'));
+  };
+
   const handleCreateCategory = (data: CategoryFormData) => {
     createMutation.mutate(data, {
       onSuccess: () => {
         setIsFormOpen(false);
       },
+      onError: showMutationError,
     });
   };
 
@@ -51,6 +73,7 @@ export default function CategoriesPage() {
           onSuccess: () => {
             setEditingCategory(null);
           },
+          onError: showMutationError,
         }
       );
     }

@@ -263,6 +263,11 @@ export default {
   categories_count_plural: "categories",
   categories_custom_single: "custom category",
   categories_custom_plural: "custom categories",
+  categories_default_name_conflict:
+    "This name belongs to a built-in category. Use the existing category instead.",
+  categories_custom_name_conflict:
+    "A category with this name already exists.",
+  categories_save_error: "Unable to save this category.",
 
   // Category form
   category_form_add_title: "Add Category",

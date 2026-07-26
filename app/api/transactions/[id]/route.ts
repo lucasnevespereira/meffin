@@ -16,6 +16,7 @@ import {
   resolveEndMonth,
   resolveOccurrenceMonth,
 } from '@/lib/services/budget/schedule';
+import { isDefaultCategoryId } from '@/lib/default-category-identity';
 
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -89,7 +90,7 @@ export async function PUT(
     }
 
     // Validate category exists
-    const isDefaultCategory = validatedData.categoryId.startsWith('default_');
+    const isDefaultCategory = isDefaultCategoryId(validatedData.categoryId);
 
     if (!isDefaultCategory) {
       // Custom category must belong to the user or their partner
