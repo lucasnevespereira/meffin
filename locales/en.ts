@@ -237,15 +237,25 @@ export default {
   categories_expense: "expense",
   categories_loading_error: "Error loading categories",
   categories_login_required: "Please sign in to access categories",
-  categories_delete_title: "Delete category",
+  categories_delete_title: "Remove category",
   categories_delete_confirmation:
-    'Are you sure you want to delete the category "{name}"? This action cannot be undone.',
-  categories_delete: "Delete",
-  categories_deleting: "Deleting...",
+    'Remove the category "{name}"?',
+  categories_delete_archive_explanation:
+    "If it is used by existing data, it will be archived to preserve your history. Otherwise, it will be permanently deleted.",
+  categories_delete: "Remove",
+  categories_deleting: "Removing...",
   categories_delete_success: 'Category "{name}" deleted successfully.',
+  categories_archive_success: 'Category "{name}" archived successfully.',
   categories_delete_error: "Failed to delete category.",
   categories_delete_in_use_error:
     "Cannot delete this category because it is used by existing transactions.",
+  categories_archived_title: "Archived categories",
+  categories_archived_description:
+    "Archived categories remain in your history but cannot be selected for new items.",
+  categories_archived_label: "Archived",
+  categories_restore: "Restore",
+  categories_restore_success: 'Category "{name}" restored successfully.',
+  categories_restore_error: "Failed to restore category.",
 
   // Currencies
   currency_eur: "Euro - €",

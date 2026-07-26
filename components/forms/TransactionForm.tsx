@@ -290,6 +290,11 @@ export function TransactionForm({
                             <span className="text-sm font-medium block truncate">
                               {getCategoryDisplayName(category, t)}
                             </span>
+                            {category.archivedAt && (
+                              <span className="block text-xs text-muted-foreground">
+                                {t('categories_archived_label')}
+                              </span>
+                            )}
                           </div>
                           <Badge
                             variant="outline"

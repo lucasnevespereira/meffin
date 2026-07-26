@@ -241,15 +241,25 @@ export default {
   categories_loading_error: "Erreur lors du chargement des catégories",
   categories_login_required:
     "Veuillez vous connecter pour accéder aux catégories",
-  categories_delete_title: "Supprimer la catégorie",
+  categories_delete_title: "Retirer la catégorie",
   categories_delete_confirmation:
-    'Êtes-vous sûr de vouloir supprimer la catégorie "{name}" ? Cette action ne peut pas être annulée.',
-  categories_delete: "Supprimer",
+    'Retirer la catégorie « {name} » ?',
+  categories_delete_archive_explanation:
+    "Si elle est utilisée par des données existantes, elle sera archivée pour préserver votre historique. Sinon, elle sera supprimée définitivement.",
+  categories_delete: "Retirer",
   categories_deleting: "Suppression...",
   categories_delete_success: 'Catégorie "{name}" supprimée avec succès.',
+  categories_archive_success: 'Catégorie « {name} » archivée avec succès.',
   categories_delete_error: "Échec de la suppression de la catégorie.",
   categories_delete_in_use_error:
     "Impossible de supprimer cette catégorie car elle est utilisée par des transactions existantes.",
+  categories_archived_title: "Catégories archivées",
+  categories_archived_description:
+    "Les catégories archivées restent dans votre historique mais ne peuvent plus être sélectionnées.",
+  categories_archived_label: "Archivée",
+  categories_restore: "Restaurer",
+  categories_restore_success: 'Catégorie « {name} » restaurée avec succès.',
+  categories_restore_error: "Échec de la restauration de la catégorie.",
 
   // Currencies
   currency_eur: "Euro - €",

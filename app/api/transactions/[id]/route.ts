@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories, users, listItems } from '@/lib/db/schema';
+import { transactions, users, listItems } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and, gte, inArray, isNotNull } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { isProjectedId } from '@/lib/services/budget/project';
 import {
   monthKeyFromDateString,
@@ -16,7 +15,7 @@ import {
   resolveEndMonth,
   resolveOccurrenceMonth,
 } from '@/lib/services/budget/schedule';
-import { isDefaultCategoryId } from '@/lib/default-category-identity';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const updateTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -90,25 +89,13 @@ export async function PUT(
       }, { status: 403 });
     }
 
-    // Validate category exists
-    const isDefaultCategory = isDefaultCategoryId(validatedData.categoryId);
-
-    if (!isDefaultCategory) {
-      // Custom category must belong to the user or their partner
-      const customCategory = await db.select()
-        .from(categories)
-        .where(eq(categories.id, validatedData.categoryId))
-        .limit(1);
-
-      if (customCategory.length === 0 || !userIds.includes(customCategory[0].userId)) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
-    } else {
-      // Check if default category exists
-      const defaultCategory = DEFAULT_CATEGORIES.find(cat => cat.id === validatedData.categoryId);
-      if (!defaultCategory) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
+    const keepsCurrentCategory = validatedData.categoryId === existing.categoryId;
+    if (!await canUseCategory({
+      categoryId: validatedData.categoryId,
+      userIds,
+      includeArchived: keepsCurrentCategory,
+    })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     const submittedDate = validatedData.date.toISOString();

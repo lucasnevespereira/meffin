@@ -96,6 +96,7 @@ export async function getCategoryLookup(userIds: string[]): Promise<Record<strin
       isCustom: false,
       userId: null,
       createdAt: undefined,
+      archivedAt: null,
     };
   }
 
@@ -108,6 +109,7 @@ export async function getCategoryLookup(userIds: string[]): Promise<Record<strin
       isCustom: true,
       userId: cat.userId,
       createdAt: cat.createdAt,
+      archivedAt: cat.archivedAt,
     };
   }
 

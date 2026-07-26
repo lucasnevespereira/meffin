@@ -173,6 +173,10 @@ export default function TransactionsPage() {
   const allTransactions = transactionsData?.transactions ?? [];
   const allAnnualTransactions = annualTransactionsData?.transactions ?? [];
   const categories = categoriesData?.categories ?? [];
+  const editCategories =
+    editingTransaction && !categories.some(category => category.id === editingTransaction.categoryId)
+      ? [...categories, editingTransaction.category]
+      : categories;
   const exportableCount = allTransactions.filter((tx) => tx.source !== 'projected').length;
 
   // Filter transactions based on type
@@ -379,7 +383,7 @@ export default function TransactionsPage() {
           isOpen={true}
           onClose={closeEditForm}
           onSubmit={handleUpdateTransaction}
-          categories={categories}
+          categories={editCategories}
           initialData={{
             description: editingTransaction.description,
             amount: Number(editingTransaction.amount),
