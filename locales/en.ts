@@ -308,6 +308,11 @@ export default {
   transaction_delete_title: "Delete Transaction",
   transaction_delete_confirmation:
     "Are you sure you want to delete this transaction? This action cannot be undone.",
+  transaction_delete_recurring_title: "Delete recurring transaction",
+  transaction_delete_recurring_confirmation:
+    "Choose whether to remove only this occurrence or stop the transaction from here onward.",
+  transaction_delete_occurrence: "Only this occurrence",
+  transaction_delete_future: "This and future occurrences",
   transaction_deleting: "Deleting...",
   transaction_recurring_monthly: "Monthly",
   transaction_recurring_ended: "Ended",

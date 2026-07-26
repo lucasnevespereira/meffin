@@ -312,6 +312,11 @@ export default {
   transaction_delete_title: "Supprimer la transaction",
   transaction_delete_confirmation:
     "Êtes-vous sûr de vouloir supprimer cette transaction ? Cette action ne peut pas être annulée.",
+  transaction_delete_recurring_title: "Supprimer la transaction récurrente",
+  transaction_delete_recurring_confirmation:
+    "Choisissez si vous souhaitez supprimer uniquement cette occurrence ou arrêter la transaction à partir d’ici.",
+  transaction_delete_occurrence: "Uniquement cette occurrence",
+  transaction_delete_future: "Celle-ci et les suivantes",
   transaction_deleting: "Suppression...",
   transaction_recurring_monthly: "Mensuel",
   transaction_recurring_ended: "Terminé",

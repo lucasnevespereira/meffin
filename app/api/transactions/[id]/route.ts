@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { transactions, categories, users, listItems } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, and, inArray, isNotNull } from 'drizzle-orm';
+import { eq, and, gte, inArray, isNotNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { isProjectedId } from '@/lib/services/budget/project';
@@ -32,6 +32,7 @@ const updateTransactionSchema = z.object({
 /** Future months have no stored row, so they carry a synthetic id. They're preview-only:
  *  changing the forecast means editing the current month, which is a real row. */
 const PROJECTED_MESSAGE = 'This month is a forecast. Edit the current month to change it.';
+const deleteScopeSchema = z.enum(['occurrence', 'future']);
 
 export async function PUT(
   request: NextRequest,
@@ -225,6 +226,20 @@ export async function DELETE(
       return NextResponse.json({ error: PROJECTED_MESSAGE }, { status: 400 });
     }
 
+    const submittedScope = request.nextUrl.searchParams.get('scope');
+    const parsedScope = submittedScope
+      ? deleteScopeSchema.safeParse(submittedScope)
+      : null;
+
+    if (parsedScope && !parsedScope.success) {
+      return NextResponse.json({ error: 'Invalid delete scope' }, { status: 400 });
+    }
+
+    // Existing clients don't send a scope. For a recurring transaction, stopping the
+    // schedule is the least surprising behavior: a transaction the user deleted must not
+    // silently return in next month's forecast.
+    const deleteScope = parsedScope?.data ?? 'future';
+
     // Get current user's partner info to determine access
     const [user] = await db
       .select({
@@ -246,6 +261,8 @@ export async function DELETE(
       id: transactions.id,
       createdBy: transactions.createdBy,
       seriesId: transactions.seriesId,
+      monthKey: transactions.monthKey,
+      date: transactions.date,
     })
       .from(transactions)
       .where(and(
@@ -267,11 +284,51 @@ export async function DELETE(
     }
 
     if (existing.seriesId) {
-      // Void rather than delete. A removed row would just be written again by the next
-      // materialization pass, and the tombstone is what keeps the deletion sticky.
-      await db.update(transactions)
-        .set({ voided: true, updatedAt: new Date().toISOString() })
-        .where(and(eq(transactions.id, id), eq(transactions.createdBy, session.user.id)));
+      const seriesId = existing.seriesId;
+
+      if (deleteScope === 'occurrence') {
+        // Void rather than delete. A removed row would just be written again by the next
+        // materialization pass, and the tombstone is what keeps this one-month gap sticky.
+        await db.update(transactions)
+          .set({ voided: true, updatedAt: new Date().toISOString() })
+          .where(and(
+            eq(transactions.id, id),
+            eq(transactions.createdBy, session.user.id)
+          ));
+      } else {
+        const endMonth = existing.monthKey - 1;
+        const endDate = occurrenceDate(endMonth, dayOfMonth(existing.date));
+        const updatedAt = new Date().toISOString();
+
+        await db.transaction(async (tx) => {
+          // The schedule belongs to the series, not to one occurrence. Persist the bound
+          // on every row so whichever historical row becomes the live head carries the
+          // same end date and cannot restart the forecast.
+          await tx.update(transactions)
+            .set({
+              isFixed: true,
+              repeatType: 'until',
+              endDate,
+              endMonth,
+              updatedAt,
+            })
+            .where(and(
+              eq(transactions.seriesId, seriesId),
+              eq(transactions.createdBy, session.user.id)
+            ));
+
+          // Keep historical occurrences, but remove the selected month and any stored
+          // rows after it. Future projections disappear because the head now ends in the
+          // preceding month.
+          await tx.update(transactions)
+            .set({ voided: true, updatedAt })
+            .where(and(
+              eq(transactions.seriesId, seriesId),
+              eq(transactions.createdBy, session.user.id),
+              gte(transactions.monthKey, existing.monthKey)
+            ));
+        });
+      }
     } else {
       const result = await db.delete(transactions)
         .where(and(
@@ -285,7 +342,7 @@ export async function DELETE(
       }
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, scope: deleteScope });
   } catch (error) {
     console.error('Error deleting transaction:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

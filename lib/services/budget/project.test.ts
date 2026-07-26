@@ -191,6 +191,27 @@ describe('projectSeries — monthly', () => {
     expect(entries.map(e => e.monthKey)).toEqual([JUL_2026 + 1, JUL_2026 + 2]);
   });
 
+  it('does not resume a stopped series after its final occurrence was voided', () => {
+    // Regression: deleting July used to void only July. The live March row then became
+    // the template again and recreated the salary in every forecast from August onward.
+    const stopped = head({
+      monthKey: JUL_2026 - 4,
+      lastOccupied: JUL_2026,
+      endMonth: JUL_2026 - 1,
+      repeatType: 'until',
+      endDate: '2026-06-05 12:00:00',
+    });
+
+    const entries = projectSeries(
+      [stopped],
+      JUL_2026 + 1,
+      JUL_2026 + 6,
+      occupy(JUL_2026 - 4, JUL_2026)
+    );
+
+    expect(entries).toEqual([]);
+  });
+
   it('clamps the day when projecting into a short month', () => {
     const endOfMonth = head({ monthKey: monthKey(2026, 0), date: '2026-01-31T12:00:00.000Z' });
     const entries = projectSeries([endOfMonth], monthKey(2026, 1), monthKey(2026, 1), new Set());

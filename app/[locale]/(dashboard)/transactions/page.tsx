@@ -14,7 +14,8 @@ import {
   useAnnualTransactions,
   useCreateTransaction,
   useUpdateTransaction,
-  useDeleteTransaction
+  useDeleteTransaction,
+  type TransactionDeleteRequest,
 } from '@/hooks/useTransactions';
 import { useCategories } from '@/hooks/useCategories';
 import { usePartnerInfo } from '@/hooks/usePartner';
@@ -100,8 +101,8 @@ export default function TransactionsPage() {
     return 'until' as const;
   };
 
-  const handleDeleteTransaction = (id: string) => {
-    deleteMutation.mutate(id);
+  const handleDeleteTransaction = (request: TransactionDeleteRequest) => {
+    deleteMutation.mutate(request);
   };
 
   const closeEditForm = () => {
