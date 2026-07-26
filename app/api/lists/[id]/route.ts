@@ -6,6 +6,7 @@ import { eq, desc, or, and } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const updateListSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -105,6 +106,7 @@ export async function GET(
         isCustom: false,
         userId: null,
         createdAt: undefined,
+        archivedAt: null,
       };
     });
 
@@ -118,6 +120,7 @@ export async function GET(
         isCustom: true,
         userId: cat.userId,
         createdAt: cat.createdAt,
+        archivedAt: cat.archivedAt,
       };
     });
 
@@ -133,6 +136,7 @@ export async function GET(
         isCustom: false,
         userId: null,
         createdAt: undefined,
+        archivedAt: null,
       }
     }));
 
@@ -180,6 +184,25 @@ export async function PUT(
 
     if (!existingList.length) {
       return NextResponse.json({ error: 'List not found or unauthorized' }, { status: 404 });
+    }
+
+    const [user] = await db
+      .select({ partnerId: users.partnerId })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    const userIds = user?.partnerId
+      ? [session.user.id, user.partnerId]
+      : [session.user.id];
+    const keepsCurrentCategory = validatedData.categoryId === existingList[0].categoryId;
+
+    if (!await canUseCategory({
+      categoryId: validatedData.categoryId,
+      userIds,
+      includeArchived: keepsCurrentCategory,
+    })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     const [updatedList] = await db.update(lists)

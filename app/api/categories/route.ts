@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { categories, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
-import { eq, or } from 'drizzle-orm';
+import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { z } from 'zod';
 import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
@@ -37,10 +37,18 @@ export async function GET(request: NextRequest) {
 
     // Get custom categories from user and partner
     const userIds = user[0].partnerId ? [session.user.id, user[0].partnerId] : [session.user.id];
+    const includeArchived = request.nextUrl.searchParams.get('includeArchived') === 'true';
 
     const customCategories = await db.select()
       .from(categories)
-      .where(or(...userIds.map(id => eq(categories.userId, id))))
+      .where(
+        includeArchived
+          ? inArray(categories.userId, userIds)
+          : and(
+              inArray(categories.userId, userIds),
+              isNull(categories.archivedAt)
+            )
+      )
       .orderBy(categories.name);
 
     // Convert database categories to unified format
@@ -52,6 +60,7 @@ export async function GET(request: NextRequest) {
       isCustom: true,
       userId: cat.userId,
       createdAt: cat.createdAt,
+      archivedAt: cat.archivedAt,
     }));
 
     // Convert default categories to unified format
@@ -63,6 +72,7 @@ export async function GET(request: NextRequest) {
       isCustom: false,
       userId: null,
       createdAt: undefined,
+      archivedAt: null,
     }));
 
     // Combine default and custom categories
@@ -126,6 +136,7 @@ export async function POST(request: NextRequest) {
       isCustom: true,
       userId: newCategory.userId,
       createdAt: newCategory.createdAt,
+      archivedAt: newCategory.archivedAt,
     };
 
     return NextResponse.json({ category: categoryResponse });

@@ -14,6 +14,7 @@ export type Category = {
   isCustom: boolean;
   userId?: string | null;
   createdAt?: Date;
+  archivedAt?: Date | null;
 };
 
 export type DatabaseCategory = InferSelectModel<typeof categories>;

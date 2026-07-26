@@ -1,7 +1,7 @@
 'use client';
 
 import { HugeiconsIcon } from "@hugeicons/react";
-import { Add01Icon, Delete02Icon, Edit01Icon, Tag01Icon } from "@hugeicons/core-free-icons";
+import { Add01Icon, ArchiveRestoreIcon, Delete02Icon, Edit01Icon, Tag01Icon } from "@hugeicons/core-free-icons";
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -22,12 +22,14 @@ import {
   useCreateCategory,
   useUpdateCategory,
   useDeleteCategory,
+  useRestoreCategory,
 } from '@/hooks/useCategories';
 import { Category, CategoryFormData, CategoryType } from '@/types';
 import { useI18n } from '@/locales/client';
 import { getCategoryDisplayName } from '@/lib/category-utils';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/shared/PageHeader';
+import { useSession } from '@/lib/auth-client';
 
 export default function CategoriesPage() {
   const t = useI18n();
@@ -36,10 +38,12 @@ export default function CategoriesPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [categoryToDelete, setCategoryToDelete] = useState<Category | null>(null);
 
-  const { data: categoriesData, isLoading, error } = useCategories();
+  const { data: session } = useSession();
+  const { data: categoriesData, isLoading, error } = useCategories({ includeArchived: true });
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
   const deleteMutation = useDeleteCategory();
+  const restoreMutation = useRestoreCategory();
 
   const showMutationError = (error: Error) => {
     if (error instanceof CategoryMutationError) {
@@ -93,21 +97,34 @@ export default function CategoriesPage() {
       const categoryName = getCategoryDisplayName(categoryToDelete, t);
 
       deleteMutation.mutate(categoryToDelete.id, {
-        onSuccess: () => {
+        onSuccess: ({ archived }) => {
           setDeleteDialogOpen(false);
           setCategoryToDelete(null);
-          toast.success(t('categories_delete_success', { name: categoryName }));
+          toast.success(
+            archived
+              ? t('categories_archive_success', { name: categoryName })
+              : t('categories_delete_success', { name: categoryName })
+          );
         },
         onError: (error) => {
           const message = error instanceof Error ? error.message : '';
-          const errorMessage = message === 'Cannot delete this category because it is used by existing transactions.'
-            ? t('categories_delete_in_use_error')
-            : message || t('categories_delete_error');
-
-          toast.error(errorMessage);
+          toast.error(message || t('categories_delete_error'));
         },
       });
     }
+  };
+
+  const handleRestore = (category: Category) => {
+    const categoryName = getCategoryDisplayName(category, t);
+
+    restoreMutation.mutate(category.id, {
+      onSuccess: () => {
+        toast.success(t('categories_restore_success', { name: categoryName }));
+      },
+      onError: () => {
+        toast.error(t('categories_restore_error'));
+      },
+    });
   };
 
   const closeEditForm = () => {
@@ -131,7 +148,8 @@ export default function CategoriesPage() {
 
   const categories = categoriesData?.categories || [];
   const defaultCats = categories.filter(cat => !cat.isCustom);
-  const customCats = categories.filter(cat => cat.isCustom);
+  const customCats = categories.filter(cat => cat.isCustom && !cat.archivedAt);
+  const archivedCats = categories.filter(cat => cat.isCustom && cat.archivedAt);
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -251,31 +269,95 @@ export default function CategoriesPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleEditCategory(category)}
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
-                    >
-                      <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => handleDeleteClick(category)}
-                      disabled={deleteMutation.isPending}
-                      className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
-                    </Button>
-                  </div>
+                  {category.userId === session?.user.id && (
+                    <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEditCategory(category)}
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-primary/10 hover:text-primary"
+                      >
+                        <HugeiconsIcon icon={Edit01Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDeleteClick(category)}
+                        disabled={deleteMutation.isPending}
+                        className="h-7 w-7 md:h-8 md:w-8 p-0 hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <HugeiconsIcon icon={Delete02Icon} className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                      </Button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
+
+      {archivedCats.length > 0 && (
+        <div className="rounded-xl border border-border bg-card/60 shadow-card">
+          <div className="p-4 md:p-6">
+            <div className="mb-4 flex items-center justify-between md:mb-6">
+              <div>
+                <h2 className="text-lg font-bold tracking-tight md:text-xl">
+                  {t('categories_archived_title')}
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t('categories_archived_description')}
+                </p>
+              </div>
+              <div className="rounded-full border border-border bg-muted/50 px-2 py-1 text-xs font-medium text-muted-foreground md:px-3">
+                {archivedCats.length}
+              </div>
+            </div>
+
+            <div className="space-y-2 md:space-y-3">
+              {archivedCats.map((category) => (
+                <div
+                  key={category.id}
+                  className="flex items-center justify-between rounded-lg border border-transparent bg-muted/10 p-3 opacity-75 md:p-4"
+                >
+                  <div className="flex min-w-0 flex-1 items-center gap-3 md:gap-4">
+                    <div
+                      className="flex size-8 shrink-0 items-center justify-center rounded-lg md:size-10"
+                      style={{ backgroundColor: `${category.color}20` }}
+                    >
+                      <div
+                        className="size-2 rounded-full md:size-3"
+                        style={{ backgroundColor: category.color }}
+                      />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold md:text-base">
+                        {getCategoryDisplayName(category, t)}
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground md:mt-1">
+                        {category.type === 'income' ? t('categories_income') : t('categories_expense')}
+                      </div>
+                    </div>
+                  </div>
+
+                  {category.userId === session?.user.id && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleRestore(category)}
+                      disabled={restoreMutation.isPending}
+                      className="shrink-0"
+                    >
+                      <HugeiconsIcon icon={ArchiveRestoreIcon} className="mr-2 size-4" />
+                      {t('categories_restore')}
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Category Form Modals */}
       <CategoryForm
@@ -308,6 +390,9 @@ export default function CategoriesPage() {
             <AlertDialogTitle>{t('categories_delete_title')}</AlertDialogTitle>
             <AlertDialogDescription>
               {t('categories_delete_confirmation', { name: categoryToDelete?.name })}
+              <span className="mt-2 block">
+                {t('categories_delete_archive_explanation')}
+              </span>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

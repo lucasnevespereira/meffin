@@ -1,6 +1,6 @@
 'use client';
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, type QueryClient } from '@tanstack/react-query';
 import { Category, CategoryFormData } from '@/types';
 
 export class CategoryMutationError extends Error {
@@ -23,8 +23,9 @@ async function readMutationError(response: Response, fallback: string) {
   );
 }
 
-async function fetchCategories(): Promise<{ categories: Category[] }> {
-  const response = await fetch('/api/categories', {
+async function fetchCategories(includeArchived: boolean): Promise<{ categories: Category[] }> {
+  const searchParams = includeArchived ? '?includeArchived=true' : '';
+  const response = await fetch(`/api/categories${searchParams}`, {
     credentials: 'include',
   });
 
@@ -71,26 +72,53 @@ async function updateCategory(id: string, data: CategoryFormData): Promise<Categ
   return body.category;
 }
 
-async function deleteCategory(id: string): Promise<{ success: boolean }> {
+type DeleteCategoryResult = {
+  success: boolean;
+  archived: boolean;
+};
+
+async function deleteCategory(id: string): Promise<DeleteCategoryResult> {
   const response = await fetch(`/api/categories/${id}`, {
     method: 'DELETE',
     credentials: 'include',
   });
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({ error: 'Failed to delete category' }));
-    throw new Error(errorData.error || 'Failed to delete category');
+    throw await readMutationError(response, 'Failed to delete category');
   }
 
   return response.json();
-
 }
 
+async function restoreCategory(id: string): Promise<Category> {
+  const response = await fetch(`/api/categories/${id}`, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+    body: JSON.stringify({ archived: false }),
+  });
 
-export function useCategories() {
+  if (!response.ok) {
+    throw await readMutationError(response, 'Failed to restore category');
+  }
+
+  const body = await response.json();
+  return body.category;
+}
+
+function invalidateCategoryData(queryClient: QueryClient) {
+  queryClient.invalidateQueries({ queryKey: ['categories'] });
+  queryClient.invalidateQueries({ queryKey: ['transactions'] });
+  queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+  queryClient.invalidateQueries({ queryKey: ['history'] });
+}
+
+export function useCategories({ includeArchived = false } = {}) {
   return useQuery({
-    queryKey: ['categories'],
-    queryFn: fetchCategories,
+    queryKey: ['categories', { includeArchived }],
+    queryFn: () => fetchCategories(includeArchived),
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 }
@@ -124,10 +152,18 @@ export function useDeleteCategory() {
   return useMutation({
     mutationFn: deleteCategory,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['categories'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
-      queryClient.invalidateQueries({ queryKey: ['dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['history'] });
+      invalidateCategoryData(queryClient);
+    },
+  });
+}
+
+export function useRestoreCategory() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: restoreCategory,
+    onSuccess: () => {
+      invalidateCategoryData(queryClient);
     },
   });
 }

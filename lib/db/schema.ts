@@ -73,6 +73,7 @@ export const categories = pgTable('categories', {
   name: varchar('name', { length: 100 }).notNull(),
   type: varchar('type', { length: 20 }).notNull(),
   color: varchar('color', { length: 7 }).notNull(), // Hex color code
+  archivedAt: timestamp('archived_at'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 }, (table) => ({
   typeCheck: check('type_check', sql`${table.type} IN ('income', 'expense')`)

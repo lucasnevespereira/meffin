@@ -4,6 +4,7 @@ import { lists, listItems, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, desc, or, and, sql } from 'drizzle-orm';
 import { z } from 'zod';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const createListSchema = z.object({
   title: z.string().min(1, 'Title is required'),
@@ -117,6 +118,20 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json();
     const validatedData = createListSchema.parse(body);
+
+    const [user] = await db
+      .select({ partnerId: users.partnerId })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
+
+    const userIds = user?.partnerId
+      ? [session.user.id, user.partnerId]
+      : [session.user.id];
+
+    if (!await canUseCategory({ categoryId: validatedData.categoryId, userIds })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+    }
 
     const [newList] = await db.insert(lists).values({
       id: crypto.randomUUID(),

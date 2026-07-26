@@ -1,11 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { lists, listItems, users, categories } from '@/lib/db/schema';
+import { lists, listItems, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and, or } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
-import { isDefaultCategoryId } from '@/lib/default-category-identity';
+import { canUseCategory } from '@/lib/services/categories/access';
 const createItemSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   estimatedPrice: z.number().positive().optional(),
@@ -62,32 +61,12 @@ export async function POST(
       return NextResponse.json({ error: 'List not found or unauthorized' }, { status: 404 });
     }
 
-    // Validate category exists
-    const isDefaultCategory = isDefaultCategoryId(validatedData.categoryId);
+    const userIds = user[0].partnerId
+      ? [session.user.id, user[0].partnerId]
+      : [session.user.id];
 
-    if (!isDefaultCategory) {
-      const customCategory = await db.select()
-        .from(categories)
-        .where(eq(categories.id, validatedData.categoryId))
-        .limit(1);
-
-      if (customCategory.length === 0) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
-
-      // Check if user has access to the custom category
-      const categoryBelongsToUser = user[0].partnerId
-        ? (customCategory[0].userId === session.user.id || customCategory[0].userId === user[0].partnerId)
-        : customCategory[0].userId === session.user.id;
-
-      if (!categoryBelongsToUser) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
-    } else {
-      const defaultCategory = DEFAULT_CATEGORIES.find(cat => cat.id === validatedData.categoryId);
-      if (!defaultCategory) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
+    if (!await canUseCategory({ categoryId: validatedData.categoryId, userIds })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     const [newItem] = await db.insert(listItems).values({

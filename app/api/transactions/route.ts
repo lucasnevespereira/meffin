@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { transactions, categories, users } from '@/lib/db/schema';
+import { transactions, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq } from 'drizzle-orm';
 import { z } from 'zod';
-import { DEFAULT_CATEGORIES } from '@/lib/default-categories';
 import { Category } from '@/types';
 import {
   resolveViewer,
@@ -19,7 +18,7 @@ import {
   resolveEndMonth,
   resolveOccurrenceMonth,
 } from '@/lib/services/budget/schedule';
-import { isDefaultCategoryId } from '@/lib/default-category-identity';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const createTransactionSchema = z.object({
   description: z.string().min(1, 'Description is required'),
@@ -104,32 +103,17 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validatedData = createTransactionSchema.parse(body);
 
-    // Validate category exists
-    const isDefaultCategory = isDefaultCategoryId(validatedData.categoryId);
+    const [user] = await db.select({ partnerId: users.partnerId })
+      .from(users)
+      .where(eq(users.id, session.user.id))
+      .limit(1);
 
-    if (!isDefaultCategory) {
-      // Custom category must belong to the user or their partner
-      const [user] = await db.select({ partnerId: users.partnerId })
-        .from(users)
-        .where(eq(users.id, session.user.id))
-        .limit(1);
+    const userIds = user?.partnerId
+      ? [session.user.id, user.partnerId]
+      : [session.user.id];
 
-      const allowedOwners = user?.partnerId ? [session.user.id, user.partnerId] : [session.user.id];
-
-      const customCategory = await db.select()
-        .from(categories)
-        .where(eq(categories.id, validatedData.categoryId))
-        .limit(1);
-
-      if (customCategory.length === 0 || !allowedOwners.includes(customCategory[0].userId)) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
-    } else {
-      // Check if default category exists
-      const defaultCategory = DEFAULT_CATEGORIES.find(cat => cat.id === validatedData.categoryId);
-      if (!defaultCategory) {
-        return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
-      }
+    if (!await canUseCategory({ categoryId: validatedData.categoryId, userIds })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     const id = crypto.randomUUID();
