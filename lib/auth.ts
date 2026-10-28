@@ -8,8 +8,7 @@ import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { users, account, session, verification, jwks, oauthClient, oauthResource, oauthClientResource, oauthRefreshToken, oauthAccessToken, oauthConsent, oauthClientAssertion } from "./db/schema";
-
-export const mcpResource = `${(process.env.BETTER_AUTH_URL || "http://localhost:3000").replace(/\/$/, "")}/api/mcp`;
+import { mcpResource } from './mcp/config';
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

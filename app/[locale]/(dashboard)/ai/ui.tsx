@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
+import { CopyConnectorUrl } from '@/components/ai/CopyConnectorUrl';
 
 export function AiConnections({ endpoint, connections, locale }: {
   endpoint: string;
@@ -11,15 +12,8 @@ export function AiConnections({ endpoint, connections, locale }: {
 }) {
   const french = locale === 'fr';
   const router = useRouter();
-  const [copied, setCopied] = useState(false);
   const [removing, setRemoving] = useState<string | null>(null);
   const [error, setError] = useState('');
-
-  async function copy() {
-    await navigator.clipboard.writeText(endpoint);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 2000);
-  }
 
   async function disconnect(consentId: string) {
     setRemoving(consentId);
@@ -39,10 +33,7 @@ export function AiConnections({ endpoint, connections, locale }: {
   }
 
   return <>
-    <div className="flex flex-col gap-2 sm:flex-row">
-      <code className="min-w-0 flex-1 overflow-x-auto rounded-lg bg-muted px-4 py-3 text-sm">{endpoint}</code>
-      <Button type="button" onClick={copy} variant="outline">{copied ? (french ? 'Copié' : 'Copied') : (french ? 'Copier' : 'Copy URL')}</Button>
-    </div>
+    <CopyConnectorUrl endpoint={endpoint} locale={locale} />
     <div className="border-t border-border pt-5 space-y-3">
       <h2 className="font-semibold">{french ? 'Applications connectées' : 'Connected apps'}</h2>
       {connections.length === 0 && <p className="text-sm text-muted-foreground">{french ? 'Aucune application connectée pour le moment.' : 'No apps connected yet.'}</p>}

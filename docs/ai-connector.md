@@ -1,6 +1,6 @@
 # Meffin AI connector
 
-Meffin serves an HTTPS MCP endpoint at `/api/mcp`. Users connect their own AI app through OAuth; Meffin does not host a language model or send financial data until the app calls a tool. The public guide is at `/en/ai-connector` and `/fr/ai-connector`. Signed-in users can copy the URL, see connected clients, and disconnect them at `/en/ai` or `/fr/ai`.
+Meffin serves an HTTPS MCP endpoint at `/api/mcp`. Users connect their own AI app through OAuth; Meffin does not host a language model or send financial data until the app calls a tool. The public guide and copy button are at `/en/ai-connector` and `/fr/ai-connector`; the URL is public and the user signs in only during OAuth. Signed-in users can also copy the URL, see connected clients, and disconnect them at `/en/ai` or `/fr/ai`.
 
 ## Deploying
 
@@ -27,7 +27,7 @@ Disconnecting a client deletes its consent and refresh/access records, and recor
 
 ## Client setup
 
-In Claude, use Customize → Connectors → Add → Custom connector, paste the URL, and choose sign-in. Claude's published OAuth client identity is preferred when offered. ChatGPT custom MCP server setup varies by workspace plan; current write support is limited to eligible workspaces. The in-app guide links to the providers' current instructions.
+Both the public guide and the signed-in page include numbered Claude and ChatGPT setup steps with links to the providers' current instructions. In Claude, use Customize → Connectors → Add → Custom connector, paste the URL, and choose sign-in. Claude's published OAuth client identity is preferred when offered. In an eligible ChatGPT workspace, use Plugins → Add custom MCP server and choose OAuth; current write support is limited to eligible workspaces.
 
 ## Verification
 

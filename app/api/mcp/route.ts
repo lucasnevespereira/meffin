@@ -1,6 +1,7 @@
 import { createMcpHandler } from '@modelcontextprotocol/server';
 import { requireMcpAuth } from '@better-auth/mcp';
-import { auth, mcpResource } from '@/lib/auth';
+import { auth } from '@/lib/auth';
+import { mcpResource } from '@/lib/mcp/config';
 import { createMeffinMcpServer } from '@/lib/mcp/server';
 import { and, eq } from 'drizzle-orm';
 import { db } from '@/lib/db';

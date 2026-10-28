@@ -1,6 +1,9 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { Mascot } from '@/components/shared/Mascot';
+import { CopyConnectorUrl } from '@/components/ai/CopyConnectorUrl';
+import { mcpResource } from '@/lib/mcp/config';
+import { ProviderSetupSteps } from '@/components/ai/ProviderSetupSteps';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -34,9 +37,14 @@ export default async function AiConnectorPage({ params }: { params: Promise<{ lo
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Meffin + AI</p>
         <h1 className="font-display text-4xl font-semibold leading-tight sm:text-6xl">{french ? 'Parlez de votre budget comme vous en avez envie.' : 'Talk about your budget in your own words.'}</h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">{french ? 'Demandez où part votre argent, explorez des idées pour économiser et créez une liste de courses avec un budget cible. Vos données restent organisées dans Meffin.' : 'Ask where your money goes, explore ways to save, and create a grocery list with a target budget. Your data stays organized in Meffin.'}</p>
+        <div className="max-w-xl space-y-2">
+          <p className="text-sm font-semibold">{french ? '1. Copiez cette adresse, puis collez-la dans les paramètres de votre assistant.' : '1. Copy this address, then paste it into your assistant’s connector settings.'}</p>
+          <CopyConnectorUrl endpoint={mcpResource} locale={locale} />
+          <p className="text-xs text-muted-foreground">{french ? 'Dans Claude : Personnaliser → Connecteurs → Ajouter → Connecteur personnalisé.' : 'In Claude: Customize → Connectors → Add → Custom connector.'}</p>
+        </div>
         <div className="flex flex-wrap gap-3">
-          <Link href={setup} className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Connecter un assistant' : 'Connect an assistant'}</Link>
-          <a href="#how-it-works" className="rounded-xl border border-border px-6 py-3 font-semibold hover:bg-muted">{french ? 'Comment ça marche' : 'How it works'}</a>
+          <a href="#how-it-works" className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Voir les étapes' : 'See the steps'}</a>
+          <Link href={setup} className="rounded-xl border border-border px-6 py-3 font-semibold hover:bg-muted">{french ? 'Gérer mes connexions' : 'Manage connections'}</Link>
         </div>
         <p className="text-xs text-muted-foreground">{french ? 'Aucun mot de passe à copier dans le chat. Vous validez l’accès dans Meffin.' : 'No passwords pasted into chat. You approve access in Meffin.'}</p>
       </div>
@@ -58,7 +66,7 @@ export default async function AiConnectorPage({ params }: { params: Promise<{ lo
         <h2 className="font-display text-3xl font-semibold">{french ? 'Simple à connecter, facile à contrôler' : 'Simple to connect, easy to control'}</h2>
         <div className="mt-8 grid gap-5 md:grid-cols-3">
           {[
-            french ? ['1', 'Copiez l’adresse', 'Meffin vous donne une adresse à coller dans les paramètres du connecteur de votre assistant.'] : ['1', 'Copy the address', 'Meffin gives you one URL to paste into your assistant’s connector settings.'],
+            french ? ['1', 'Ajoutez Meffin', 'Collez l’adresse ci-dessus dans Claude : Personnaliser → Connecteurs → Ajouter → Connecteur personnalisé.'] : ['1', 'Add Meffin', 'Paste the address above into Claude: Customize → Connectors → Add → Custom connector.'],
             french ? ['2', 'Autorisez l’accès', 'Connectez-vous à Meffin et vérifiez les permissions avant de confirmer.'] : ['2', 'Approve access', 'Sign in to Meffin and review the permissions before confirming.'],
             french ? ['3', 'Posez vos questions', 'Analysez votre budget ou enregistrez une liste de courses depuis la conversation.'] : ['3', 'Ask away', 'Explore your budget or save a grocery list from the conversation.'],
           ].map(([number, title, description]) => <div key={number} className="rounded-2xl border border-border bg-card p-6 shadow-card">
@@ -68,6 +76,8 @@ export default async function AiConnectorPage({ params }: { params: Promise<{ lo
         </div>
       </div>
     </section>
+
+    <div className="mx-auto max-w-6xl px-5 py-16"><ProviderSetupSteps locale={locale} /></div>
 
     <section className="mx-auto max-w-6xl px-5 py-16 space-y-4">
       <h2 className="font-display text-3xl font-semibold">{french ? 'Vos données, vos choix' : 'Your data, your choice'}</h2>
