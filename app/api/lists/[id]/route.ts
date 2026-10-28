@@ -201,6 +201,7 @@ export async function PUT(
       categoryId: validatedData.categoryId,
       userIds,
       includeArchived: keepsCurrentCategory,
+      type: 'expense',
     })) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
