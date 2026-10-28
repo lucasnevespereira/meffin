@@ -10,7 +10,7 @@ You need one address:
 https://meffin.app/api/mcp
 ```
 
-Self-hosting? Use your own origin, for example `https://budget.example.com/api/mcp`. The same steps and a copy button are on [meffin.app/en/ai-connector](https://meffin.app/en/ai-connector).
+The same steps, with a copy button, are on [meffin.app/en/ai-connector](https://meffin.app/en/ai-connector).
 
 ## Claude
 
@@ -19,7 +19,7 @@ Works on every plan. The Free plan allows one custom connector.
 1. Open [Customize → Connectors](https://claude.ai/customize/connectors).
 2. Click **+ Add**, then **Add custom connector**.
 3. Name it **Meffin** and paste the address as the URL.
-4. Click **Continue**. Choose **Sign in now**, keep **Use Claude's published identity**, then click **Add**.
+4. Click **Continue**, choose **Sign in now**, then click **Add**. Leave the other options as they are.
 5. A Meffin page opens. Sign in, then click **Allow access**.
 6. In a chat, click **+** → **Connectors** and turn Meffin on.
 
@@ -29,12 +29,12 @@ Once added, Meffin also works in the Claude mobile apps.
 
 ## ChatGPT
 
-Needs a paid plan. Use the ChatGPT website in your browser, not the desktop app: the desktop app's "Add MCP server" option does not connect your chats.
+Needs a paid plan. Use the ChatGPT website in your browser: adding Meffin from the ChatGPT desktop app won't work.
 
 1. On a computer, open [chatgpt.com/plugins](https://chatgpt.com/plugins) in your browser.
 2. Click **+**, then **Add custom MCP server**.
-3. Name it **Meffin**. Under **Connection**, keep **Server URL** and paste the address.
-4. Leave **Authentication** on **OAuth**. Tick **I understand and want to continue**, then click **Create as a plugin**.
+3. Name it **Meffin** and paste the address under **Connection**.
+4. Don't change anything else. Tick **I understand and want to continue**, then click **Create as a plugin**.
 5. When ChatGPT sends you to Meffin, sign in and click **Allow access**.
 6. In a new chat, type **@** and pick Meffin.
 
@@ -57,3 +57,7 @@ It can read the budget, transactions, and lists your account can see. A partner'
 ## Disconnect
 
 In Meffin, open **My Profile** → **Connect an AI assistant** and click **Disconnect**. Access stops right away. Also remove the connector from your assistant.
+
+## Running your own Meffin
+
+Use your own address instead, for example `https://budget.example.com/api/mcp`.

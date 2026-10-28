@@ -10,7 +10,7 @@ Il vous faut une seule adresse :
 https://meffin.app/api/mcp
 ```
 
-Vous hébergez Meffin vous-même ? Utilisez votre propre domaine, par exemple `https://budget.example.com/api/mcp`. Les mêmes étapes, avec un bouton de copie, sont sur [meffin.app/fr/ai-connector](https://meffin.app/fr/ai-connector).
+Les mêmes étapes, avec un bouton de copie, sont sur [meffin.app/fr/ai-connector](https://meffin.app/fr/ai-connector).
 
 Les noms des boutons sont indiqués en français avec l'anglais entre parenthèses, au cas où votre assistant est en anglais.
 
@@ -21,7 +21,7 @@ Fonctionne avec tous les forfaits. Le forfait gratuit permet un connecteur perso
 1. Ouvrez [Personnaliser → Connecteurs](https://claude.ai/customize/connectors).
 2. Cliquez sur **+ Ajouter** (+ Add), puis **Ajouter un connecteur personnalisé** (Add custom connector).
 3. Nommez-le **Meffin** et collez l'adresse dans le champ URL.
-4. Cliquez sur **Continuer**. Choisissez **Se connecter maintenant** (Sign in now), gardez **l'identité publiée de Claude** (Use Claude's published identity), puis cliquez sur **Ajouter** (Add).
+4. Cliquez sur **Continuer**, choisissez **Se connecter maintenant** (Sign in now), puis cliquez sur **Ajouter** (Add). Ne touchez pas aux autres options.
 5. Une page Meffin s'ouvre. Connectez-vous, puis cliquez sur **Autoriser**.
 6. Dans une conversation, cliquez sur **+** → **Connecteurs** (Connectors) et activez Meffin.
 
@@ -31,12 +31,12 @@ Une fois ajouté, Meffin fonctionne aussi dans les applications mobiles Claude.
 
 ## ChatGPT
 
-Forfait payant requis. Passez par le site ChatGPT dans votre navigateur, pas par l'application : l'option « Add MCP server » de l'application ne connecte pas vos conversations.
+Forfait payant requis. Passez par le site ChatGPT dans votre navigateur : l'ajout depuis l'application ChatGPT sur ordinateur ne fonctionne pas.
 
 1. Sur un ordinateur, ouvrez [chatgpt.com/plugins](https://chatgpt.com/plugins) dans votre navigateur.
 2. Cliquez sur **+**, puis **Ajouter un serveur MCP personnalisé** (Add custom MCP server).
-3. Nommez-le **Meffin**. Dans **Connexion** (Connection), gardez **Server URL** et collez l'adresse.
-4. Laissez **Authentification** (Authentication) sur **OAuth**. Cochez **Je comprends et je veux continuer** (I understand and want to continue), puis cliquez sur **Créer comme plugin** (Create as a plugin).
+3. Nommez-le **Meffin** et collez l'adresse sous **Connexion** (Connection).
+4. Ne changez rien d'autre. Cochez **Je comprends et je veux continuer** (I understand and want to continue), puis cliquez sur **Créer comme plugin** (Create as a plugin).
 5. Quand ChatGPT vous envoie sur Meffin, connectez-vous et cliquez sur **Autoriser**.
 6. Dans une nouvelle conversation, tapez **@** et choisissez Meffin.
 
@@ -59,3 +59,7 @@ Il peut lire le budget, les transactions et les listes visibles par votre compte
 ## Retirer l'accès
 
 Dans Meffin, ouvrez **Mon Profil** → **Connecter un assistant IA** et cliquez sur **Retirer**. L'accès est coupé immédiatement. Supprimez aussi le connecteur dans votre assistant.
+
+## Vous hébergez Meffin vous-même
+
+Utilisez votre propre adresse, par exemple `https://budget.example.com/api/mcp`.
