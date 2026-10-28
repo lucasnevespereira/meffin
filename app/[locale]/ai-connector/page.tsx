@@ -4,6 +4,8 @@ import { Mascot } from '@/components/shared/Mascot';
 import { CopyConnectorUrl } from '@/components/ai/CopyConnectorUrl';
 import { mcpResource } from '@/lib/mcp/config';
 import { ProviderSetupSteps } from '@/components/ai/ProviderSetupSteps';
+import { SetupHelp } from '@/components/ai/SetupHelp';
+import { TryPrompts } from '@/components/ai/TryPrompts';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -37,16 +39,17 @@ export default async function AiConnectorPage({ params }: { params: Promise<{ lo
         <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Meffin + AI</p>
         <h1 className="font-display text-4xl font-semibold leading-tight sm:text-6xl">{french ? 'Parlez de votre budget comme vous en avez envie.' : 'Talk about your budget in your own words.'}</h1>
         <p className="max-w-xl text-lg leading-relaxed text-muted-foreground">{french ? 'Demandez où part votre argent, explorez des idées pour économiser et créez une liste de courses avec un budget cible. Vos données restent organisées dans Meffin.' : 'Ask where your money goes, explore ways to save, and create a grocery list with a target budget. Your data stays organized in Meffin.'}</p>
-        <div className="max-w-xl space-y-2">
-          <p className="text-sm font-semibold">{french ? '1. Copiez cette adresse, puis collez-la dans les paramètres de votre assistant.' : '1. Copy this address, then paste it into your assistant’s connector settings.'}</p>
-          <CopyConnectorUrl endpoint={mcpResource} locale={locale} />
-          <p className="text-xs text-muted-foreground">{french ? 'Dans Claude : Personnaliser → Connecteurs → Ajouter → Connecteur personnalisé.' : 'In Claude: Customize → Connectors → Add → Custom connector.'}</p>
-        </div>
+        <ol className="max-w-xl space-y-1 text-sm text-muted-foreground">
+          <li><span className="font-semibold text-foreground">1.</span> {french ? 'Copiez l’adresse Meffin ci-dessous.' : 'Copy the Meffin address below.'}</li>
+          <li><span className="font-semibold text-foreground">2.</span> {french ? 'Ajoutez-la comme connecteur personnalisé dans Claude ou ChatGPT.' : 'Add it as a custom connector in Claude or ChatGPT.'}</li>
+          <li><span className="font-semibold text-foreground">3.</span> {french ? 'Connectez-vous à Meffin et autorisez l’accès. C’est tout.' : 'Sign in to Meffin and approve access. That’s it.'}</li>
+        </ol>
+        <div className="max-w-xl"><CopyConnectorUrl endpoint={mcpResource} locale={locale} /></div>
         <div className="flex flex-wrap gap-3">
-          <a href="#how-it-works" className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Voir les étapes' : 'See the steps'}</a>
+          <a href="#setup" className="rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Voir le guide pas à pas' : 'Step-by-step guide'}</a>
           <Link href={setup} className="rounded-xl border border-border px-6 py-3 font-semibold hover:bg-muted">{french ? 'Gérer mes connexions' : 'Manage connections'}</Link>
         </div>
-        <p className="text-xs text-muted-foreground">{french ? 'Aucun mot de passe à copier dans le chat. Vous validez l’accès dans Meffin.' : 'No passwords pasted into chat. You approve access in Meffin.'}</p>
+        <p className="text-xs text-muted-foreground">{french ? 'Fonctionne avec Claude (gratuit inclus) et ChatGPT (forfait payant). Aucun mot de passe à copier.' : 'Works with Claude (Free included) and ChatGPT (paid plans). No password to copy.'}</p>
       </div>
       <div className="relative rounded-3xl border border-border bg-card p-7 shadow-card">
         <div className="absolute -top-8 right-6"><Mascot size={72} /></div>
@@ -61,29 +64,21 @@ export default async function AiConnectorPage({ params }: { params: Promise<{ lo
       </div>
     </section>
 
-    <section id="how-it-works" className="border-y border-border bg-muted/30 py-16">
+    <div id="setup" className="scroll-mt-6 border-y border-border bg-muted/30">
       <div className="mx-auto max-w-6xl px-5 py-16">
-        <h2 className="font-display text-3xl font-semibold">{french ? 'Simple à connecter, facile à contrôler' : 'Simple to connect, easy to control'}</h2>
-        <div className="mt-8 grid gap-5 md:grid-cols-3">
-          {[
-            french ? ['1', 'Ajoutez Meffin', 'Collez l’adresse ci-dessus dans Claude : Personnaliser → Connecteurs → Ajouter → Connecteur personnalisé.'] : ['1', 'Add Meffin', 'Paste the address above into Claude: Customize → Connectors → Add → Custom connector.'],
-            french ? ['2', 'Autorisez l’accès', 'Connectez-vous à Meffin et vérifiez les permissions avant de confirmer.'] : ['2', 'Approve access', 'Sign in to Meffin and review the permissions before confirming.'],
-            french ? ['3', 'Posez vos questions', 'Analysez votre budget ou enregistrez une liste de courses depuis la conversation.'] : ['3', 'Ask away', 'Explore your budget or save a grocery list from the conversation.'],
-          ].map(([number, title, description]) => <div key={number} className="rounded-2xl border border-border bg-card p-6 shadow-card">
-            <span className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 font-bold text-primary">{number}</span>
-            <h3 className="mt-5 font-display text-xl font-semibold">{title}</h3><p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
-          </div>)}
-        </div>
+        <ProviderSetupSteps locale={locale} endpoint={mcpResource} />
       </div>
-    </section>
+    </div>
 
-    <div className="mx-auto max-w-6xl px-5 py-16"><ProviderSetupSteps locale={locale} /></div>
+    <div className="mx-auto max-w-6xl px-5 pt-16"><TryPrompts locale={locale} /></div>
+
+    <div className="mx-auto max-w-3xl px-5 pt-16"><SetupHelp locale={locale} /></div>
 
     <section className="mx-auto max-w-6xl px-5 py-16 space-y-4">
       <h2 className="font-display text-3xl font-semibold">{french ? 'Vos données, vos choix' : 'Your data, your choice'}</h2>
       <p className="max-w-3xl text-muted-foreground">{french ? 'Une application connectée peut lire les données de budget accessibles à votre compte. Les dépenses privées d’un partenaire restent privées. Les actions sont limitées aux nouvelles listes de courses, et vous pouvez retirer l’accès à tout moment dans Meffin.' : 'A connected app can read budget data available to your account. A partner’s private spending stays private. Actions are limited to new shopping lists, and you can disconnect an app at any time in Meffin.'}</p>
-      <p className="max-w-3xl text-sm text-muted-foreground">{french ? 'Les connecteurs personnalisés sont disponibles dans Claude. Dans ChatGPT, les actions d’écriture dépendent actuellement du forfait et des paramètres de votre espace.' : 'Custom connectors are available in Claude. In ChatGPT, write actions currently depend on your workspace plan and settings.'}</p>
-      <Link href={setup} className="inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Commencer' : 'Get started'}</Link>
+      <p className="max-w-3xl text-sm text-muted-foreground">{french ? 'Aucun mot de passe n’est partagé : vous vous connectez à Meffin et validez l’accès vous-même.' : 'No password is shared: you sign in to Meffin and approve access yourself.'}</p>
+      <a href="#setup" className="inline-block rounded-xl bg-primary px-6 py-3 font-semibold text-primary-foreground hover:opacity-90">{french ? 'Connecter mon assistant' : 'Connect my assistant'}</a>
     </section>
   </main>;
 }

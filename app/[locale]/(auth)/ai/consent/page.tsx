@@ -21,14 +21,15 @@ export default async function ConsentPage({
     if (Array.isArray(value)) value.forEach((item) => query.append(key, item));
     else if (value !== undefined) query.append(key, value);
   }
-  const { secret } = await auth.$context;
-  if (!await verifyOAuthQueryParams(query.toString(), secret)) {
-    return <p className="text-sm text-destructive">This connection request has expired. Start again from your AI app.</p>;
-  }
-
   const requestHeaders = await headers();
   const locale = pathLocale === 'en' && requestHeaders.get('accept-language')?.toLowerCase().startsWith('fr') ? 'fr' : pathLocale;
   if (locale !== pathLocale) redirect(`/${locale}/ai/consent?${query.toString()}`);
+  const french = locale === 'fr';
+
+  const { secret } = await auth.$context;
+  if (!await verifyOAuthQueryParams(query.toString(), secret)) {
+    return <p className="text-sm text-destructive">{french ? 'Cette demande de connexion a expiré. Recommencez depuis votre assistant IA.' : 'This connection request has expired. Start again from your AI app.'}</p>;
+  }
 
   const session = await auth.api.getSession({ headers: requestHeaders });
   if (!session) redirect(`/${locale}/login?${query.toString()}`);
@@ -39,7 +40,7 @@ export default async function ConsentPage({
         .from(oauthClient).where(eq(oauthClient.clientId, clientId)).limit(1)
     : [];
   if (!client) {
-    return <p className="text-sm text-destructive">This AI app could not be verified. Start the connection again.</p>;
+    return <p className="text-sm text-destructive">{french ? 'Impossible de vérifier cette application IA. Relancez la connexion.' : 'This AI app could not be verified. Start the connection again.'}</p>;
   }
 
   return <ConsentChoices clientName={client.name || client.clientId} accountEmail={session.user.email}

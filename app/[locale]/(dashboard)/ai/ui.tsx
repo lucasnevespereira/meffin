@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { CopyConnectorUrl } from '@/components/ai/CopyConnectorUrl';
 
-export function AiConnections({ endpoint, connections, locale }: {
-  endpoint: string;
+export function AiConnections({ connections, locale }: {
   connections: { id: string; name: string | null; clientId: string }[];
   locale: string;
 }) {
@@ -33,8 +31,7 @@ export function AiConnections({ endpoint, connections, locale }: {
   }
 
   return <>
-    <CopyConnectorUrl endpoint={endpoint} locale={locale} />
-    <div className="border-t border-border pt-5 space-y-3">
+    <div className="space-y-3">
       <h2 className="font-semibold">{french ? 'Applications connectées' : 'Connected apps'}</h2>
       {connections.length === 0 && <p className="text-sm text-muted-foreground">{french ? 'Aucune application connectée pour le moment.' : 'No apps connected yet.'}</p>}
       {connections.map((connection) => <div key={connection.id} className="flex items-center justify-between gap-3 rounded-lg border border-border px-4 py-3">

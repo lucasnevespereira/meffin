@@ -16,6 +16,7 @@
 - 🌍 Multi-language support (EN, FR)
 - 🎨 Dark/Light theme
 - 🏠 Self-hostable
+- 🤖 Connect Claude or ChatGPT to ask about your budget (MCP)
 
 ## 🚀 Quick Start
 
@@ -37,6 +38,14 @@ make dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000)
+
+## 🤖 Use Meffin with Claude or ChatGPT
+
+Add `https://meffin.app/api/mcp` as a custom connector in your assistant, then sign in to Meffin and approve access.
+
+Step-by-step guide: [English](docs/connect-ai-assistant.md) · [Français](docs/connect-ai-assistant.fr.md). The same guide with copy buttons is at [meffin.app/en/ai-connector](https://meffin.app/en/ai-connector).
+
+Self-hosting? Use your own origin instead. Server details are in [docs/ai-connector.md](docs/ai-connector.md).
 
 ## 🛠️ Commands
 

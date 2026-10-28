@@ -27,7 +27,7 @@ Disconnecting a client deletes its consent and refresh/access records, and recor
 
 ## Client setup
 
-Both the public guide and the signed-in page include numbered Claude and ChatGPT setup steps with links to the providers' current instructions. In Claude, use Customize → Connectors → Add → Custom connector, paste the URL, and choose sign-in. Claude's published OAuth client identity is preferred when offered. In an eligible ChatGPT workspace, use Plugins → Add custom MCP server and choose OAuth; current write support is limited to eligible workspaces.
+The user guide is [connect-ai-assistant.md](connect-ai-assistant.md) ([français](connect-ai-assistant.fr.md)). Both the public guide and the signed-in page include numbered Claude and ChatGPT setup steps with links to the providers' current instructions. The in-app steps live in `components/ai/ProviderSetupSteps.tsx` and quote the providers' button labels, so recheck both when Claude or ChatGPT move their menus. In Claude, use claude.ai/customize/connectors → + Add → Add custom connector, paste the URL, choose Sign in now, and keep Use Claude's published identity. Team and Enterprise owners add it at claude.ai/admin-settings/connectors. In ChatGPT chats (paid plans), use chatgpt.com/plugins in a browser → + → Add custom MCP server, keep Server URL and OAuth, then Create as a plugin; call it with `@Meffin`. The desktop app's Add MCP server writes Codex config: it works for Codex tasks (Streamable HTTP, then Authenticate, OAuth callback on a localhost port, client named "Codex") but not for chats.
 
 ## Verification
 
