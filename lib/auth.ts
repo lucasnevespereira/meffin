@@ -1,9 +1,15 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { expo } from "@better-auth/expo";
+import { jwt } from "better-auth/plugins";
+import { mcp } from "@better-auth/mcp";
+import { cimd } from "@better-auth/cimd";
+import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { users, account, session, verification } from "./db/schema";
+import { users, account, session, verification, jwks, oauthClient, oauthResource, oauthClientResource, oauthRefreshToken, oauthAccessToken, oauthConsent, oauthClientAssertion } from "./db/schema";
+
+export const mcpResource = `${(process.env.BETTER_AUTH_URL || "http://localhost:3000").replace(/\/$/, "")}/api/mcp`;
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -13,6 +19,14 @@ export const auth = betterAuth({
       account: account,
       session: session,
       verification: verification,
+      jwks,
+      oauthClient,
+      oauthResource,
+      oauthClientResource,
+      oauthRefreshToken,
+      oauthAccessToken,
+      oauthConsent,
+      oauthClientAssertion,
     },
   }),
 
@@ -70,7 +84,22 @@ export const auth = betterAuth({
 
   // Allows native Expo clients to forward their app origin and keeps OAuth
   // callbacks compatible with the meffin:// deep-link scheme.
-  plugins: [expo()],
+  plugins: [
+    expo(),
+    jwt(),
+    mcp({
+      loginPage: "/login",
+      // Use an explicit locale: /ai would be read as a two-letter locale by middleware.
+      consentPage: "/en/ai/consent",
+      resource: mcpResource,
+      scopes: ["openid", "profile", "email", "offline_access", "meffin:read", "meffin:write"],
+      clientRegistrationDefaultScopes: ["openid", "profile", "email", "offline_access", "meffin:read", "meffin:write"],
+      allowDynamicClientRegistration: true,
+      allowUnauthenticatedClientRegistration: true,
+      clientRegistrationDefaultApplicationType: "infer",
+    }),
+    cimd({ fetchClientMetadataResource, metadataProfile: "mcp-2026-07-28" }),
+  ],
 
   trustedOrigins: [
     "https://meffin.app",

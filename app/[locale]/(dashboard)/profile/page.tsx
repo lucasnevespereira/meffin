@@ -339,6 +339,7 @@ export default function ProfilePage() {
         <Panel>
           <SettingsRow icon={Tag01Icon} tint="green" title={t('nav_categories')} href={`/${locale}/categories`} />
           <SettingsRow icon={AnalyticsUpIcon} tint="blue" title={t('nav_trends')} href={`/${locale}/trends`} />
+          <SettingsRow icon={Coins01Icon} tint="coral" title={t('ai_connect_title')} subtitle={t('ai_connect_subtitle')} href={`/${locale}/ai`} />
         </Panel>
       </section>
 

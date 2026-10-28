@@ -67,6 +67,7 @@ async function fetchList(id: string): Promise<{ list: ListWithItems }> {
 async function createList(data: {
   title: string;
   description?: string;
+  budgetAmount?: number | null;
   color?: string;
   isShared?: boolean;
 }): Promise<{ list: ListWithItems }> {
@@ -91,6 +92,7 @@ async function createList(data: {
 async function updateList(id: string, data: {
   title?: string;
   description?: string;
+  budgetAmount?: number | null;
   color?: string;
   isShared?: boolean;
 }): Promise<{ list: ListWithItems }> {

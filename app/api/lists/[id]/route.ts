@@ -11,6 +11,7 @@ import { canUseCategory } from '@/lib/services/categories/access';
 const updateListSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional(),
+  budgetAmount: z.number().finite().nonnegative().max(99_999_999.99).nullable().optional(),
   color: z.string().default('#3B82F6'),
   categoryId: z.string().min(1, 'Category is required'),
   isShared: z.boolean().default(false),
@@ -210,6 +211,9 @@ export async function PUT(
       .set({
         title: validatedData.title,
         description: validatedData.description || null,
+        budgetAmount: validatedData.budgetAmount === undefined
+          ? existingList[0].budgetAmount
+          : validatedData.budgetAmount === null ? null : validatedData.budgetAmount.toFixed(2),
         color: validatedData.color,
         categoryId: validatedData.categoryId,
         isShared: validatedData.isShared,

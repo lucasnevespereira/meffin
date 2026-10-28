@@ -286,6 +286,14 @@ export default function ListDetailPage() {
                 {formatCurrency(list.totalEstimatedPrice)}
               </div>
             </div>
+            {list.budgetAmount !== null && (
+              <div className="flex items-center justify-between text-sm border-t border-border pt-3">
+                <span className="text-muted-foreground">{t('lists_target_budget')}</span>
+                <span className={list.totalEstimatedPrice > Number(list.budgetAmount) ? 'font-medium text-destructive' : 'font-medium'}>
+                  {formatCurrency(Number(list.budgetAmount))}
+                </span>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

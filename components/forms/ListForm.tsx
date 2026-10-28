@@ -39,6 +39,7 @@ interface ListFormProps {
 export interface ListFormData {
   title: string;
   description?: string;
+  budgetAmount?: number | null;
   color: string;
   isShared: boolean;
   categoryId: string;
@@ -71,6 +72,7 @@ export function ListForm({
   const listSchema = z.object({
     title: z.string().min(1, 'Title is required').max(255, 'Title is too long'),
     description: z.string().optional(),
+    budgetAmount: z.number().finite().nonnegative().max(99_999_999.99).nullable().optional(),
     color: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format'),
     isShared: z.boolean(),
     categoryId: z.string().min(1, 'Category is required'),
@@ -88,6 +90,7 @@ export function ListForm({
     defaultValues: {
       title: initialData?.title || '',
       description: initialData?.description || '',
+      budgetAmount: initialData?.budgetAmount ? Number(initialData.budgetAmount) : null,
       color: initialData?.color || LIST_COLORS[0],
       isShared: initialData?.isShared || false,
       categoryId: initialData?.categoryId || '',
@@ -101,6 +104,7 @@ export function ListForm({
       reset({
         title: initialData.title || '',
         description: initialData.description || '',
+        budgetAmount: initialData.budgetAmount ? Number(initialData.budgetAmount) : null,
         color: initialData.color || LIST_COLORS[0],
         isShared: initialData.isShared || false,
         categoryId: initialData.categoryId || '',
@@ -109,6 +113,7 @@ export function ListForm({
       reset({
         title: '',
         description: '',
+        budgetAmount: null,
         color: LIST_COLORS[0],
         isShared: false,
         categoryId: '',
@@ -164,6 +169,15 @@ export function ListForm({
             {errors.description && (
               <p className="text-sm text-red-500">{errors.description.message}</p>
             )}
+          </div>
+
+          {/* Color */}
+          <div className="space-y-2">
+            <Label htmlFor="budgetAmount">{t('lists_target_budget')}</Label>
+            <Input id="budgetAmount" type="number" min="0" max="99999999.99" step="0.01"
+              {...register('budgetAmount', { setValueAs: (value) => value === '' ? null : Number(value) })}
+              placeholder="50.00" />
+            {errors.budgetAmount && <p className="text-sm text-destructive">{errors.budgetAmount.message}</p>}
           </div>
 
           {/* Color */}

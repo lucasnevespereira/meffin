@@ -312,9 +312,9 @@ export async function getEntries(
   return [...actual, ...projected].sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function getRange(viewer: Viewer, from: MonthKey, to: MonthKey): Promise<MonthPoint[]> {
+export async function getRange(viewer: Viewer, from: MonthKey, to: MonthKey, options: EntryOptions = {}): Promise<MonthPoint[]> {
   const [entries, lookup] = await Promise.all([
-    getEntries(viewer, from, to),
+    getEntries(viewer, from, to, options),
     getCategoryLookup(viewer.userIds),
   ]);
 
@@ -338,10 +338,10 @@ export async function getRange(viewer: Viewer, from: MonthKey, to: MonthKey): Pr
   return buckets;
 }
 
-export async function getMonth(viewer: Viewer, year: number, month: number): Promise<MonthView> {
+export async function getMonth(viewer: Viewer, year: number, month: number, options: EntryOptions = {}): Promise<MonthView> {
   const key = monthKey(year, month);
   const [entries, lookup] = await Promise.all([
-    getEntries(viewer, key, key),
+    getEntries(viewer, key, key, options),
     getCategoryLookup(viewer.userIds),
   ]);
 

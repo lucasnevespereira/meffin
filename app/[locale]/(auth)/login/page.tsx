@@ -52,7 +52,11 @@ export default function LoginPage() {
       });
 
       if (result.data) {
-        router.push(`/${locale}/dashboard`);
+        if ('url' in result.data && typeof result.data.url === 'string') {
+          window.location.assign(result.data.url);
+        } else {
+          router.push(`/${locale}/dashboard`);
+        }
       } else {
         setError(t('login_error'));
       }
@@ -172,6 +176,9 @@ export default function LoginPage() {
             {t('login_signUp')}
           </Link>
         </div>
+        <Link href={`/${locale}/ai-connector`} className="block text-center text-sm text-primary hover:underline">
+          {locale === 'fr' ? 'Découvrir Meffin avec un assistant IA' : 'Explore Meffin with an AI assistant'}
+        </Link>
       </div>
     </div>
   );
