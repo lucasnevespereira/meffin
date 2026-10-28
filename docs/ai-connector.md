@@ -27,7 +27,7 @@ Disconnecting a client deletes its consent and refresh/access records, and recor
 
 ## Client setup
 
-Both the public guide and the signed-in page include numbered Claude and ChatGPT setup steps with links to the providers' current instructions. In Claude, use Customize → Connectors → Add → Custom connector, paste the URL, and choose sign-in. Claude's published OAuth client identity is preferred when offered. In an eligible ChatGPT workspace, use Plugins → Add custom MCP server and choose OAuth; current write support is limited to eligible workspaces.
+The user guide is [connect-ai-assistant.md](connect-ai-assistant.md) ([français](connect-ai-assistant.fr.md)). Both the public guide and the signed-in page include numbered Claude and ChatGPT setup steps with links to the providers' current instructions. The in-app steps live in `components/ai/ProviderSetupSteps.tsx` and quote the providers' button labels, so recheck both when Claude or ChatGPT move their menus. In Claude, use claude.ai/customize/connectors → + Add → Add custom connector, paste the URL, choose Sign in now, and keep Use Claude's published identity. Team and Enterprise owners add it at claude.ai/admin-settings/connectors. In ChatGPT (paid plans), use Settings → Plugins → Add → Add MCP server, set Type to Streamable HTTP (the default STDIO runs a local command and never triggers OAuth), paste the URL, leave the bearer token and headers empty, and save. The form has no OAuth step: the MCPs list then shows an Authenticate button that starts the Meffin sign-in. Call it with `@Meffin` in a new chat. Write support varies by plan.
 
 ## Verification
 
