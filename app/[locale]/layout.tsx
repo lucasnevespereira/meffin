@@ -19,6 +19,7 @@ const fredoka = Fredoka({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://meffin.app'),
   title: "Meffin - Simple Monthly Budget Tracking",
   description: "Simple, lightweight monthly budget tracking. Built for simplicity and self-hosting.",
   manifest: "/manifest.json",

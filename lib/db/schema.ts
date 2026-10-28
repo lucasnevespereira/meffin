@@ -1,4 +1,4 @@
-import { pgTable, varchar, timestamp, decimal, boolean, integer, text, check, index, uniqueIndex } from 'drizzle-orm/pg-core';
+import { pgTable, varchar, timestamp, decimal, boolean, integer, text, check, index, uniqueIndex, jsonb } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { sql } from 'drizzle-orm';
 
@@ -64,6 +64,204 @@ export const verification = pgTable("verification", {
     .$onUpdate(() => new Date())
     .notNull(),
 });
+
+export const jwks = pgTable("jwks", {
+  id: text("id").primaryKey(),
+  publicKey: text("public_key").notNull(),
+  privateKey: text("private_key").notNull(),
+  createdAt: timestamp("created_at").notNull(),
+  expiresAt: timestamp("expires_at"),
+  alg: text("alg"),
+  crv: text("crv"),
+});
+
+export const oauthClient = pgTable(
+  "oauth_client",
+  {
+    id: text("id").primaryKey(),
+    clientId: text("client_id").notNull().unique(),
+    clientSecret: text("client_secret"),
+    clientDiscoveryId: text("client_discovery_id"),
+    disabled: boolean("disabled").default(false),
+    skipConsent: boolean("skip_consent"),
+    enableEndSession: boolean("enable_end_session"),
+    subjectType: text("subject_type"),
+    scopes: text("scopes").array(),
+    clientCredentialsScopes: text("client_credentials_scopes")
+      .array()
+      .default([]),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at"),
+    updatedAt: timestamp("updated_at"),
+    name: text("name"),
+    uri: text("uri"),
+    icon: text("icon"),
+    contacts: text("contacts").array(),
+    tos: text("tos"),
+    policy: text("policy"),
+    softwareId: text("software_id"),
+    softwareVersion: text("software_version"),
+    softwareStatement: text("software_statement"),
+    redirectUris: text("redirect_uris").array().notNull(),
+    postLogoutRedirectUris: text("post_logout_redirect_uris").array(),
+    backchannelLogoutUri: text("backchannel_logout_uri"),
+    backchannelLogoutSessionRequired: boolean(
+      "backchannel_logout_session_required",
+    ),
+    tokenEndpointAuthMethod: text("token_endpoint_auth_method"),
+    applicationType: text("application_type"),
+    jwks: text("jwks"),
+    jwksUri: text("jwks_uri"),
+    grantTypes: text("grant_types").array(),
+    responseTypes: text("response_types").array(),
+    requirePKCE: boolean("require_pkce"),
+    dpopBoundAccessTokens: boolean("dpop_bound_access_tokens").default(false),
+    referenceId: text("reference_id"),
+    metadata: jsonb("metadata"),
+  },
+  (table) => [index("oauthClient_userId_idx").on(table.userId)],
+);
+
+export const oauthResource = pgTable("oauth_resource", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull().unique(),
+  name: text("name").notNull(),
+  accessTokenTtl: integer("access_token_ttl"),
+  refreshTokenTtl: integer("refresh_token_ttl"),
+  signingAlgorithm: text("signing_algorithm"),
+  signingKeyId: text("signing_key_id"),
+  allowedScopes: text("allowed_scopes").array(),
+  customClaims: jsonb("custom_claims"),
+  dpopBoundAccessTokensRequired: boolean(
+    "dpop_bound_access_tokens_required",
+  ).default(false),
+  disabled: boolean("disabled").default(false),
+  createdAt: timestamp("created_at"),
+  updatedAt: timestamp("updated_at"),
+  policyVersion: integer("policy_version").default(1),
+  metadata: jsonb("metadata"),
+});
+
+export const oauthClientResource = pgTable(
+  "oauth_client_resource",
+  {
+    id: text("id").primaryKey(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => oauthClient.clientId, { onDelete: "cascade" }),
+    resourceId: text("resource_id")
+      .notNull()
+      .references(() => oauthResource.identifier, { onDelete: "cascade" }),
+    metadata: jsonb("metadata"),
+    createdAt: timestamp("created_at"),
+  },
+  (table) => [
+    index("oauthClientResource_clientId_idx").on(table.clientId),
+    index("oauthClientResource_resourceId_idx").on(table.resourceId),
+    uniqueIndex("oauth_client_resource_pair_unique").on(table.clientId, table.resourceId),
+  ],
+);
+
+export const oauthRefreshToken = pgTable(
+  "oauth_refresh_token",
+  {
+    id: text("id").primaryKey(),
+    token: text("token").notNull().unique(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => oauthClient.clientId, { onDelete: "cascade" }),
+    sessionId: text("session_id").references(() => session.id, {
+      onDelete: "set null",
+    }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    referenceId: text("reference_id"),
+    authorizationCodeId: text("authorization_code_id"),
+    resources: text("resources").array(),
+    requestedUserInfoClaims: text("requested_user_info_claims").array(),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at"),
+    revoked: timestamp("revoked"),
+    rotatedAt: timestamp("rotated_at"),
+    rotationReplayResponse: text("rotation_replay_response"),
+    rotationReplayExpiresAt: timestamp("rotation_replay_expires_at"),
+    authTime: timestamp("auth_time"),
+    confirmation: jsonb("confirmation"),
+    scopes: text("scopes").array().notNull(),
+  },
+  (table) => [
+    index("oauthRefreshToken_clientId_idx").on(table.clientId),
+    index("oauthRefreshToken_sessionId_idx").on(table.sessionId),
+    index("oauthRefreshToken_userId_idx").on(table.userId),
+    index("oauthRefreshToken_authorizationCodeId_idx").on(
+      table.authorizationCodeId,
+    ),
+  ],
+);
+
+export const oauthAccessToken = pgTable(
+  "oauth_access_token",
+  {
+    id: text("id").primaryKey(),
+    token: text("token").unique(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => oauthClient.clientId, { onDelete: "cascade" }),
+    sessionId: text("session_id").references(() => session.id, {
+      onDelete: "set null",
+    }),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    referenceId: text("reference_id"),
+    authorizationCodeId: text("authorization_code_id"),
+    resources: text("resources").array(),
+    requestedUserInfoClaims: text("requested_user_info_claims").array(),
+    refreshId: text("refresh_id").references(() => oauthRefreshToken.id, {
+      onDelete: "cascade",
+    }),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at"),
+    revoked: timestamp("revoked"),
+    confirmation: jsonb("confirmation"),
+    scopes: text("scopes").array().notNull(),
+  },
+  (table) => [
+    index("oauthAccessToken_clientId_idx").on(table.clientId),
+    index("oauthAccessToken_sessionId_idx").on(table.sessionId),
+    index("oauthAccessToken_userId_idx").on(table.userId),
+    index("oauthAccessToken_authorizationCodeId_idx").on(
+      table.authorizationCodeId,
+    ),
+    index("oauthAccessToken_refreshId_idx").on(table.refreshId),
+  ],
+);
+
+export const oauthConsent = pgTable(
+  "oauth_consent",
+  {
+    id: text("id").primaryKey(),
+    clientId: text("client_id")
+      .notNull()
+      .references(() => oauthClient.clientId, { onDelete: "cascade" }),
+    userId: text("user_id").references(() => users.id, { onDelete: "cascade" }),
+    referenceId: text("reference_id"),
+    resources: text("resources").array(),
+    requestedUserInfoClaims: text("requested_user_info_claims").array(),
+    scopes: text("scopes").array().notNull(),
+    createdAt: timestamp("created_at"),
+    updatedAt: timestamp("updated_at"),
+  },
+  (table) => [
+    index("oauthConsent_clientId_idx").on(table.clientId),
+    index("oauthConsent_userId_idx").on(table.userId),
+  ],
+);
+
+export const oauthClientAssertion = pgTable("oauth_client_assertion", {
+  id: text("id").primaryKey(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
+
 
 // Categories table (only for custom user categories)
 export const categories = pgTable('categories', {
@@ -139,12 +337,35 @@ export const lists = pgTable('lists', {
   createdBy: text('created_by').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
+  budgetAmount: decimal('budget_amount', { precision: 10, scale: 2 }),
   color: varchar('color', { length: 7 }).default('#3B82F6').notNull(), // Default blue color
   categoryId: text('category_id'), // Default category for items in this list
   isShared: boolean('is_shared').default(false).notNull(), // Shared with partner
   createdAt: timestamp('created_at', { mode: 'string' }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { mode: 'string' }).defaultNow().notNull(),
 });
+
+// One result per user/client/request ID, so a retried MCP write cannot create another list.
+export const mcpActionReceipts = pgTable('mcp_action_receipts', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  clientId: text('client_id').notNull(),
+  requestId: text('request_id').notNull(),
+  listId: text('list_id').references(() => lists.id, { onDelete: 'cascade' }).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  uniqueRequest: uniqueIndex('mcp_action_receipts_request_unique').on(table.userId, table.clientId, table.requestId),
+}));
+
+// Invalidates JWTs immediately when a user disconnects an AI client.
+export const mcpClientRevocations = pgTable('mcp_client_revocations', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  clientId: text('client_id').notNull(),
+  revokedAt: timestamp('revoked_at').notNull(),
+}, (table) => ({
+  uniqueClient: uniqueIndex('mcp_client_revocations_user_client_unique').on(table.userId, table.clientId),
+}));
 
 // Shopping list items table
 export const listItems = pgTable('list_items', {

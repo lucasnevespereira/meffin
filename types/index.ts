@@ -102,6 +102,7 @@ export type CategoryFormData = {
 export type ListFormData = {
   title: string;
   description?: string;
+  budgetAmount?: number | null;
   color?: string;
   isShared?: boolean;
 };
