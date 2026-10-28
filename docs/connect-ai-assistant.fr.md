@@ -31,16 +31,14 @@ Une fois ajouté, Meffin fonctionne aussi dans les applications mobiles Claude.
 
 ## ChatGPT
 
-Forfait payant requis.
+Forfait payant requis. Passez par le site ChatGPT dans votre navigateur, pas par l'application : l'option « Add MCP server » de l'application ne connecte pas vos conversations.
 
-1. Ouvrez les paramètres de ChatGPT → **Plugins** ([chatgpt.com/plugins](https://chatgpt.com/plugins)).
-2. Cliquez sur **Ajouter** (Add), puis **Ajouter un serveur MCP** (Add MCP server). Pas « Créer un plugin ».
-3. Nommez-le **Meffin**. Dans **Type**, choisissez **Streamable HTTP**.
-4. Collez l'adresse dans le champ **URL**. Laissez **Bearer token env var** et les en-têtes vides, puis cliquez sur **Enregistrer** (Save). Le formulaire ne demande pas de connexion, c'est normal.
-5. Dans l'onglet **MCPs**, cliquez sur **Authentifier** (Authenticate) à côté de Meffin. Connectez-vous, puis cliquez sur **Autoriser**. Meffin peut afficher « Connecter Codex ? » : c'est normal, c'est le nom utilisé par ChatGPT.
+1. Sur un ordinateur, ouvrez [chatgpt.com/plugins](https://chatgpt.com/plugins) dans votre navigateur.
+2. Cliquez sur **+**, puis **Ajouter un serveur MCP personnalisé** (Add custom MCP server).
+3. Nommez-le **Meffin**. Dans **Connexion** (Connection), gardez **Server URL** et collez l'adresse.
+4. Laissez **Authentification** (Authentication) sur **OAuth**. Cochez **Je comprends et je veux continuer** (I understand and want to continue), puis cliquez sur **Créer comme plugin** (Create as a plugin).
+5. Quand ChatGPT vous envoie sur Meffin, connectez-vous et cliquez sur **Autoriser**.
 6. Dans une nouvelle conversation, tapez **@** et choisissez Meffin.
-
-Ne laissez pas le type sur **STDIO**. C'est pour les programmes installés sur votre ordinateur, et Meffin ne vous demanderait jamais de vous connecter. Si c'est déjà fait, ouvrez Meffin dans l'onglet **MCPs**, cliquez sur **Désinstaller** (Uninstall) et recommencez.
 
 ## Essayez ces questions
 
@@ -54,9 +52,9 @@ Il peut lire le budget, les transactions et les listes visibles par votre compte
 
 ## Un souci ?
 
-- **Je ne trouve pas l'option d'ajout.** Claude Team/Enterprise : demandez au propriétaire. ChatGPT : il faut un forfait payant, et l'administrateur de votre espace doit parfois l'autoriser.
+- **Je ne trouve pas l'option d'ajout.** Claude Team/Enterprise : demandez au propriétaire. ChatGPT : il faut un forfait payant et passer par le site (chatgpt.com/plugins), pas par l'application. L'administrateur de votre espace doit parfois l'autoriser.
 - **Meffin n'apparaît pas dans ma conversation.** Claude : **+** → **Connecteurs**, activez Meffin. ChatGPT : nouvelle conversation, tapez **@**, choisissez Meffin.
-- **Aucune demande de connexion, ou la connexion échoue.** ChatGPT : vérifiez que le type est Streamable HTTP et cliquez sur **Authentifier**. Sinon, supprimez le connecteur et ajoutez-le à nouveau.
+- **La connexion échoue.** Supprimez le connecteur dans votre assistant et ajoutez-le à nouveau avec la même adresse.
 
 ## Retirer l'accès
 

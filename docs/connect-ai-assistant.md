@@ -29,16 +29,14 @@ Once added, Meffin also works in the Claude mobile apps.
 
 ## ChatGPT
 
-Needs a paid plan.
+Needs a paid plan. Use the ChatGPT website in your browser, not the desktop app: the desktop app's "Add MCP server" option does not connect your chats.
 
-1. Open ChatGPT settings → **Plugins** ([chatgpt.com/plugins](https://chatgpt.com/plugins)).
-2. Click **Add**, then **Add MCP server**. Not "Create plugin".
-3. Name it **Meffin**. Under **Type**, pick **Streamable HTTP**.
-4. Paste the address in the **URL** field. Leave **Bearer token env var** and the headers empty, then click **Save**. The form does not ask you to sign in. That's expected.
-5. In the **MCPs** tab, click **Authenticate** next to Meffin. Sign in, then click **Allow access**. Meffin may ask "Connect Codex?". That's expected: it's the name ChatGPT uses.
+1. On a computer, open [chatgpt.com/plugins](https://chatgpt.com/plugins) in your browser.
+2. Click **+**, then **Add custom MCP server**.
+3. Name it **Meffin**. Under **Connection**, keep **Server URL** and paste the address.
+4. Leave **Authentication** on **OAuth**. Tick **I understand and want to continue**, then click **Create as a plugin**.
+5. When ChatGPT sends you to Meffin, sign in and click **Allow access**.
 6. In a new chat, type **@** and pick Meffin.
-
-Don't leave the type on **STDIO**. That is for programs on your computer, and Meffin would never ask you to sign in. If you already did, open Meffin in the **MCPs** tab, click **Uninstall**, and start again.
 
 ## Try asking
 
@@ -52,9 +50,9 @@ It can read the budget, transactions, and lists your account can see. A partner'
 
 ## Troubleshooting
 
-- **Can't find the add option.** Claude Team/Enterprise: ask an owner. ChatGPT: you need a paid plan, and your workspace admin may need to allow it.
+- **Can't find the add option.** Claude Team/Enterprise: ask an owner. ChatGPT: you need a paid plan and the website (chatgpt.com/plugins), not the desktop app. Your workspace admin may also need to allow it.
 - **Meffin doesn't show up in my chat.** Claude: **+** → **Connectors**, turn Meffin on. ChatGPT: start a new chat, type **@**, pick Meffin.
-- **Never asked to sign in, or the connection fails.** ChatGPT: check the type is Streamable HTTP and click **Authenticate**. Otherwise remove the connector and add it again.
+- **The connection fails.** Remove the connector from your assistant and add it again with the same address.
 
 ## Disconnect
 

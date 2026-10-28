@@ -11,7 +11,7 @@ function Steps({ steps }: { steps: ReactNode[] }) {
   </ol>;
 }
 
-// Button labels match the providers' UI as of 2026-10 (Claude docs, ChatGPT screenshots). Keep the English label next to the French
+// Button labels match the providers' UI as of 2026-10 (Claude docs, chatgpt.com/plugins screenshots). Keep the English label next to the French
 // one: many French users run Claude or ChatGPT in English.
 export function ProviderSetupSteps({ locale, endpoint }: { locale: string; endpoint: string }) {
   const french = locale === 'fr';
@@ -30,14 +30,12 @@ export function ProviderSetupSteps({ locale, endpoint }: { locale: string; endpo
   ];
 
   const chatgpt = [
-    <p key="s6">{french ? <>Ouvrez les paramètres de ChatGPT → {label('Plugins')} ({link('https://chatgpt.com/plugins', 'chatgpt.com/plugins')}).</> : <>Open ChatGPT settings → {label('Plugins')} ({link('https://chatgpt.com/plugins', 'chatgpt.com/plugins')}).</>}</p>,
-    <p key="s7">{french ? <>Cliquez sur {label('Ajouter', 'Add')} puis {label('Ajouter un serveur MCP', 'Add MCP server')}. Pas « Créer un plugin ».</> : <>Click {label('Add')}, then {label('Add MCP server')}. Not “Create plugin”.</>}</p>,
-    <><p>{french ? <>Nommez-le {label('Meffin')}. Dans {label('Type')}, choisissez {label('Streamable HTTP')}.</> : <>Name it {label('Meffin')}. Under {label('Type')}, pick {label('Streamable HTTP')}.</>}</p>
-      <p className="text-xs text-destructive">{french ? 'Ne laissez pas STDIO : c’est pour les programmes locaux, Meffin ne vous demanderait jamais de vous connecter.' : 'Don’t leave it on STDIO: that is for local programs, and Meffin would never ask you to sign in.'}</p></>,
-    <><p>{french ? <>Collez cette adresse dans le champ {label('URL')} :</> : <>Paste this address in the {label('URL')} field:</>}</p>{url}
-      <p>{french ? <>Laissez {label('Bearer token env var')} et les en-têtes vides, puis cliquez sur {label('Enregistrer', 'Save')}. Le formulaire ne demande pas de connexion, c’est normal.</> : <>Leave {label('Bearer token env var')} and the headers empty, then click {label('Save')}. The form does not ask you to sign in, that’s normal.</>}</p></>,
-    <p key="s8">{french ? <>Dans l’onglet {label('MCPs')}, cliquez sur {label('Authentifier', 'Authenticate')} à côté de Meffin. Connectez-vous, puis cliquez sur {label('Autoriser')}. Meffin peut afficher « Connecter Codex ? » : c’est normal, c’est le nom utilisé par ChatGPT.</> : <>In the {label('MCPs')} tab, click {label('Authenticate')} next to Meffin. Sign in, then click {label('Allow access')}. Meffin may ask “Connect Codex?”: that’s expected, it’s the name ChatGPT uses.</>}</p>,
-    <p key="s9">{french ? <>Dans une nouvelle conversation, tapez {label('@')} et choisissez Meffin.</> : <>In a new chat, type {label('@')} and pick Meffin.</>}</p>,
+    <p key="s6">{french ? <>Sur un ordinateur, ouvrez {link('https://chatgpt.com/plugins', 'chatgpt.com/plugins')} dans votre navigateur. Pas l’application ChatGPT : son option d’ajout ne marche pas pour les conversations.</> : <>On a computer, open {link('https://chatgpt.com/plugins', 'chatgpt.com/plugins')} in your browser. Not the ChatGPT desktop app: its add option doesn’t work for chats.</>}</p>,
+    <p key="s7">{french ? <>Cliquez sur {label('+')} puis {label('Ajouter un serveur MCP personnalisé', 'Add custom MCP server')}.</> : <>Click {label('+')}, then {label('Add custom MCP server')}.</>}</p>,
+    <Fragment key="s8"><p>{french ? <>Nommez-le {label('Meffin')}. Dans {label('Connexion', 'Connection')}, gardez {label('Server URL')} et collez cette adresse :</> : <>Name it {label('Meffin')}. Under {label('Connection')}, keep {label('Server URL')} and paste this address:</>}</p>{url}</Fragment>,
+    <p key="s9">{french ? <>Laissez {label('Authentification', 'Authentication')} sur {label('OAuth')}. Cochez {label('Je comprends et je veux continuer', 'I understand and want to continue')}, puis cliquez sur {label('Créer comme plugin', 'Create as a plugin')}.</> : <>Leave {label('Authentication')} on {label('OAuth')}. Tick {label('I understand and want to continue')}, then click {label('Create as a plugin')}.</>}</p>,
+    <p key="s10">{french ? <>Quand ChatGPT vous envoie sur Meffin, connectez-vous et cliquez sur {label('Autoriser')}.</> : <>When ChatGPT sends you to Meffin, sign in and click {label('Allow access')}.</>}</p>,
+    <p key="s11">{french ? <>Dans une nouvelle conversation, tapez {label('@')} et choisissez Meffin.</> : <>In a new chat, type {label('@')} and pick Meffin.</>}</p>,
   ];
 
   const panel = 'space-y-5 rounded-2xl border border-border bg-card p-6 shadow-card data-[state=inactive]:hidden';
@@ -61,8 +59,8 @@ export function ProviderSetupSteps({ locale, endpoint }: { locale: string; endpo
       <TabsContent value="chatgpt" forceMount className={panel}>
         <p className="text-xs font-semibold uppercase tracking-wider text-primary">{french ? 'Forfait payant requis' : 'Paid plan required'}</p>
         <Steps steps={chatgpt} />
-        {note(french ? 'Déjà ajouté en STDIO ? Ouvrez-le dans l’onglet MCPs, cliquez sur Désinstaller (Uninstall) et recommencez. Pas d’option « Ajouter un serveur MCP » ? Votre forfait ou l’administrateur de votre espace ne l’autorise pas encore.' : 'Already added it as STDIO? Open it in the MCPs tab, click Uninstall, and start again. No “Add MCP server” option? Your plan or workspace admin does not allow it yet.')}
-        {link('https://learn.chatgpt.com/docs/extend/mcp?surface=app', french ? 'Guide officiel ChatGPT' : 'Official ChatGPT guide')}
+        {note(french ? 'Pas d’option « Ajouter un serveur MCP personnalisé » ? Votre forfait ou l’administrateur de votre espace ne l’autorise pas encore. Dans ce cas, utilisez Claude.' : 'No “Add custom MCP server” option? Your plan or workspace admin doesn’t allow it yet. Use Claude instead.')}
+        {link('https://developers.openai.com/apps-sdk/deploy/connect-chatgpt', french ? 'Guide officiel ChatGPT' : 'Official ChatGPT guide')}
       </TabsContent>
     </Tabs>
   </section>;
