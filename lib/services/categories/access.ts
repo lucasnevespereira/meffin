@@ -1,12 +1,14 @@
 import { and, eq, inArray, isNull } from 'drizzle-orm';
 import { db } from '@/lib/db';
 import { categories } from '@/lib/db/schema';
-import { isDefaultCategoryId } from '@/lib/default-category-identity';
+import { getDefaultCategoryById } from '@/lib/default-category-identity';
 
 type CategoryAccessOptions = {
   categoryId: string;
   userIds: string[];
   includeArchived?: boolean;
+  type?: 'income' | 'expense';
+  database?: Pick<typeof db, 'select'>;
 };
 
 /**
@@ -18,13 +20,16 @@ export async function canUseCategory({
   categoryId,
   userIds,
   includeArchived = false,
+  type,
+  database = db,
 }: CategoryAccessOptions): Promise<boolean> {
-  if (isDefaultCategoryId(categoryId)) {
-    return true;
+  const defaultCategory = getDefaultCategoryById(categoryId);
+  if (defaultCategory) {
+    return !type || defaultCategory.type === type;
   }
 
-  const [category] = await db
-    .select({ id: categories.id })
+  const [category] = await database
+    .select({ id: categories.id, type: categories.type })
     .from(categories)
     .where(and(
       eq(categories.id, categoryId),
@@ -33,5 +38,5 @@ export async function canUseCategory({
     ))
     .limit(1);
 
-  return Boolean(category);
+  return Boolean(category && (!type || category.type === type));
 }

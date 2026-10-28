@@ -4,6 +4,7 @@ import { lists, listItems, users } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const updateItemSchema = z.object({
   name: z.string().min(1, 'Name is required'),
@@ -70,6 +71,18 @@ export async function PUT(
 
     if (!hasAccess) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+    }
+
+    const userIds = user[0].partnerId
+      ? [session.user.id, user[0].partnerId]
+      : [session.user.id];
+    if (!await canUseCategory({
+      categoryId: validatedData.categoryId,
+      userIds,
+      includeArchived: validatedData.categoryId === itemResult[0].item.categoryId,
+      type: 'expense',
+    })) {
+      return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 
     const [updatedItem] = await db.update(listItems)

@@ -1,6 +1,6 @@
 import { db } from '../db';
 import { users, partnerInvitations } from '@/lib/db/schema';
-import { eq, and, or, not, ilike } from 'drizzle-orm';
+import { eq, and, or, not, ilike, inArray } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { ServiceError } from '@/lib/errors';
 import crypto from 'crypto';
@@ -69,6 +69,10 @@ export class PartnerService {
 
   // Send partner invitation
   static async invitePartner(fromUserId: string, toUserId: string) {
+    if (fromUserId === toUserId) {
+      throw new ServiceError('You cannot invite yourself', 400);
+    }
+
     // Check if users already have partners
     const users_check = await db
       .select({
@@ -133,6 +137,7 @@ export class PartnerService {
 
   // Accept partner invitation
   static async acceptInvitation(token: string, acceptingUserId: string) {
+    const recipient = alias(users, 'recipient');
     const invitation = await db
       .select({
         invitation: partnerInvitations,
@@ -142,13 +147,14 @@ export class PartnerService {
           email: users.email,
         },
         toUser: {
-          id: users.id,
-          name: users.name,
-          email: users.email,
+          id: recipient.id,
+          name: recipient.name,
+          email: recipient.email,
         },
       })
       .from(partnerInvitations)
       .leftJoin(users, eq(partnerInvitations.fromUserId, users.id))
+      .leftJoin(recipient, eq(partnerInvitations.toUserId, recipient.id))
       .where(and(
         eq(partnerInvitations.token, token),
         eq(partnerInvitations.status, 'pending')
@@ -176,21 +182,36 @@ export class PartnerService {
       throw new ServiceError('Invitation has expired', 410);
     }
 
-    // Check if either user already has a partner
-    const currentUsers = await db
-      .select({
-        id: users.id,
-        partnerId: users.partnerId,
-      })
-      .from(users)
-      .where(or(eq(users.id, inv.fromUserId), eq(users.id, inv.toUserId)));
-
-    if (currentUsers.some(u => u.partnerId)) {
-      throw new ServiceError('One of the users already has a partner', 409);
-    }
-
     // Accept invitation and create partnership
     await db.transaction(async (tx) => {
+      // Lock the invitation and both users before checking their current state.
+      // Two invitations involving the same person can otherwise both pass the
+      // preflight check and leave one-sided partnerships.
+      const [currentInvitation] = await tx
+        .select({ status: partnerInvitations.status, expiresAt: partnerInvitations.expiresAt })
+        .from(partnerInvitations)
+        .where(eq(partnerInvitations.id, inv.id))
+        .limit(1)
+        .for('update');
+
+      if (!currentInvitation || currentInvitation.status !== 'pending') {
+        throw new ServiceError('Invalid or expired invitation', 404);
+      }
+      if (new Date() > currentInvitation.expiresAt) {
+        throw new ServiceError('Invitation has expired', 410);
+      }
+
+      const currentUsers = await tx
+        .select({ id: users.id, partnerId: users.partnerId })
+        .from(users)
+        .where(inArray(users.id, [inv.fromUserId, inv.toUserId]))
+        .orderBy(users.id)
+        .for('update');
+
+      if (currentUsers.length !== 2 || currentUsers.some(user => user.partnerId)) {
+        throw new ServiceError('One of the users already has a partner', 409);
+      }
+
       // First, clean up any existing accepted invitations between these users
       await tx
         .delete(partnerInvitations)

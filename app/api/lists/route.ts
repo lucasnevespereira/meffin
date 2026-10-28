@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
       ? [session.user.id, user.partnerId]
       : [session.user.id];
 
-    if (!await canUseCategory({ categoryId: validatedData.categoryId, userIds })) {
+    if (!await canUseCategory({ categoryId: validatedData.categoryId, userIds, type: 'expense' })) {
       return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
     }
 

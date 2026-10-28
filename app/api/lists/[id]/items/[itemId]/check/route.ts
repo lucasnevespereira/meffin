@@ -4,6 +4,7 @@ import { lists, listItems, users, transactions } from '@/lib/db/schema';
 import { auth } from '@/lib/auth';
 import { eq, and } from 'drizzle-orm';
 import { z } from 'zod';
+import { canUseCategory } from '@/lib/services/categories/access';
 
 const checkItemSchema = z.object({
   actualPrice: z.number().positive().optional(),
@@ -25,25 +26,6 @@ export async function POST(
     const body = await request.json();
     const validatedData = checkItemSchema.parse(body);
 
-    // Get the item with list info
-    const itemResult = await db.select({
-      item: listItems,
-      list: lists
-    })
-    .from(listItems)
-    .innerJoin(lists, eq(listItems.listId, lists.id))
-    .where(and(
-      eq(listItems.id, itemId),
-      eq(listItems.listId, listId)
-    ))
-    .limit(1);
-
-    if (!itemResult.length) {
-      return NextResponse.json({ error: 'Item not found' }, { status: 404 });
-    }
-
-    const { item, list } = itemResult[0];
-
     // Check user has access to the list
     const user = await db.select({
       id: users.id,
@@ -57,71 +39,98 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Check if user has access to this list
-    const hasAccess = user[0].partnerId
-      ? (
-          // Own list - full access
-          list.userId === session.user.id ||
-          // Partner's shared list
-          (list.userId === user[0].partnerId && list.isShared)
-        )
-      : list.userId === session.user.id; // No partner - only own lists
+    return await db.transaction(async (tx) => {
+      // The lock makes concurrent check/uncheck requests observe the latest item state.
+      // The expense and item state then commit or roll back together.
+      const itemResult = await tx.select({ item: listItems, list: lists })
+        .from(listItems)
+        .innerJoin(lists, eq(listItems.listId, lists.id))
+        .where(and(eq(listItems.id, itemId), eq(listItems.listId, listId)))
+        .limit(1)
+        .for('update', { of: listItems });
 
-    if (!hasAccess) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
-    }
-
-    let transactionId = item.transactionId;
-
-    // If checking the item, create a transaction
-    if (validatedData.isChecked && !item.isChecked) {
-      const amount = validatedData.actualPrice || (item.estimatedPrice ? parseFloat(item.estimatedPrice) : 0);
-
-      if (amount > 0) {
-        const date = new Date().toISOString();
-        const [newTransaction] = await db.insert(transactions).values({
-          id: crypto.randomUUID(),
-          userId: list.userId, // Use list owner as transaction owner
-          createdBy: session.user.id,
-          categoryId: item.categoryId,
-          description: item.name,
-          amount: amount.toString(),
-          date,
-          isFixed: false,
-          isPrivate: false,
-          repeatType: 'once',
-        }).returning();
-
-        transactionId = newTransaction.id;
+      if (!itemResult.length) {
+        return NextResponse.json({ error: 'Item not found' }, { status: 404 });
       }
-    }
 
-    // If unchecking the item and there's a linked transaction, delete it
-    if (!validatedData.isChecked && item.isChecked && item.transactionId) {
-      await db.delete(transactions).where(eq(transactions.id, item.transactionId));
-      transactionId = null;
-    }
+      const { item, list } = itemResult[0];
+      const hasAccess = user[0].partnerId
+        ? list.userId === session.user.id ||
+          (list.userId === user[0].partnerId && list.isShared)
+        : list.userId === session.user.id;
 
-    // Update the item
-    const [updatedItem] = await db.update(listItems)
-      .set({
-        isChecked: validatedData.isChecked,
-        checkedAt: validatedData.isChecked ? new Date().toISOString() : null,
-        transactionId: transactionId,
-        updatedAt: new Date().toISOString(),
-      })
-      .where(eq(listItems.id, itemId))
-      .returning();
+      if (!hasAccess) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
+      }
 
-    // Update list's updatedAt timestamp
-    await db.update(lists)
-      .set({ updatedAt: new Date().toISOString() })
-      .where(eq(lists.id, listId));
+      // Repeated requests for the same state must not create or remove an expense.
+      if (item.isChecked === validatedData.isChecked) {
+        return NextResponse.json({
+          item,
+          transactionCreated: false,
+          transactionDeleted: false,
+        });
+      }
 
-    return NextResponse.json({
-      item: updatedItem,
-      transactionCreated: validatedData.isChecked && !item.isChecked && transactionId,
-      transactionDeleted: !validatedData.isChecked && item.isChecked && item.transactionId
+      let transactionId = item.transactionId;
+      if (validatedData.isChecked) {
+        const userIds = user[0].partnerId
+          ? [session.user.id, user[0].partnerId]
+          : [session.user.id];
+        if (!await canUseCategory({
+          categoryId: item.categoryId,
+          userIds,
+          includeArchived: true,
+          type: 'expense',
+          database: tx,
+        })) {
+          return NextResponse.json({ error: 'Invalid category' }, { status: 400 });
+        }
+
+        const amount = validatedData.actualPrice ??
+          (item.estimatedPrice ? parseFloat(item.estimatedPrice) : 0);
+
+        if (amount > 0) {
+          const [newTransaction] = await tx.insert(transactions).values({
+            id: crypto.randomUUID(),
+            userId: list.userId,
+            createdBy: session.user.id,
+            categoryId: item.categoryId,
+            description: item.name,
+            amount: amount.toString(),
+            date: new Date().toISOString(),
+            isFixed: false,
+            isPrivate: false,
+            repeatType: 'once',
+          }).returning();
+
+          transactionId = newTransaction.id;
+        }
+      } else if (item.transactionId) {
+        await tx.delete(transactions).where(eq(transactions.id, item.transactionId));
+        transactionId = null;
+      }
+
+      const now = new Date().toISOString();
+      const [updatedItem] = await tx.update(listItems)
+        .set({
+          isChecked: validatedData.isChecked,
+          checkedAt: validatedData.isChecked ? now : null,
+          transactionId,
+          updatedAt: now,
+        })
+        .where(eq(listItems.id, itemId))
+        .returning();
+
+      await tx.update(lists)
+        .set({ updatedAt: now })
+        .where(eq(lists.id, listId));
+
+      return NextResponse.json({
+        item: updatedItem,
+        transactionCreated: validatedData.isChecked ? transactionId : false,
+        transactionDeleted: !validatedData.isChecked ? item.transactionId : false,
+      });
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
